@@ -1,1 +1,1 @@
-i18n.gettext('questscribe', preset: 'glib')
+i18n.gettext('libellus', preset: 'glib')

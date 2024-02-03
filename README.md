@@ -1,7 +1,6 @@
-# Questscribe
-(title is work in progress)
+# Libellus
 
-![screenshots_combined](https://github.com/qwertzuiopy/Questscribe/assets/89102209/a51fafa0-980f-42fb-afe5-feeb2fc0ea7d)
+![screenshots_combined](https://github.com/qwertzuiopy/Libellus/assets/89102209/a51fafa0-980f-42fb-afe5-feeb2fc0ea7d)
 
 
 A simple DnD content viewer app.

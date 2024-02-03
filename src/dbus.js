@@ -8,7 +8,7 @@ export const DBUS = class {
 
     const interfaceXml = `
       <node>
-        <interface name="io.qwertzuiopy.Questscribe">
+        <interface name="io.qwertzuiopy.Libellus">
           <method name="navigate">
             <arg type="s" direction="in" name="input"/>
           </method>
@@ -25,7 +25,7 @@ export const DBUS = class {
 
       // Assign the exported object to the property the class expects, then export
       serviceInstance._impl = exportedObject;
-      exportedObject.export(connection, '/io/github/qwertzuiopy/Questscribe/View');
+      exportedObject.export(connection, '/io/github/qwertzuiopy/Libellus/View');
     }
     this.onNameAcquired = (connection, name) => {
       console.log(`${name}: name acquired`);
@@ -35,7 +35,7 @@ export const DBUS = class {
     }
     const ownerId = Gio.bus_own_name(
         Gio.BusType.SESSION,
-        'io.github.qwertzuiopy.Questscribe',
+        'io.github.qwertzuiopy.Libellus',
         Gio.BusNameOwnerFlags.NONE,
         this.onBusAcquired,
         this.onNameAcquired,

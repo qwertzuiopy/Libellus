@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="questscribe">
-	<schema id="io.github.qwertzuiopy.Questscribe" path="/io/github/qwertzuiopy/Questscribe/">
+	<schema id="io.github.qwertzuiopy.Libellus" path="/io/github/qwertzuiopy/Libellus/">
 		<file preprocess="xml-stripblanks">star-large-symbolic.svg</file>
 	</schema>
 </schemalist>

@@ -1,9 +1,9 @@
 {
-    "app-id" : "io.github.qwertzuiopy.Questscribe",
+    "app-id" : "io.github.qwertzuiopy.Libellus",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "45",
     "sdk" : "org.gnome.Sdk",
-    "command" : "io.github.qwertzuiopy.Questscribe",
+    "command" : "io.github.qwertzuiopy.Libellus",
     "finish-args" : [
         "--share=network",
         "--share=ipc",
@@ -24,14 +24,14 @@
     ],
     "modules" : [
         {
-            "name" : "Questscribe",
+            "name" : "Libellus",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
                     "type" : "archive",
                     "sha256": "e7098190766bbefec6c08cf9134fe134b9dc3d52df826ee4e161f1134bfa43ab",
-                    "url" : "https://github.com/qwertzuiopy/Questscribe/archive/refs/tags/release.tar.gz"
+                    "url" : "https://github.com/qwertzuiopy/Libellus/archive/refs/tags/release.tar.gz"
                 }
             ]
         }

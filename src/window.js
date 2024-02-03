@@ -58,10 +58,10 @@ var window;
 
 
 
-export const QuestscribeWindow = GObject.registerClass({
-  GTypeName: 'QuestscribeWindow',
-  Template: 'resource:///io/github/qwertzuiopy/Questscribe/window.ui',
-}, class QuestscribeWindow extends Adw.ApplicationWindow {
+export const LibellusWindow = GObject.registerClass({
+  GTypeName: 'LibellusWindow',
+  Template: 'resource:///io/github/qwertzuiopy/Libellus/window.ui',
+}, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application) {
     super({ application });
 
@@ -92,7 +92,7 @@ export const QuestscribeWindow = GObject.registerClass({
       new SearchTab({}, new Adw.NavigationView( {} )),
     ];
     this.tab_view.connect("create-window", () => {
-      let new_window = new QuestscribeWindow(application);
+      let new_window = new LibellusWindow(application);
       new_window.present();
       return new_window.tab_view;
     });
@@ -107,7 +107,7 @@ export const QuestscribeWindow = GObject.registerClass({
     this.tab_bar = new Adw.TabBar( { view: this.tab_view } );
     this.header_bar = new Adw.HeaderBar( {
       title_widget: new Gtk.Label( {
-        label: "Questscribe",
+        label: "Libellus",
         css_classes: ["heading"] } ) } );
 
     this.new_tab = new Gtk.Button( { icon_name: "tab-new-symbolic" } );
@@ -125,7 +125,7 @@ export const QuestscribeWindow = GObject.registerClass({
 
     this.menu = new Gio.Menu();
     // this.menu.append_item(Gio.MenuItem.new("Preferences", "app.settings"));
-    this.menu.append_item(Gio.MenuItem.new("About Questscribe", "app.about"));
+    this.menu.append_item(Gio.MenuItem.new("About Libellus", "app.about"));
 
 
     this.header_bar.pack_end(new Gtk.MenuButton( { icon_name: "open-menu-symbolic", menu_model: this.menu } ));
@@ -561,7 +561,7 @@ export function save_state() {
   };
   let dataJSON = JSON.stringify(data);
   let dataDir = GLib.get_user_config_dir();
-  let destination = GLib.build_filenamev([dataDir, 'questscribe_state.json']);
+  let destination = GLib.build_filenamev([dataDir, 'libellus_state.json']);
   let file = Gio.File.new_for_path(destination);
   let [success, tag] = file.replace_contents(dataJSON, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
   if(success) log("saved state");
@@ -570,7 +570,7 @@ export function save_state() {
 
 function load_state() {
   let dataDir = GLib.get_user_config_dir();
-  let destination = GLib.build_filenamev([dataDir, 'questscribe_state.json']);
+  let destination = GLib.build_filenamev([dataDir, 'libellus_state.json']);
   let file = Gio.File.new_for_path(destination);
 
   const [ok, contents, etag] = file.load_contents(null);

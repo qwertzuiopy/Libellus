@@ -23,15 +23,15 @@ import Gio from 'gi://Gio';
 import Gtk from 'gi://Gtk?version=4.0';
 import Adw from 'gi://Adw?version=1';
 
-import { QuestscribeWindow } from './window.js';
+import { LibellusWindow } from './window.js';
 
 pkg.initGettext();
 pkg.initFormat();
 
-export const Questscribev2Application = GObject.registerClass(
-    class Questscribev2Application extends Adw.Application {
+export const LibellusApplication = GObject.registerClass(
+    class LibellusApplication extends Adw.Application {
         constructor() {
-            super({application_id: 'io.github.qwertzuiopy.Questscribe', flags: Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN });
+            super({application_id: 'io.github.qwertzuiopy.Libellus', flags: Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN });
 
             const quit_action = new Gio.SimpleAction({name: 'quit'});
                 quit_action.connect('activate', action => {
@@ -44,8 +44,8 @@ export const Questscribev2Application = GObject.registerClass(
             show_about_action.connect('activate', action => {
                 let aboutParams = {
                     transient_for: this.active_window,
-                    application_name: 'questscribe',
-                    application_icon: 'io.github.qwertzuiopy.Questscribe',
+                    application_name: 'Libellus',
+                    application_icon: 'io.github.qwertzuiopy.Libellus',
                     developer_name: 'Michael Hammer',
                     version: '0.1.0',
                     developers: [
@@ -66,7 +66,7 @@ export const Questscribev2Application = GObject.registerClass(
             let {active_window} = this;
 
             if (!active_window)
-                active_window = new QuestscribeWindow(this);
+                active_window = new LibellusWindow(this);
 
             active_window.present();
         }
@@ -74,6 +74,6 @@ export const Questscribev2Application = GObject.registerClass(
 );
 
 export function main(argv) {
-    const application = new Questscribev2Application();
+    const application = new LibellusApplication();
     return application.runAsync(argv);
 }

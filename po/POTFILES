@@ -1,6 +1,6 @@
-data/io.github.qwertzuiopy.Questscribe.desktop.in
-data/io.github.qwertzuiopy.Questscribe.appdata.xml.in
-data/io.github.qwertzuiopy.Questscribe.gschema.xml
+data/io.github.qwertzuiopy.Libellus.desktop.in
+data/io.github.qwertzuiopy.Libellus.appdata.xml.in
+data/io.github.qwertzuiopy.Libellus.gschema.xml
 src/main.js
 src/window.js
 src/window.ui

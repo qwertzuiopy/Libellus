@@ -1,4 +1,4 @@
-application_id = 'io.github.qwertzuiopy.Questscribe'
+application_id = 'io.github.qwertzuiopy.Libellus'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(
