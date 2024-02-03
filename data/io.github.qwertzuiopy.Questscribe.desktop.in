@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Questscribe
+Exec=io.github.qwertzuiopy.Questscribe
+Icon=io.github.qwertzuiopy.Questscribe
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+	<id>io.github.qwertzuiopy.Questscribe</id>
+	<metadata_license>CC0-1.0</metadata_license>
+	<project_license>GPL-3.0-or-later</project_license>
+  <name>Questscribe</name>
+  <summary>View DnD information in style.</summary>
+  <developer_name>Michael Hammer</developer_name>
+	<description>
+	  <p>Questscribe lets you browse and read DnD 5th edition information.</p>
+	  <p>
+	    Questscribe currently supports
+	    <ul>
+	      <li>Classes</li>
+	      <li>Races</li>
+	      <li>Spells</li>
+	      <li>Magic Items</li>
+	      <li>Equipment</li>
+	      <li>Monsters</li>
+	    </ul>
+	  </p>
+	</description>
+  <url type="homepage">https://github.com/qwertzuiopy/Questscribe</url>
+  <url type="bugtracker">https://github.com/qwertzuiopy/Questscribe/issues</url>
+  <launchable type="desktop-id">io.github.qwertzuiopy.Questscribe.desktop</launchable>
+</component>
+

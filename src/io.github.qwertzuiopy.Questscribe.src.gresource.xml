@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/io/github/qwertzuiopy/Questscribe/js">
+    <file>main.js</file>
+    <file>window.js</file>
+    <file>api.js</file>
+    <file>modules.js</file>
+    <file>results.js</file>
+    <file>character_sheet.js</file>
+    <file>dbus.js</file>
+  </gresource>
+</gresources>
+
