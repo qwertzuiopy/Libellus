@@ -357,7 +357,10 @@ export const ModuleLinkListRow = GObject.registerClass({
       label: label,
       css_classes: ["heading"],
       margin_top: 15, margin_bottom: 10 } ))
-    while (stats.length > 0) {
+    stats = stats.map((i) => new Link(i, navigation_view));
+    vbox.append(new Div(stats));
+
+    /*while (stats.length > 0) {
       let hbox = new Gtk.Box( { halign: Gtk.Align.CENTER } );
       vbox.append(hbox);
       for (let chars = 0; chars < 60;) {
@@ -366,7 +369,7 @@ export const ModuleLinkListRow = GObject.registerClass({
         chars += stats[0].name.length;
         stats.splice(0, 1);
       }
-    }
+    }*/
   }
 });
 
@@ -440,33 +443,45 @@ export const ModuleLevelRow = GObject.registerClass({
 }, class extends Gtk.ListBoxRow {
   constructor(data, navigation_view) {
     super( {activatable: false, selectable: false } );
-    let vbox = new Gtk.Box( {
-      orientation: Gtk.Orientation.VERTICAL,
-      valign: Gtk.Align.CENTER,
-      vexpand: true
-    } );
-    this.set_child(vbox);
-    let first_row = new Gtk.Box( {
+    let box = new Gtk.Box( {
       orientation: Gtk.Orientation.HORIZONTAL,
       valign: Gtk.Align.CENTER,
       vexpand: true
     } );
-    vbox.append(first_row);
-    first_row.append( new Gtk.Label( {
+    this.set_child(box);
+    box.append( new Gtk.Label( {
       label: data.level.toString(),
       margin_start: 15, margin_top: 15, margin_bottom: 15, margin_end: 15
     } ));
+    let links = [];
     for(let i in data.features) {
       let l = new Link(data.features[i], navigation_view)
       l.margin_top = 10;
-      first_row.append(l);
+      links.push(l);
     }
-
-    let second_row = new Gtk.Box( {
-      orientation: Gtk.Orientation.HORIZONTAL,
-      valign: Gtk.Align.CENTER,
-      vexpand: true
-    } );
+    box.append(new Div(links));
   }
 });
 
+
+
+
+
+export const Div = GObject.registerClass({
+  GTypeName: 'Div',
+}, class extends Gtk.FlowBox {
+  constructor(cards) {
+    super({
+      orientation: Gtk.Orientation.HORIZONTAL,
+      max_children_per_line: 10,
+      min_children_per_line: 1,
+      selection_mode: Gtk.SelectionMode.NONE,
+      // if halign is set to CENTER (which looks better) the FlowBox completely breaks for some reason
+      halign: Gtk.Align.FILL,
+      hexpand: true,
+    });
+    for (let i in cards) {
+      this.append(cards[i]);
+    }
+  }
+});

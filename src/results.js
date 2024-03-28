@@ -26,7 +26,7 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 import { get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
-import { Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
+import { Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
   GTypeName: 'SearchResult',
@@ -104,7 +104,7 @@ const ResultPage = GObject.registerClass({
     });
 
     this.clamp = new Adw.Clamp({
-      maximum_size: 600,
+      maximum_size: 800,
       margin_start: 20, margin_end: 20, margin_bottom: 20 });
     this.back_wrapper.append(this.clamp);
     this.wrapper = new Gtk.Box({
@@ -416,10 +416,15 @@ export const SearchResultPageMonster = GObject.registerClass({
 
     cards.push(new Card("Hit Points", this.data.hit_points.toString() + " / " + this.data.hit_points_roll));
 
+    /*
     for (var i = 0; i <= cards.length-5; i += 5) {
       this.wrapper.append(new ModuleCardRow(cards.slice(i, i+5)));
     }
     this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
+    */
+
+    this.wrapper.append(new Div(cards));
+
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     this.wrapper.append(this.statrows);
     this.statrows.append(new ModuleStatListRow("Languages", this.data.languages.split(", ")));
@@ -463,10 +468,7 @@ export const SearchResultPageClass = GObject.registerClass({
     if (this.data.spellcasting) cards.push(new LinkCard("Spellcasting", this.data.spellcasting.spellcasting_ability.name, this.data.spellcasting.spellcasting_ability, this.navigation_view));
     else cards.push(new Card("Spellcasting", "none"));
 
-    for (var i = 0; i <= cards.length-5; i += 5) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+5)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
+    this.wrapper.append(new Div(cards));
 
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     this.wrapper.append(this.statrows);
@@ -533,13 +535,7 @@ export const SearchResultPageClass = GObject.registerClass({
         }
         this.level_children.push(new Module2Table(t, "Slot Level", "Spell Slots"));
       }
-      if (this.card_box_list.length > 0) {
-        for (let i in this.card_box_list) {
-          this.card_box.remove(this.card_box_list[i]);
-        }
-      }
       cards = [];
-      this.card_box_list = [];
       if (d.prof_bonus) cards.push(new Card("Proficiency bonus", "+" + d.prof_bonus.toString()));
       if (d.spellcasting && d.spellcasting.spells_known) cards.push(new Card("Spells known", d.spellcasting.spells_known.toString()));
       if (d.spellcasting && d.spellcasting.cantrips_known) cards.push(new Card("Cantrips known", d.spellcasting.cantrips_known.toString()));
@@ -553,19 +549,12 @@ export const SearchResultPageClass = GObject.registerClass({
           cards.push(new Card(i.split("_").join(" "), c[i].toString()));
         }
       }
-      for (var i = 0; i <= cards.length-4; i += 4) {
-        this.card_box_list.push(new ModuleCardRow(cards.slice(i, i+4)));
-        this.card_box.append(this.card_box_list.at(-1));
-      }
-      this.card_box_list.push(new ModuleCardRow(cards.slice(i, cards.length)));
-      this.card_box.append(this.card_box_list.at(-1));
+      this.level_children.push(new Div(cards));
+
       for (let i in this.level_children) {
         this.level_box.append(this.level_children[i]);
       }
     }
-    this.card_box_list = [];
-    this.card_box = new Gtk.Box( { orientation: Gtk.Orientation.VERTICAL, spacing: 30 } );
-    this.wrapper.append(this.card_box);
     this.update_levels();
     this.level_spin.connect("notify::value", this.update_levels);
 
