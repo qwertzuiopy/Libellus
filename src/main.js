@@ -64,10 +64,9 @@ export const LibellusApplication = GObject.registerClass(
 
         vfunc_activate() {
             let {active_window} = this;
-
-            if (!active_window)
-                active_window = new LibellusWindow(this);
-
+            if (!active_window) {
+                active_window = new LibellusWindow(this, true);
+            }
             active_window.present();
         }
     }

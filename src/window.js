@@ -62,19 +62,24 @@ export const LibellusWindow = GObject.registerClass({
   GTypeName: 'LibellusWindow',
   Template: 'resource:///io/github/qwertzuiopy/Libellus/window.ui',
 }, class LibellusWindow extends Adw.ApplicationWindow {
-  constructor(application) {
+  constructor(application, main_window = false) {
     super({ application });
+
+
+    this.main_window = main_window;
 
     let provider = new Gtk.CssProvider();
     provider.connect("parsing-error", (_provider, _section, error) => { log(error); });
     provider.load_from_string(".bookmark-row { padding: 0; } ");
     Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-    let dbus = new DBUS();
+    if (main_window) {
+      let dbus = new DBUS();
+    }
 
     this.overview = new Adw.TabOverview( { enable_new_tab: true } );
     this.overview.connect("create-tab", () => {
-      let tab = new SearchTab({}, new Adw.NavigationView( {} ));
+      let tab = new SearchTab({}, new NavView());
       this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.window = this;
@@ -88,9 +93,13 @@ export const LibellusWindow = GObject.registerClass({
     this.tab_view = new Adw.TabView( {
       halign: Gtk.Align.FILL, valign: Gtk.Align.FILL,
       hexpand: true, vexpand: true } );
-    this.tabs = [
-      new SearchTab({}, new Adw.NavigationView( {} )),
-    ];
+    if (main_window) {
+      this.tabs = [
+        new SearchTab({}, new NavView()),
+      ];
+    } else {
+      this.tabs = [];
+    }
     this.tab_view.connect("create-window", () => {
       let new_window = new LibellusWindow(application);
       new_window.present();
@@ -112,7 +121,7 @@ export const LibellusWindow = GObject.registerClass({
 
     this.new_tab = new Gtk.Button( { icon_name: "tab-new-symbolic" } );
     this.new_tab.connect("clicked", () => {
-      let tab = new SearchTab({}, new Adw.NavigationView( {} ));
+      let tab = new SearchTab({}, new NavView());
       this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.tab_view = this.tab_view;
@@ -190,7 +199,7 @@ export const BookmarkRow = GObject.registerClass({
 
 export const new_tab_from_data = (data) => {
   let tab_view = window.tab_view;
-  let tab = new SearchTab({}, new Adw.NavigationView( {} ));
+  let tab = new SearchTab({}, new NavView());
   tab_view.append(tab.navigation_view);
   tab.navigation_view.tab_page = tab_view.get_nth_page(tab_view.n_pages-1);
   tab.navigation_view.tab_view = tab_view;
@@ -268,45 +277,25 @@ const SearchTab = GObject.registerClass({
     this.scrolled_window.set_halign(Gtk.Align.FILL);
     this.scrolled_window.set_hexpand(true);
     this.scrolled_window.set_size_request(400, 0);
+    this.scrolled_window.update_title = () => {
+      this.navigation_view.tab_page.set_title("Search");
+    }
 
     this.scrolled_window.add_css_class("undershoot-top");
     this.scrolled_window.add_css_class("undershoot-bottom");
 
     this.child = this.scrolled_window;
 
-    this.back_wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-    this.scrolled_window.set_child(this.back_wrapper);
-
-    this.pin = new Gtk.Button({
-      icon_name: "view-pin-symbolic",
-      halign: Gtk.Align.END, hexpand: true,
-      margin_top: 20, margin_end: 20 });
-    // if (this.navigation_view.tab_page.pinned) this.pin.add_css_class("success");
-    this.pin.connect("clicked", () => {
-      this.navigation_view.tab_view.set_page_pinned(this.navigation_view.tab_page, !this.navigation_view.tab_page.pinned);
-      if (this.navigation_view.tab_page.pinned) this.pin.set_css_classes(["success"]);
-      else this.pin.set_css_classes([]);
-    } );
-
-    this.bar = new Gtk.Box();
-    this.back_wrapper.append(this.bar);
-
-    this.back = new Gtk.Button({ icon_name: "go-previous-symbolic", halign: Gtk.Align.START, margin_top: 20, margin_start: 20 });
-    // this.bar.append(this.back);
-    this.bar.append(this.pin);
-    this.back.connect("clicked", () => {
-      if (!this.navigation_view.can_navigate_back) return;
-      this.navigation_view.navigate(Adw.NavigationDirection.BACK);
-      setTimeout(() => { this.navigation_view.remove(this); }, 1000);
-    });
+    this.wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+    this.scrolled_window.set_child(this.wrapper);
 
     this.list_box = new Gtk.ListBox();
     this.list_box.set_halign(Gtk.Align.CENTER);
-    this.list_box.set_margin_top(5);
+    this.list_box.set_margin_top(15);
     this.list_box.set_margin_bottom(15);
     this.list_box.add_css_class("boxed-list")
     this.list_box.set_selection_mode(Gtk.SelectionMode.NONE);
-    this.back_wrapper.append(this.list_box);
+    this.wrapper.append(this.list_box);
     this.entry = new Adw.EntryRow();
     this.entry.set_title("Search...");
     this.entry.set_size_request(380, 0);
@@ -372,14 +361,18 @@ const SearchTab = GObject.registerClass({
 
     this.results = [];
     this.results = this.results.concat(get_sync("/api/classes").results.map((a) => new SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/subclasses").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/races").results.map((a) => new SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/subraces").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/monsters").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/spells").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/equipment").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/magic-items").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/traits").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/alignments").results.map((a) => new SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/skills").results.map((a) => new SearchResult(a)));
     this.results = this.results.concat(get_sync("/api/magic-schools").results.map((a) => new SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/weapon-properties").results.map((a) => new SearchResult(a)));
 
 
     for (let i in this.results) {
@@ -680,3 +673,29 @@ const filter_options = {
 
 };
 
+
+
+
+export const NavView = GObject.registerClass({
+  GTypeName: 'NavView',
+}, class NavView extends Adw.Bin {
+  constructor() {
+    super({});
+    this.child = new Adw.NavigationView({});
+
+    this.pop = () => {
+      this.child.pop();
+      this.update_title();
+    };
+
+    this.update_title = () => {
+      let page = this.child.visible_page.child;
+      page.update_title();
+    };
+    this.child.connect("popped", this.update_title);
+
+    this.push = (page) => {
+      this.child.push(page);
+    };
+  }
+});

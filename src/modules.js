@@ -112,7 +112,6 @@ export const Link = GObject.registerClass({
     this.navigation_view = navigation_view;
 
     this.connect("clicked", () => {
-      log(this.data)
       navigate(this.data, this.navigation_view);
     } );
   }
@@ -276,7 +275,6 @@ export const ModuleNTable = GObject.registerClass({
 }, class extends Gtk.Grid {
   constructor(n) {
     super( { halign: Gtk.Align.FILL, hexpand: true} );
-    log(n);
     for (let i in n) {
       for (let j in n[i]) {
         let l = new Gtk.Label( {

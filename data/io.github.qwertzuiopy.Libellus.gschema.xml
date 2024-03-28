@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="questscribe">
+<schemalist gettext-domain="libellus">
 	<schema id="io.github.qwertzuiopy.Libellus" path="/io/github/qwertzuiopy/Libellus/">
 		<file preprocess="xml-stripblanks">star-large-symbolic.svg</file>
 	</schema>
