@@ -24,6 +24,7 @@ import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
+import Pango from 'gi://Pango';
 
 import { navigate, get_sync, get_any_async } from "./window.js";
 
@@ -138,7 +139,7 @@ export const ModuleTitle = GObject.registerClass({
   GTypeName: 'ModuleTitle',
 }, class extends Gtk.Label {
   constructor(label, title) {
-    super({});
+    super({ellipsize: Pango.EllipsizeMode.END});
 
     this.label = label;
     this.add_css_class("title-" + title);

@@ -129,23 +129,20 @@ export const SearchResultPageSpell = GObject.registerClass({
 }, class extends ResultPage {
   constructor(data, navigation_view) {
     super(data, navigation_view);
-    let firstRow = [];
-    firstRow.push(new Card("Level", this.data.level.toString()));
-    firstRow.push(new Card("Casting Time", this.data.casting_time));
+    let cards = [];
+    cards.push(new Card("Level", this.data.level.toString()));
+    cards.push(new Card("Casting Time", this.data.casting_time));
 
-    if (this.data.area_of_effect) firstRow.push(new Card("Range", this.data.range + " (" + this.data.area_of_effect.size.toString() + "ft " + this.data.area_of_effect.type + ")"));
-    else firstRow.push(new Card("Range", this.data.range));
-    firstRow.push(new Card("Components", this.data.components.join(", ")));
-    this.wrapper.append(new ModuleCardRow(firstRow));
-
-    let secondRow = [];
-    secondRow.push(new Card("Duration", this.data.duration));
-    secondRow.push(new LinkCard("School", this.data.school.name, this.data.school, this.navigation_view));
-    if (this.data.attack_type) secondRow.push(new Card("Attack", this.data.attack_type));
-    else if (this.data.dc) secondRow.push(new Card("Save", this.data.dc.dc_type.name + " Save"));
-    if (this.data.damage) secondRow.push(new Card("Damage", this.data.damage.damage_type.name));
-    else secondRow.push(new Card("Effect", "Buff"));
-    this.wrapper.append(new ModuleCardRow(secondRow));
+    if (this.data.area_of_effect) cards.push(new Card("Range", this.data.range + " (" + this.data.area_of_effect.size.toString() + "ft " + this.data.area_of_effect.type + ")"));
+    else cards.push(new Card("Range", this.data.range));
+    cards.push(new Card("Components", this.data.components.join(", ")));
+    cards.push(new Card("Duration", this.data.duration));
+    cards.push(new LinkCard("School", this.data.school.name, this.data.school, this.navigation_view));
+    if (this.data.attack_type) cards.push(new Card("Attack", this.data.attack_type));
+    else if (this.data.dc) cards.push(new Card("Save", this.data.dc.dc_type.name + " Save"));
+    if (this.data.damage) cards.push(new Card("Damage", this.data.damage.damage_type.name));
+    else cards.push(new Card("Effect", "Buff"));
+    this.wrapper.append(new Div(cards));
     this.wrapper.append(new ModuleTitle("Effect", 3));
     this.wrapper.append(new ModuleMultiText(this.data.desc));
     if (this.data.higher_level && this.data.higher_level.length > 0) {
@@ -183,12 +180,7 @@ export const SearchResultPageArmor = GObject.registerClass({
     if (this.data.stealth_disadvantage != 0)
       cards.push(new Card("Stealth", "disadvantage"));
     cards.push(new Card("Type", this.data.armor_category));
-    for (var i = 0; i <= cards.length-4; i += 4) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+4)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
-
-
+    this.wrapper.append(new Div(cards));
   }
 });
 export const SearchResultPageGear = GObject.registerClass({
@@ -211,11 +203,7 @@ export const SearchResultPageGear = GObject.registerClass({
     else if (this.data.weapon_category) cards.push(new Card("Type", this.data.weapon_category));
 
     if (this.data.weapon_range) cards.push(new Card("Range", this.data.weapon_range));
-    for (var i = 0; i <= cards.length-4; i += 4) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+4)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
-
+    this.wrapper.append(new Div(cards));
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     let counter = 0;
     if (this.data.range) {
@@ -277,10 +265,7 @@ export const SearchResultPageBundle = GObject.registerClass({
     else if (this.data.vehicle_category) cards.push(new Card("Type", this.data.vehicle_category));
     else if (this.data.tool_category) cards.push(new Card("Type", this.data.tool_category));
 
-    for (var i = 0; i <= cards.length-4; i += 4) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+4)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
+    this.wrapper.append(new Div(cards));
     if (this.data.desc && this.data.desc.length > 0) {
       this.wrapper.append(new ModuleTitle("Description", 3));
       this.wrapper.append(new ModuleMultiText(this.data.desc));
@@ -322,10 +307,7 @@ export const SearchResultPageSkill = GObject.registerClass({
     let cards = [];
     cards.push(new LinkCard("Ability Score", get_sync(this.data.ability_score.url).full_name, this.data.ability_score, this.navigation_view));
 
-    for (var i = 0; i <= cards.length-4; i += 4) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+4)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
+    this.wrapper.append(new Div(cards));
     this.wrapper.append(new ModuleMultiText(this.data.desc));
   }
 });
@@ -366,10 +348,7 @@ export const SearchResultPageFeature = GObject.registerClass({
     let cards = [];
     cards.push(new Card("Level", this.data.level.toString()));
 
-    for (var i = 0; i <= cards.length-4; i += 4) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+4)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
+    this.wrapper.append(new Div(cards));
 
     this.wrapper.append(new ModuleMultiText(this.data.desc));
     let arr = [];
@@ -415,13 +394,6 @@ export const SearchResultPageMonster = GObject.registerClass({
     cards.push(new Card("Speed", s.join(", ")));
 
     cards.push(new Card("Hit Points", this.data.hit_points.toString() + " / " + this.data.hit_points_roll));
-
-    /*
-    for (var i = 0; i <= cards.length-5; i += 5) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+5)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i, cards.length)));
-    */
 
     this.wrapper.append(new Div(cards));
 
@@ -620,11 +592,7 @@ export const SearchResultPageRace = GObject.registerClass({
     let cards = [];
     cards.push(new Card("Speed", this.data.speed + "ft"));
     cards.push(new Card("Size", this.data.size));
-
-    for (var i = 0; i < cards.length-6; i += 6) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+6)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i-6, cards.length)));
+    this.wrapper.append(new Div(cards));
 
     this.wrapper.append(new ModuleMultiText([
       "***Age.***"+this.data.age,
@@ -669,11 +637,7 @@ export const SearchResultPageSubrace = GObject.registerClass({
 
     let cards = [];
     cards.push(new LinkCard("Race", this.data.race.name, this.data.race, this.navigation_view));
-
-    for (var i = 0; i < cards.length-6; i += 6) {
-      this.wrapper.append(new ModuleCardRow(cards.slice(i, i+6)));
-    }
-    this.wrapper.append(new ModuleCardRow(cards.slice(i-6, cards.length)));
+    this.wrapper.append(new Div(cards));
 
     this.wrapper.append(new ModuleText(this.data.desc));
 
