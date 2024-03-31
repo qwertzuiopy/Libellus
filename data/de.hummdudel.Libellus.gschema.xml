@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="libellus">
-	<schema id="io.github.qwertzuiopy.Libellus" path="/io/github/qwertzuiopy/Libellus/">
+  <schema id="de.hummdudel.Libellus" path="/de/hummdudel/Libellus/">
 		<file preprocess="xml-stripblanks">star-large-symbolic.svg</file>
 	</schema>
 </schemalist>

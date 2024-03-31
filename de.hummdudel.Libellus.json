@@ -1,9 +1,9 @@
 {
-    "app-id" : "io.github.qwertzuiopy.Libellus",
+    "app-id" : "de.hummdudel.Libellus",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "45",
     "sdk" : "org.gnome.Sdk",
-    "command" : "io.github.qwertzuiopy.Libellus",
+    "command" : "de.hummdudel.Libellus",
     "finish-args" : [
         "--share=network",
         "--share=ipc",

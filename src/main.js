@@ -31,7 +31,7 @@ pkg.initFormat();
 export const LibellusApplication = GObject.registerClass(
     class LibellusApplication extends Adw.Application {
         constructor() {
-            super({application_id: 'io.github.qwertzuiopy.Libellus', flags: Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN });
+            super({application_id: 'de.hummdudel.Libellus', flags: Gio.ApplicationFlags.DEFAULT_FLAGS | Gio.ApplicationFlags.HANDLES_OPEN });
 
             const quit_action = new Gio.SimpleAction({name: 'quit'});
                 quit_action.connect('activate', action => {
@@ -45,7 +45,7 @@ export const LibellusApplication = GObject.registerClass(
                 let aboutParams = {
                     transient_for: this.active_window,
                     application_name: 'Libellus',
-                    application_icon: 'io.github.qwertzuiopy.Libellus',
+                    application_icon: 'de.hummdudel.Libellus',
                     developer_name: 'Michael Hammer',
                     version: '0.1.0',
                     developers: [
@@ -53,7 +53,7 @@ export const LibellusApplication = GObject.registerClass(
                     ],
                     copyright: '© 2023 Michael Hammer',
                     license_type: Gtk.License.GPL_3_0,
-                    website: "https://qwertzuiopy.github.io/Questscribe/"
+                    website: "https://libellus.hummdudel.de"
                 };
                 const aboutWindow = new Adw.AboutWindow(aboutParams);
                 aboutWindow.add_credit_section("Data", ["D&D 5e API https://www.dnd5eapi.co", "Systems Reference Document https://media.wizards.com/2016/downloads/DND/SRD-OGL_V5.1.pdf"]);

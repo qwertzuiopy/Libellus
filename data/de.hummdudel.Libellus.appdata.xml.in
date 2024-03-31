@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-	<id>io.github.qwertzuiopy.Libellus</id>
+	<id>de.hummdudel.Libellus</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
   <name>Questscribe</name>
@@ -20,8 +20,8 @@
 	    </ul>
 	  </p>
 	</description>
-  <url type="homepage">https://github.com/qwertzuiopy/Libellus</url>
+  <url type="homepage">https://libellus.hummdudel.de</url>
   <url type="bugtracker">https://github.com/qwertzuiopy/Libellus/issues</url>
-  <launchable type="desktop-id">io.github.qwertzuiopy.Libellus.desktop</launchable>
+  <launchable type="desktop-id">de.hummdudel.Libellus.desktop</launchable>
 </component>
 

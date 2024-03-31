@@ -1,6 +1,6 @@
-data/io.github.qwertzuiopy.Libellus.desktop.in
-data/io.github.qwertzuiopy.Libellus.appdata.xml.in
-data/io.github.qwertzuiopy.Libellus.gschema.xml
+data/de.hummdudel.Libellus.desktop.in
+data/de.hummdudel.Libellus.appdata.xml.in
+data/de.hummdudel.Libellus.gschema.xml
 src/main.js
 src/window.js
 src/window.ui

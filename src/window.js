@@ -60,7 +60,7 @@ var window;
 
 export const LibellusWindow = GObject.registerClass({
   GTypeName: 'LibellusWindow',
-  Template: 'resource:///io/github/qwertzuiopy/Libellus/window.ui',
+  Template: 'resource:///de/hummdudel/Libellus/window.ui',
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
     super({ application });

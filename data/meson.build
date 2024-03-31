@@ -1,6 +1,6 @@
 desktop_file = i18n.merge_file(
-        input: 'io.github.qwertzuiopy.Libellus.desktop.in',
-       output: 'io.github.qwertzuiopy.Libellus.desktop',
+        input: 'de.hummdudel.Libellus.desktop.in',
+       output: 'de.hummdudel.Libellus.desktop',
          type: 'desktop',
        po_dir: '../po',
       install: true,
@@ -13,8 +13,8 @@ if desktop_utils.found()
 endif
 
 appstream_file = i18n.merge_file(
-        input: 'io.github.qwertzuiopy.Libellus.appdata.xml.in',
-       output: 'io.github.qwertzuiopy.Libellus.appdata.xml',
+        input: 'de.hummdudel.Libellus.appdata.xml.in',
+       output: 'de.hummdudel.Libellus.appdata.xml',
        po_dir: '../po',
       install: true,
   install_dir: join_paths(get_option('datadir'), 'appdata')
@@ -25,7 +25,7 @@ if appstream_util.found()
   test('Validate appstream file', appstream_util, args: ['validate', appstream_file])
 endif
 
-install_data('io.github.qwertzuiopy.Libellus.gschema.xml',
+install_data('de.hummdudel.Libellus.gschema.xml',
   install_dir: join_paths(get_option('datadir'), 'glib-2.0/schemas')
 )
 

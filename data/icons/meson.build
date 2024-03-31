@@ -1,4 +1,4 @@
-application_id = 'io.github.qwertzuiopy.Libellus'
+application_id = 'de.hummdudel.Libellus'
 
 scalable_dir = join_paths('hicolor', 'scalable', 'apps')
 install_data(
