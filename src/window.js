@@ -156,7 +156,7 @@ export const LibellusWindow = GObject.registerClass({
         name: 'filter_' + i,
       });
       filter_actions[i].connect("activate", () => {
-        this.tab_view.selected_page.child.visible_page.add_filter(i);
+        this.tab_view.selected_page.child.get_visible_page().add_filter(i);
       });
       this.add_action(filter_actions[i]);
     }
@@ -697,5 +697,9 @@ export const NavView = GObject.registerClass({
     this.push = (page) => {
       this.child.push(page);
     };
+
+    this.get_visible_page = () => {
+      return this.child.visible_page;
+    }
   }
 });

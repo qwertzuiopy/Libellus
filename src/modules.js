@@ -109,6 +109,7 @@ export const Link = GObject.registerClass({
       margin_end: 5,
       css_classes: ["heading", "accent"] });
 
+    this.get_child().ellipsize = Pango.EllipsizeMode.END;
     this.data = data;
     this.navigation_view = navigation_view;
 
@@ -322,6 +323,9 @@ export const ModuleLinkList = GObject.registerClass({
   }
 });
 
+
+
+// TODO make addaptive
 export const ModuleStatListRow = GObject.registerClass({
   GTypeName: 'ModuleStatListRow',
 }, class extends Adw.ActionRow {

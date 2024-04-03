@@ -174,7 +174,7 @@ export const SearchResultPageArmor = GObject.registerClass({
 
     cards.push(new Card("Cost", this.data.cost.quantity.toString() + this.data.cost.unit));
     cards.push(new Card("Weight", this.data.weight.toString() + "lb"));
-    cards.push(new Card("Armor Class", this.data.armor_class.base.toString() + (this.data.armor_class.dex_bonus ? " + Dex modifier" + (this.data.armor_class.max_bonus ? " (max " + this.data.armor_class.max_bonus.toString() + ")" : "") : "")));
+    cards.push(new Card("Armor Class", this.data.armor_class.base.toString() + (this.data.armor_class.dex_bonus ? " + Dex" + (this.data.armor_class.max_bonus ? " (max " + this.data.armor_class.max_bonus.toString() + ")" : "") : "")));
     if (this.data.str_minimum != 0)
       cards.push(new Card("Strength", "min " + this.data.str_minimum.toString()));
     if (this.data.stealth_disadvantage != 0)
