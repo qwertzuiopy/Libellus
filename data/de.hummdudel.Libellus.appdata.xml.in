@@ -3,21 +3,18 @@
 	<id>de.hummdudel.Libellus</id>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
-  <name>Questscribe</name>
-  <summary>View DnD information in style.</summary>
+    <content_rating type="oars-1.1">
+    <content_attribute id="drugs-alcohol">mild</content_attribute>
+    <content_attribute id="drugs-narcotics">mild</content_attribute>
+    <content_attribute id="drugs-tobacco">mild</content_attribute>
+  </content_rating>
+  <name>Libellus</name>
+  <summary>View DnD information in style</summary>
   <developer_name>Michael Hammer</developer_name>
 	<description>
-	  <p>Libellus lets you browse and read DnD 5th edition information.</p>
+	  <p>Libellus lets you browse and read DnD 5th edition information like a wiki / lexicon. The basic navigation is tab-based, so multiple pages can be viewed at the same time. There is a basic search / filter system. The data is stored locally, images are downloaded.</p>
 	  <p>
-	    Libellus currently supports
-	    <ul>
-	      <li>Classes</li>
-	      <li>Races</li>
-	      <li>Spells</li>
-	      <li>Magic Items</li>
-	      <li>Equipment</li>
-	      <li>Monsters</li>
-	    </ul>
+	    Libellus currently supports Classes, Races, Spells, Magic Items, Equipment, and Monsters
 	  </p>
 	</description>
   <url type="homepage">https://libellus.hummdudel.de</url>
