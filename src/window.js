@@ -223,7 +223,7 @@ const Filter = GObject.registerClass({
       this.popover = new Gtk.Box( { orientation: Gtk.Orientation.VERTICAL, spacing: 5 } );
       for (let i in this.options.choices) {
         let box = new Gtk.Box( { spacing: 5, hexpand: true } );
-        box.append(new Gtk.Label( { label:this.options.choices[i].title, hexpand: true } ));
+        box.append(new Gtk.Label( { label:this.options.choices[i].title, hexpand: true, halign: Gtk.Align.START } ));
         let dropdown;
         if (this.options.choices[i].content) {
           dropdown = Gtk.DropDown.new_from_strings(this.options.choices[i].content);
@@ -236,10 +236,30 @@ const Filter = GObject.registerClass({
             );
             dropdown.expression = expression;
           }
-          dropdown.connect("notify::selected", (d) => { this.options.choices[i].selected = this.options.choices[i].content[d.selected]; this.box.update_search(); });
+          dropdown.connect("notify::selected", (d) => {
+            this.options.choices[i].selected = this.options.choices[i].content[d.selected];
+            this.box.update_search();
+          });
         } else {
-          dropdown = Gtk.SpinButton.new_with_range(this.options.choices[i].min, this.options.choices[i].max, 1);
-          dropdown.connect("value-changed", (d) => { this.options.choices[i].value = d.value; this.box.update_search(); });
+          let adjustment = Gtk.Adjustment.new(0,this.options.choices[i].min, this.options.choices[i].max, 1, 5, 0);
+          let spin_button = Gtk.SpinButton.new(null, 1, 0);
+          spin_button.connect("value-changed", (d) => {
+            this.options.choices[i].value = d.value;
+            this.box.update_search();
+          });
+          let check_button = new Gtk.CheckButton();
+          check_button.connect("toggled", (d) => {
+            if (d.active) {
+              spin_button.adjustment = adjustment
+            } else {
+              spin_button.adjustment = null;
+            }
+            this.options.choices[i].enabled = d.active;
+            this.box.update_search();
+          });
+          dropdown = new Gtk.Box( { spacing: 5 } );
+          dropdown.append(check_button);
+          dropdown.append(spin_button);
         }
 
         dropdown.halign = Gtk.Align.END;
@@ -580,14 +600,14 @@ const filter_options = {
     title: "Spells",
     choices: [
       { title: "School", content: ["Any"].concat(get_sync("/api/magic-schools").results.map((i) => { return i.name; } )), selected: "Any" },
-      { title: "Level", content: ["Any", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], selected: "Any" },
+      { title: "Level", min: 0, max: 9, value: 0, enabled: false },
       { title: "Classes", content: ["Any"].concat(get_sync("/api/classes").results.map((i) => { return i.name; } )), selected: "Any" },
     ],
     func: (url, o) => {
       if (!url.includes("spells")) return false;
       let data = get_sync(url);
       return (o.options.choices[0].selected == "Any" || o.options.choices[0].selected == data.school.name)
-          && (o.options.choices[1].selected == "Any" || o.options.choices[1].selected == data.level.toString())
+          && (o.options.choices[1].enabled == false  || o.options.choices[1].value == data.level)
           && (o.options.choices[2].selected == "Any" || data.classes.map((i) => i.name).indexOf(o.options.choices[2].selected) != -1);
     },
   },
@@ -640,12 +660,12 @@ const filter_options = {
   Monsters: {
     title: "Monsters",
     choices: [
-      { title: "Challenge Rating", min: 0, max: 50, value: 0 },
+      { title: "Challenge Rating", min: 0, max: 50, value: 0, enabled: false },
     ],
     func: (url, o) => {
       if (!url.includes("monsters")) return false;
       let data = get_sync(url);
-      return o.options.choices[0].value == data.challenge_rating;
+      return o.options.choices[0].value == data.challenge_rating || o.options.choices[0].enabled == false;
     },
   },
   MagicItems: {
@@ -703,3 +723,4 @@ export const NavView = GObject.registerClass({
     }
   }
 });
+
