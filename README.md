@@ -1,7 +1,6 @@
 # Libellus
 
-![screenshots_combined](https://github.com/qwertzuiopy/Libellus/assets/89102209/a51fafa0-980f-42fb-afe5-feeb2fc0ea7d)
-
+![Screenshot from 2024-04-04 19-45-22](https://github.com/qwertzuiopy/Libellus/assets/89102209/5b19aa2b-1231-435a-9a94-918889a97311)
 
 A simple DnD content viewer app.
 It uses https://www.dnd5eapi.co/ as a database and simply displays the information.
