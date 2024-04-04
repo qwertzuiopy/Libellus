@@ -27,8 +27,7 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 
-import { SearchResult, SearchResultPageBundle, SearchResultPageSchool, SearchResultPageWeaponProperty, SearchResultPageArmor, SearchResultPageSpell, SearchResultPageMagicGear, SearchResultPageSkill, SearchResultPageTrait, SearchResultPageGear, SearchResultPageRace, SearchResultPageSubrace, SearchResultPageSubclass, SearchResultPageClass, SearchResultPageMonster, SearchResultPageFeature, SearchResultPageEquipmentCategory, SearchResultPageAbilityScore, SearchResultPageAlignment } from "./results.js";
-import {} from "./modules.js";
+import * as Res from "./results.js";
 
 export const Tab = GObject.registerClass({
   GTypeName: 'Tab',
@@ -380,19 +379,19 @@ const SearchTab = GObject.registerClass({
     this.entry.connect("changed", this.update_search);
 
     this.results = [];
-    this.results = this.results.concat(get_sync("/api/classes").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/subclasses").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/races").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/subraces").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/monsters").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/spells").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/equipment").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/magic-items").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/traits").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/alignments").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/skills").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/magic-schools").results.map((a) => new SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/weapon-properties").results.map((a) => new SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/classes").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/subclasses").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/races").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/subraces").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/monsters").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/spells").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/equipment").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/magic-items").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/traits").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/alignments").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/skills").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/magic-schools").results.map((a) => new Res.SearchResult(a)));
+    this.results = this.results.concat(get_sync("/api/weapon-properties").results.map((a) => new Res.SearchResult(a)));
 
 
     for (let i in this.results) {
@@ -438,41 +437,41 @@ export const navigate = (data, navigation_view) => {
   var page_data = get_sync(data.url);
   var page = null;
   if (page_data.armor_category) {
-    page = new SearchResultPageArmor(page_data, navigation_view);
+    page = new Res.SearchResultPageArmor(page_data, navigation_view);
   } else if (page_data.url.includes("equipment") && !page_data.contents && !page_data.url.includes("equipment-categories")) {
-    page = new SearchResultPageGear(page_data, navigation_view);
+    page = new Res.SearchResultPageGear(page_data, navigation_view);
   } else if (page_data.components) {
-    page = new SearchResultPageSpell(page_data, navigation_view);
+    page = new Res.SearchResultPageSpell(page_data, navigation_view);
   } else if (page_data.contents && page_data.contents.length > 0) {
-    page = new SearchResultPageBundle(page_data, navigation_view);
+    page = new Res.SearchResultPageBundle(page_data, navigation_view);
   } else if (page_data.url.includes("magic-schools")) {
-    page = new SearchResultPageSchool(page_data, navigation_view);
+    page = new Res.SearchResultPageSchool(page_data, navigation_view);
   } else if (page_data.url.includes("monsters")) {
-    page = new SearchResultPageMonster(page_data, navigation_view);
+    page = new Res.SearchResultPageMonster(page_data, navigation_view);
   } else if (page_data.url.includes("alignments")) {
-    page = new SearchResultPageAlignment(page_data, navigation_view);
+    page = new Res.SearchResultPageAlignment(page_data, navigation_view);
   } else if (page_data.url.includes("magic-items")) {
-    page = new SearchResultPageMagicGear(page_data, navigation_view);
+    page = new Res.SearchResultPageMagicGear(page_data, navigation_view);
   } else if (page_data.url.includes("classes") && !page_data.url.includes("subclasses")) {
-    page = new SearchResultPageClass(page_data, navigation_view);
+    page = new Res.SearchResultPageClass(page_data, navigation_view);
   } else if (page_data.url.includes("skills")) {
-    page = new SearchResultPageSkill(page_data, navigation_view);
+    page = new Res.SearchResultPageSkill(page_data, navigation_view);
   } else if (page_data.url.includes("ability-scores")) {
-    page = new SearchResultPageAbilityScore(page_data, navigation_view);
+    page = new Res.SearchResultPageAbilityScore(page_data, navigation_view);
   } else if (page_data.url.includes("features")) {
-    page = new SearchResultPageFeature(page_data, navigation_view);
+    page = new Res.SearchResultPageFeature(page_data, navigation_view);
   } else if (page_data.url.includes("equipment-categories")) {
-    page = new SearchResultPageEquipmentCategory(page_data, navigation_view);
+    page = new Res.SearchResultPageEquipmentCategory(page_data, navigation_view);
   } else if (page_data.url.includes("subclasses")) {
-    page = new SearchResultPageSubclass(page_data, navigation_view);
+    page = new Res.SearchResultPageSubclass(page_data, navigation_view);
   } else if (page_data.url.includes("subraces")) {
-    page = new SearchResultPageSubrace(page_data, navigation_view);
+    page = new Res.SearchResultPageSubrace(page_data, navigation_view);
   } else if (page_data.url.includes("races")) {
-    page = new SearchResultPageRace(page_data, navigation_view);
+    page = new Res.SearchResultPageRace(page_data, navigation_view);
   } else if (page_data.url.includes("traits")) {
-    page = new SearchResultPageTrait(page_data, navigation_view);
+    page = new Res.SearchResultPageTrait(page_data, navigation_view);
   } else if (page_data.url.includes("weapon-properties")) {
-    page = new SearchResultPageWeaponProperty(page_data, navigation_view);
+    page = new Res.SearchResultPageWeaponProperty(page_data, navigation_view);
   }
 
   navigation_view.push(new Adw.NavigationPage( { title: "no title", child: page } ));
