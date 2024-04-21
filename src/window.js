@@ -59,7 +59,8 @@ var window;
 export const LibellusWindow = GObject.registerClass({
   GTypeName: 'LibellusWindow',
   Template: 'resource:///de/hummdudel/Libellus/window.ui',
-  Children: ["overview",
+  Children: [
+    "overview",
     "toolbar_view",
     "header_bar",
     "new_tab",
@@ -73,10 +74,46 @@ export const LibellusWindow = GObject.registerClass({
     super({ application });
     this.main_window = main_window;
 
-    let provider = new Gtk.CssProvider();
+    const provider = new Gtk.CssProvider();
     provider.connect("parsing-error", (_provider, _section, error) => { log(error); });
     provider.load_from_string(".bookmark-row { padding: 0; } ");
     Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+    const builder = Gtk.Builder.new_from_resource("/de/hummdudel/Libellus/gtk/help-overlay.ui");
+    this.set_help_overlay(builder.get_object("help_overlay"));
+
+    const close_tab_shortcut = Gtk.Shortcut.new(Gtk.ShortcutTrigger.parse_string("<Control>w"), Gtk.NamedAction.new("win.close-tab"));
+    const close_tab_action = new Gio.SimpleAction({ name: "close-tab" });
+    close_tab_action.connect("activate", () => {
+      if (this.tab_view.get_n_pages() > 1) {
+        this.tab_view.close_page(this.tab_view.selected_page);
+      }
+    });
+    this.add_action(close_tab_action);
+
+    const new_tab_shortcut = Gtk.Shortcut.new(Gtk.ShortcutTrigger.parse_string("<Control>t"), Gtk.NamedAction.new("win.new-tab"));
+    const new_tab_action = new Gio.SimpleAction({ name: "new-tab" });
+    new_tab_action.connect("activate", () => {
+      let tab = new SearchTab({}, new NavView());
+      let tab_page = this.tab_view.append(tab.navigation_view);
+      tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+      tab.navigation_view.window = this;
+      this.tab_view.selected_page = tab_page;
+    });
+    this.add_action(new_tab_action);
+
+    const bookmark_shortcut = Gtk.Shortcut.new(Gtk.ShortcutTrigger.parse_string("<Control>b"), Gtk.NamedAction.new("win.bookmark"));
+    const bookmark_action = new Gio.SimpleAction({ name: "bookmark" });
+    bookmark_action.connect("activate", () => {
+      this.tab_view.selected_page.child.get_visible_page().child.bookmark_accel();
+    });
+    this.add_action(bookmark_action);
+
+    const shortcut_controller = new Gtk.ShortcutController();
+    shortcut_controller.add_shortcut(close_tab_shortcut);
+    shortcut_controller.add_shortcut(new_tab_shortcut);
+    shortcut_controller.add_shortcut(bookmark_shortcut);
+    this.add_controller(shortcut_controller);
 
     if (main_window) {
       let dbus = new DBUS();
@@ -84,10 +121,11 @@ export const LibellusWindow = GObject.registerClass({
 
     this.overview.connect("create-tab", () => {
       let tab = new SearchTab({}, new NavView());
-      this.tab_view.append(tab.navigation_view);
+      let tab_page = this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.window = this;
-      return this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+      this.tab_view.selected_page = tab_page;
+      return tab_page;
     } );
 
     if (main_window) {
@@ -113,9 +151,10 @@ export const LibellusWindow = GObject.registerClass({
 
     this.new_tab.connect("clicked", () => {
       let tab = new SearchTab({}, new NavView());
-      this.tab_view.append(tab.navigation_view);
+      let tab_page = this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
-      tab.navigation_view.tab_view = this.tab_view;
+      tab.navigation_view.window = this;
+      this.tab_view.selected_page = tab_page;
     } );
 
     this.tab_button.connect("clicked", () => { this.overview.open = true; } );
@@ -125,7 +164,7 @@ export const LibellusWindow = GObject.registerClass({
     this.back_button_bottom.connect("clicked", () => { this.tab_view.selected_page.child.pop(); });
 
     this.menu = new Gio.Menu();
-    // this.menu.append_item(Gio.MenuItem.new("Preferences", "app.settings"));
+    this.menu.append_item(Gio.MenuItem.new("Keyboard Shortcuts", "win.show-help-overlay"));
     this.menu.append_item(Gio.MenuItem.new("About Libellus", "app.about"));
 
     this.header_bar.pack_end(new Gtk.MenuButton( { icon_name: "open-menu-symbolic", menu_model: this.menu } ));
@@ -283,6 +322,20 @@ const SearchTab = GObject.registerClass({
     setTimeout(() => { this.navigation_view.tab_page.set_title("Search"); }, 1);
     this.navigation_view = navigation_view;
     this.set_hexpand(true)
+
+    this.bookmark_accel = () => {
+    };
+
+
+    this.key_controller = new Gtk.EventControllerKey();
+    this.key_controller.connect("key-pressed", (_controller, val, _code, _state, _data) => {
+      let name = Gdk.keyval_name(val);
+      if (name.length > 1) return;
+      this.entry.grab_focus();
+      this.entry.text = this.entry.text + name;
+      this.entry.set_position(this.entry.text.length);
+    });
+    this.add_controller(this.key_controller);
 
     this.update_title = () => {
       this.navigation_view.tab_page.set_title("Search");

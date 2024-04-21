@@ -67,6 +67,14 @@ const ResultPage = GObject.registerClass({
 
     this.data = data;
 
+    this.bookmark_accel = () => {
+      if (toggle_bookmarked ({ name: this.data.name, url: this.data.url })) {
+        this.pin.set_css_classes(["success"]);
+      } else {
+        this.pin.set_css_classes([]);
+      }
+    }
+
     this.back_wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
     this.set_child(this.back_wrapper);
 

@@ -400,8 +400,9 @@ export const ImageAsync = GObject.registerClass({
   GTypeName: 'ImageAsync',
 }, class extends Adw.Bin {
   constructor(image) {
-    super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true} );
+    super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true, height_request: 300 } );
     get_any_async(image, (response) => {
+      this.halign = Gtk.Align.CENTER;
       let loader = new GdkPixbuf.PixbufLoader()
       loader.write_bytes(GLib.Bytes.new(response))
       loader.close()
