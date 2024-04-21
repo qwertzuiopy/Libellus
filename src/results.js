@@ -26,13 +26,13 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 import { get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
-import { Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
+import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
   GTypeName: 'SearchResult',
 }, class extends Adw.ActionRow {
   constructor(data, type) {
-    super({});
+    super({title_lines: 1});
     this.data = data;
     this.type = type;
 
@@ -70,11 +70,6 @@ const ResultPage = GObject.registerClass({
     this.back_wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
     this.set_child(this.back_wrapper);
 
-    this.back = new Gtk.Button({
-      icon_name: "go-previous-symbolic",
-      halign: Gtk.Align.START,
-      margin_top: 20, margin_start: 20 });
-
     this.pin = new Gtk.Button({
       icon_name: "star-large-symbolic",
       halign: Gtk.Align.END, hexpand: true,
@@ -96,12 +91,8 @@ const ResultPage = GObject.registerClass({
       hexpand: true,
       halign:Gtk.Align.FILL } );
 
-    this.bar.append(this.back);
     this.bar.append(this.pin);
     this.back_wrapper.append(this.bar);
-    this.back.connect("clicked", () => {
-      this.navigation_view.pop();
-    });
 
     this.clamp = new Adw.Clamp({
       maximum_size: 800,
@@ -164,7 +155,7 @@ export const SearchResultPageSpell = GObject.registerClass({
       cards.push(new Card("Effect", "Buff"));
     }
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.wrapper.append(new ModuleTitle("Effect", 3));
     this.wrapper.append(new ModuleMultiText(this.data.desc));
@@ -232,7 +223,7 @@ export const SearchResultPageArmor = GObject.registerClass({
 
     cards.push(new Card("Type", this.data.armor_category));
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
   }
 });
 
@@ -277,7 +268,7 @@ export const SearchResultPageGear = GObject.registerClass({
       cards.push(new Card("Range", this.data.weapon_range));
     }
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     let counter = 0;
@@ -359,7 +350,7 @@ export const SearchResultPageBundle = GObject.registerClass({
     else if (this.data.vehicle_category) cards.push(new Card("Type", this.data.vehicle_category));
     else if (this.data.tool_category) cards.push(new Card("Type", this.data.tool_category));
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     if (this.data.desc && this.data.desc.length > 0) {
       this.wrapper.append(new ModuleTitle("Description", 3));
@@ -406,7 +397,7 @@ export const SearchResultPageSkill = GObject.registerClass({
       this.data.ability_score,
       this.navigation_view));
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
     this.wrapper.append(new ModuleMultiText(this.data.desc));
   }
 });
@@ -452,7 +443,7 @@ export const SearchResultPageFeature = GObject.registerClass({
     let cards = [];
     cards.push(new Card("Level", this.data.level.toString()));
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.wrapper.append(new ModuleMultiText(this.data.desc));
     let arr = [];
@@ -513,7 +504,7 @@ export const SearchResultPageMonster = GObject.registerClass({
 
     cards.push(new Card("Hit Points", this.data.hit_points.toString() + " / " + this.data.hit_points_roll));
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     this.wrapper.append(this.statrows);
@@ -597,7 +588,7 @@ export const SearchResultPageClass = GObject.registerClass({
       cards.push(new Card("Spellcasting", "none"));
     }
 
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     this.wrapper.append(this.statrows);
@@ -709,7 +700,7 @@ export const SearchResultPageClass = GObject.registerClass({
         }
       }
 
-      this.level_children.push(new Div(cards));
+      this.level_children.push(new BigDiv(cards));
 
       for (let i in this.level_children) {
         this.level_box.append(this.level_children[i]);
@@ -795,7 +786,7 @@ export const SearchResultPageRace = GObject.registerClass({
     let cards = [];
     cards.push(new Card("Speed", this.data.speed + "ft"));
     cards.push(new Card("Size", this.data.size));
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.wrapper.append(new ModuleMultiText([
       "***Age.***"+this.data.age,
@@ -853,7 +844,7 @@ export const SearchResultPageSubrace = GObject.registerClass({
 
     let cards = [];
     cards.push(new LinkCard("Race", this.data.race.name, this.data.race, this.navigation_view));
-    this.wrapper.append(new Div(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     this.wrapper.append(new ModuleText(this.data.desc));
 

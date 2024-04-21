@@ -20,6 +20,7 @@
 
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -38,8 +39,8 @@ export const Card = GObject.registerClass({
     this.add_css_class("card");
     this.spacing = 10;
     this.vexpand = false;
-    this.valign = Gtk.Align.CENTER;
-    this.halign = Gtk.Align.CENTER;
+    this.valign = Gtk.Align.FILL;
+    this.halign = Gtk.Align.FILL;
     this.set_size_request(120, 0);
 
     this.label = new Gtk.Label();
@@ -68,8 +69,8 @@ export const LinkCard = GObject.registerClass({
       css_classes: ["card"],
       spacing: 10,
       vexpand: false,
-      valign: Gtk.Align.CENTER,
-      halign: Gtk.Align.CENTER,
+      valign: Gtk.Align.FILL,
+      halign: Gtk.Align.FILL,
       width_request: 120 } );
 
     this.navigation_view = navigation_view;
@@ -325,7 +326,7 @@ export const ModuleLinkList = GObject.registerClass({
 
 
 
-// TODO make addaptive
+// TODO make adaptive
 export const ModuleStatListRow = GObject.registerClass({
   GTypeName: 'ModuleStatListRow',
 }, class extends Adw.ActionRow {
@@ -399,7 +400,7 @@ export const ImageAsync = GObject.registerClass({
   GTypeName: 'ImageAsync',
 }, class extends Adw.Bin {
   constructor(image) {
-    super( { css_classes: ["card"], halign: Gtk.Align.CENTER, valign: Gtk.Align.FILL, vexpand: true, height_request: 400, width_request: 600 } );
+    super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true} );
     get_any_async(image, (response) => {
       let loader = new GdkPixbuf.PixbufLoader()
       loader.write_bytes(GLib.Bytes.new(response))
@@ -412,7 +413,6 @@ export const ImageAsync = GObject.registerClass({
       let revealer = new Gtk.Revealer( { child: overlay, transition_type: Gtk.RevealerTransitionType.CROSSFADE } );
       this.set_child(revealer);
       revealer.set_reveal_child(true);
-      this.width_request = -1;
 
       let button = new Gtk.Button({
         css_classes:["osd", "circular"],
@@ -437,7 +437,7 @@ export const ImageAsync = GObject.registerClass({
     });
     let spinner = new Gtk.Spinner( { halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER } );
     spinner.start();
-    this.set_child(spinner);
+    this.set_child(new Adw.Bin({child: spinner, halign: Gtk.Align.FILL, hexpand: true}));
   }
 });
 
@@ -484,6 +484,29 @@ export const Div = GObject.registerClass({
       // if halign is set to CENTER (which looks better) the FlowBox completely breaks for some reason
       halign: Gtk.Align.FILL,
       hexpand: true,
+    });
+    for (let i in cards) {
+      this.append(cards[i]);
+    }
+  }
+});
+
+
+export const BigDiv = GObject.registerClass({
+  GTypeName: 'BigDiv',
+}, class extends Gtk.FlowBox {
+  constructor(cards) {
+    super({
+      orientation: Gtk.Orientation.HORIZONTAL,
+      max_children_per_line: 10,
+      min_children_per_line: 1,
+      selection_mode: Gtk.SelectionMode.NONE,
+      // if halign is set to CENTER (which looks better) the FlowBox completely breaks for some reason
+      halign: Gtk.Align.FILL,
+      hexpand: true,
+      homogeneous: true,
+      column_spacing: 10,
+      row_spacing: 10,
     });
     for (let i in cards) {
       this.append(cards[i]);

@@ -40,7 +40,6 @@ import { SheetTab } from "./character_sheet.js";
 
 
 import { API } from './api.js';
-// import { API } from './api2.js';
 import { DBUS } from './dbus.js';
 
 const use_local = true;
@@ -60,11 +59,18 @@ var window;
 export const LibellusWindow = GObject.registerClass({
   GTypeName: 'LibellusWindow',
   Template: 'resource:///de/hummdudel/Libellus/window.ui',
+  Children: ["overview",
+    "toolbar_view",
+    "header_bar",
+    "new_tab",
+    "tab_button", "tab_button_bottom",
+    "tab_view",
+    "bookmark_popover", "bookmark_popover_bottom",
+    "back_button", "back_button_bottom",
+  ],
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
     super({ application });
-
-
     this.main_window = main_window;
 
     let provider = new Gtk.CssProvider();
@@ -76,7 +82,6 @@ export const LibellusWindow = GObject.registerClass({
       let dbus = new DBUS();
     }
 
-    this.overview = new Adw.TabOverview( { enable_new_tab: true } );
     this.overview.connect("create-tab", () => {
       let tab = new SearchTab({}, new NavView());
       this.tab_view.append(tab.navigation_view);
@@ -85,13 +90,6 @@ export const LibellusWindow = GObject.registerClass({
       return this.tab_view.get_nth_page(this.tab_view.n_pages-1);
     } );
 
-    this.content = this.overview;
-    this.toolbar_view = new Adw.ToolbarView();
-    this.overview.child = this.toolbar_view;
-
-    this.tab_view = new Adw.TabView( {
-      halign: Gtk.Align.FILL, valign: Gtk.Align.FILL,
-      hexpand: true, vexpand: true } );
     if (main_window) {
       this.tabs = [
         new SearchTab({}, new NavView()),
@@ -112,29 +110,23 @@ export const LibellusWindow = GObject.registerClass({
       this.tabs[i].navigation_view.window = this;
     }
     this.active_tab = 0;
-    this.tab_bar = new Adw.TabBar( { view: this.tab_view } );
-    this.header_bar = new Adw.HeaderBar( {
-      title_widget: new Gtk.Label( {
-        label: "Libellus",
-        css_classes: ["heading"] } ) } );
 
-    this.new_tab = new Gtk.Button( { icon_name: "tab-new-symbolic" } );
     this.new_tab.connect("clicked", () => {
       let tab = new SearchTab({}, new NavView());
       this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.tab_view = this.tab_view;
     } );
-    this.open_overview = new Gtk.Button( { icon_name: "view-grid-symbolic" } );
-    this.open_overview.connect("clicked", () => { this.overview.open = true; } );
-    this.overview.view = this.tab_view;
-    this.header_bar.pack_start(this.new_tab);
-    this.header_bar.pack_start(this.open_overview);
+
+    this.tab_button.connect("clicked", () => { this.overview.open = true; } );
+    this.tab_button_bottom.connect("clicked", () => { this.overview.open = true; } );
+
+    this.back_button.connect("clicked", () => { this.tab_view.selected_page.child.pop(); });
+    this.back_button_bottom.connect("clicked", () => { this.tab_view.selected_page.child.pop(); });
 
     this.menu = new Gio.Menu();
     // this.menu.append_item(Gio.MenuItem.new("Preferences", "app.settings"));
     this.menu.append_item(Gio.MenuItem.new("About Libellus", "app.about"));
-
 
     this.header_bar.pack_end(new Gtk.MenuButton( { icon_name: "open-menu-symbolic", menu_model: this.menu } ));
 
@@ -142,13 +134,14 @@ export const LibellusWindow = GObject.registerClass({
     this.bookmark_list.connect("row-activated", (_, row) => {
       row.activated();
     });
-    this.bookmark_menu = new Gtk.MenuButton( { icon_name: "star-large-symbolic", popover: new Gtk.Popover( { css_classes: ["menu"], child: this.bookmark_list } ) } );
-    this.header_bar.pack_end(this.bookmark_menu);
 
-    this.toolbar_view.add_top_bar(this.header_bar);
-    this.toolbar_view.add_top_bar(this.tab_bar);
-    this.toolbar_view.set_content(this.tab_view);
-    this.toolbar_view.top_bar_style = Adw.ToolbarStyle.RAISED;
+    this.bookmark_list_bottom = new Gtk.ListBox();
+    this.bookmark_list_bottom.connect("row-activated", (_, row) => {
+      row.activated();
+    });
+
+    this.bookmark_popover.child = this.bookmark_list;
+    this.bookmark_popover_bottom.child = this.bookmark_list_bottom;
 
     for (let i in filter_options) {
       filter_actions[i] = new Gio.SimpleAction({
@@ -290,6 +283,11 @@ const SearchTab = GObject.registerClass({
     setTimeout(() => { this.navigation_view.tab_page.set_title("Search"); }, 1);
     this.navigation_view = navigation_view;
     this.set_hexpand(true)
+
+    this.update_title = () => {
+      this.navigation_view.tab_page.set_title("Search");
+    };
+
     this.navigation_view.push(this);
 
     this.scrolled_window = new Gtk.ScrolledWindow();
@@ -475,6 +473,7 @@ export const navigate = (data, navigation_view) => {
   }
 
   navigation_view.push(new Adw.NavigationPage( { title: "no title", child: page } ));
+  setTimeout(page.update_title, 10);
   log("navigated to " + data.url)
   return;
 }
@@ -539,6 +538,10 @@ function update_boookmark_menu() {
   window.bookmark_list.remove_all();
   for (let i = 0; i < bookmarks.length; i++) {
     window.bookmark_list.append(new BookmarkRow(bookmarks[i]));
+  }
+  window.bookmark_list_bottom.remove_all();
+  for (let i = 0; i < bookmarks.length; i++) {
+    window.bookmark_list_bottom.append(new BookmarkRow(bookmarks[i]));
   }
 }
 
