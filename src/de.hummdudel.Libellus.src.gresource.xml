@@ -3,6 +3,7 @@
   <gresource prefix="/de/hummdudel/Libellus/js">
     <file>main.js</file>
     <file>window.js</file>
+    <file>filter.js</file>
     <file>api.js</file>
     <file>modules.js</file>
     <file>results.js</file>

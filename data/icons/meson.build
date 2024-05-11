@@ -16,6 +16,8 @@ action_dir = join_paths('hicolor', 'scalable', 'actions')
 action_icons = [
     # each icon must be registered here
     join_paths(action_dir, 'star-large-symbolic.svg'),
+    join_paths(action_dir, 'funnel-outline-symbolic.svg'),
+    join_paths(action_dir, 'funnel-symbolic.svg'),
 ]
 install_data(
   action_icons,

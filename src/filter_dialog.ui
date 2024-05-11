@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="FilterDialog" parent="AdwDialog">
+    <property name="content-width">300</property>
+    <property name="content-height">450</property>
+    <property name="child">
+      <object class="AdwNavigationView" id="view">
+        <child>
+          <object class="AdwNavigationPage">
+            <property name="title">Filter</property>
+            <child>
+              <object class="AdwToolbarView">
+                <child type="top">
+                  <object class="AdwHeaderBar"/>
+                </child>
+                <property name="content">
+                  <object class="GtkBox">
+                    <property name="margin-start">10</property>
+                    <property name="margin-end">10</property>
+                    <property name="margin-bottom">10</property>
+                    <property name="spacing">10</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkListBox">
+                        <property name="selection-mode">none</property>
+                        <style>
+                          <class name="boxed-list"/>
+                        </style>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Spells</property>
+                            <signal name="activated" handler="filter_spells" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Traits</property>
+                            <signal name="activated" handler="filter_traits" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Equipment</property>
+                            <signal name="activated" handler="filter_equipment" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Monsters</property>
+                            <signal name="activated" handler="filter_monsters" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Magic Items</property>
+                            <signal name="activated" handler="filter_magic_items" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Classes</property>
+                            <signal name="activated" handler="filter_classes" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparator">
+                        <style>
+                          <class name="spacer"/>
+                        </style>
+                        <property name="orientation">vertical</property>
+                        <property name="vexpand">true</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <style>
+                          <class name="pill"/>
+                        </style>
+                        <property name="label" translatable="yes">Clear Filter</property>
+                        <signal name="clicked" handler="filter_none" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </template>
+</interface>
+

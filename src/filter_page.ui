@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="FilterPage" parent="AdwNavigationPage">
+    <property name="title">Filter</property>
+    <child>
+      <object class="AdwToolbarView">
+        <child type="top">
+          <object class="AdwHeaderBar"/>
+        </child>
+        <property name="content">
+          <object class="GtkBox">
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
+            <property name="margin-bottom">10</property>
+            <property name="spacing">10</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkListBox" id="list_box">
+                <property name="selection-mode">none</property>
+                <style>
+                  <class name="boxed-list"/>
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <style>
+                  <class name="spacer"/>
+                </style>
+                <property name="orientation">vertical</property>
+                <property name="vexpand">true</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton">
+                <style>
+                  <class name="pill"/>
+                </style>
+                <property name="valign">end</property>
+                <property name="label" translatable="yes">Apply</property>
+                <signal name="clicked" handler="apply" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </property>
+      </object>
+    </child>
+  </template>
+</interface>
+
