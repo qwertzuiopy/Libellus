@@ -64,6 +64,12 @@
                             <signal name="activated" handler="filter_classes" swapped="no"/>
                           </object>
                         </child>
+                        <child>
+                          <object class="FilterRow">
+                            <property name="title">Races</property>
+                            <signal name="activated" handler="filter_races" swapped="no"/>
+                          </object>
+                        </child>
                       </object>
                     </child>
                     <child>

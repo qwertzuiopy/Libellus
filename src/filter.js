@@ -1,7 +1,7 @@
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
-import { filter_options, get_sync } from './window.js';
+import { make_filter, filter_options, get_sync } from './window.js';
 
 export const FilterDialog = GObject.registerClass({
   GTypeName: 'FilterDialog',
@@ -15,6 +15,13 @@ export const FilterDialog = GObject.registerClass({
     super({});
 
     this.filter = null;
+  }
+
+  set_filter(filter) {
+    while (this.view.get_previous_page(this.view.get_visible_page())) {
+      this.view.pop();
+    }
+    this.push_filter(filter);
   }
 
   filter_spells() {
@@ -37,7 +44,11 @@ export const FilterDialog = GObject.registerClass({
     this.emit("applied");
     this.close();
   }
-
+  filter_races() {
+    this.filter = filter_options.Races;
+    this.emit("applied");
+    this.close();
+  }
   filter_none() {
     this.filter = null;
     this.emit("applied");
@@ -45,7 +56,7 @@ export const FilterDialog = GObject.registerClass({
   }
 
   push_filter(filter) {
-    let page = new FilterPage(filter);
+    let page = new FilterPage(make_filter(filter));
     page.connect("applied", () => {
       this.filter = page.filter;
       this.emit("applied");
@@ -92,6 +103,7 @@ export const FilterPage = GObject.registerClass({
       if (filter.choices[i].content) {
         row = new Adw.ComboRow();
         row.model = Gtk.StringList.new(filter.choices[i].content);
+        row.selected = filter.choices[i].content.indexOf(filter.choices[i].selected);
         row.connect("notify::selected", () => {
           filter.choices[i].selected = filter.choices[i].content[row.selected];
         });
@@ -99,20 +111,28 @@ export const FilterPage = GObject.registerClass({
           row.enable_search = true;
         }
       } else {
-        row = new Adw.ActionRow();
-        let spin_button = Gtk.SpinButton.new_with_range(filter.choices[i].min, filter.choices[i].max, 1);
-        spin_button.valign = Gtk.Align.CENTER;
-        spin_button.sensitive = false;
+        row = new Adw.SpinRow();
+        let adjustment = Gtk.Adjustment.new(filter.choices[i].value, filter.choices[i].min, filter.choices[i].max, 1, 0, 0);
+        if (filter.choices[i].enabled) {
+          row.adjustment = adjustment;
+        } else {
+          row.adjustment = null;
+        }
         let switch_button = new Gtk.Switch( { valign: Gtk.Align.CENTER } );
-        switch_button.connect("state-set", () => {
-          spin_button.sensitive = !switch_button.state;
-          filter.choices[i].enabled = !switch_button.state;
+        switch_button.active = filter.choices[i].enabled;
+        switch_button.connect("notify::active", () => {
+          if (switch_button.active) {
+            filter.choices[i].enabled = true;
+            row.adjustment = adjustment;
+          } else {
+            filter.choices[i].enabled = false;
+            row.adjustment = null;
+          }
         });
-        spin_button.connect("notify::value", () => {
-          filter.choices[i].value = spin_button.value;
+        row.connect("notify::value", () => {
+          filter.choices[i].value = row.value;
         });
         row.add_suffix(switch_button);
-        row.add_suffix(spin_button);
       }
       row.title = filter.choices[i].title;
       this.list_box.append(row);

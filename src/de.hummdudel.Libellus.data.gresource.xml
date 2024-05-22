@@ -6,6 +6,31 @@
     <file preprocess="xml-stripblanks">filter_row.ui</file>
     <file preprocess="xml-stripblanks">filter_page.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
+    <!-- <file>api/5e-SRD-Ability-Scores.json</file> -->
+    <!-- <file>api/5e-SRD-Alignments.json</file> -->
+    <!-- <file>api/5e-SRD-Backgrounds.json</file> -->
+    <!-- <file>api/5e-SRD-Classes.json</file> -->
+    <!-- <file>api/5e-SRD-Conditions.json</file> -->
+    <!-- <file>api/5e-SRD-Damage-Types.json</file> -->
+    <!-- <file>api/5e-SRD-Equipment.json</file> -->
+    <!-- <file>api/5e-SRD-Equipment-Categories.json</file> -->
+    <!-- <file>api/5e-SRD-Feats.json</file> -->
+    <!-- <file>api/5e-SRD-Features.json</file> -->
+    <!-- <file>api/5e-SRD-Languages.json</file> -->
+    <!-- <file>api/5e-SRD-Levels.json</file> -->
+    <!-- <file>api/5e-SRD-Magic-Items.json</file> -->
+    <!-- <file>api/5e-SRD-Magic-Schools.json</file> -->
+    <!-- <file>api/5e-SRD-Monsters.json</file> -->
+    <!-- <file>api/5e-SRD-Proficiencies.json</file> -->
+    <!-- <file>api/5e-SRD-Races.json</file> -->
+    <!-- <file>api/5e-SRD-Rules.json</file> -->
+    <!-- <file>api/5e-SRD-Rule-Sections.json</file> -->
+    <!-- <file>api/5e-SRD-Skills.json</file> -->
+    <!-- <file>api/5e-SRD-Spells.json</file> -->
+    <!-- <file>api/5e-SRD-Subclasses.json</file> -->
+    <!-- <file>api/5e-SRD-Subraces.json</file> -->
+    <!-- <file>api/5e-SRD-Traits.json</file> -->
+    <!-- <file>api/5e-SRD-Weapon-Properties.json</file> -->
   </gresource>
 </gresources>
 

@@ -35,7 +35,7 @@ export const Tab = GObject.registerClass({
   GTypeName: 'Tab',
 }, class extends Adw.NavigationPage {
   constructor() {
-    super({title: "no title"});
+    super({title: "Search"});
   }
 });
 import { SheetTab } from "./character_sheet.js";
@@ -96,7 +96,7 @@ export const LibellusWindow = GObject.registerClass({
     const new_tab_shortcut = Gtk.Shortcut.new(Gtk.ShortcutTrigger.parse_string("<Control>t"), Gtk.NamedAction.new("win.new-tab"));
     const new_tab_action = new Gio.SimpleAction({ name: "new-tab" });
     new_tab_action.connect("activate", () => {
-      let tab = new SearchTab({}, new NavView());
+      let tab = new SearchTab(new NavView());
       let tab_page = this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.window = this;
@@ -122,7 +122,7 @@ export const LibellusWindow = GObject.registerClass({
     }
 
     this.overview.connect("create-tab", () => {
-      let tab = new SearchTab({}, new NavView());
+      let tab = new SearchTab(new NavView());
       let tab_page = this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.window = this;
@@ -132,7 +132,7 @@ export const LibellusWindow = GObject.registerClass({
 
     if (main_window) {
       this.tabs = [
-        new SearchTab({}, new NavView()),
+        new SearchTab(new NavView()),
       ];
     } else {
       this.tabs = [];
@@ -152,7 +152,7 @@ export const LibellusWindow = GObject.registerClass({
     this.active_tab = 0;
 
     this.new_tab.connect("clicked", () => {
-      let tab = new SearchTab({}, new NavView());
+      let tab = new SearchTab(new NavView());
       let tab_page = this.tab_view.append(tab.navigation_view);
       tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
       tab.navigation_view.window = this;
@@ -222,7 +222,7 @@ export const BookmarkRow = GObject.registerClass({
 
 export const new_tab_from_data = (data) => {
   let tab_view = window.tab_view;
-  let tab = new SearchTab({}, new NavView());
+  let tab = new SearchTab(new NavView());
   tab_view.append(tab.navigation_view);
   tab.navigation_view.tab_page = tab_view.get_nth_page(tab_view.n_pages-1);
   tab.navigation_view.tab_view = tab_view;
@@ -234,7 +234,7 @@ export const new_tab_from_data = (data) => {
 const SearchTab = GObject.registerClass({
   GTypeName: 'SearchTab',
 }, class extends Tab {
-  constructor(applied_filters, navigation_view) {
+  constructor(navigation_view) {
     super({});
     setTimeout(() => { this.navigation_view.tab_page.set_title("Search"); }, 1);
     this.navigation_view = navigation_view;
@@ -305,6 +305,17 @@ const SearchTab = GObject.registerClass({
     this.filter_button.add_css_class("flat");
     this.filter_button.set_valign(Gtk.Align.CENTER);
     this.entry.add_suffix(this.filter_button);
+
+    this.set_filter = (filter) => {
+      this.active_filter = filter;
+      this.filter_dialog.set_filter(filter);
+      if (this.active_filter) {
+        this.filter_button.add_css_class("accent");
+      } else {
+        this.filter_button.remove_css_class("accent");
+      }
+      this.update_search();
+    }
 
     this.active_filter = null;
     this.search_term = "";
@@ -378,7 +389,13 @@ export const score_to_modifier = (score) => {
 }
 
 export const navigate = (data, navigation_view) => {
+  if (data.filter) {
+    page = new SearchTab(navigation_view);
+    page.set_filter(unmake_manifest(data));
+    return;
+  }
   var page_data = get_sync(data.url);
+  log(data.url);
   var page = null;
   if (page_data.armor_category) {
     page = new Res.SearchResultPageArmor(page_data, navigation_view);
@@ -404,8 +421,6 @@ export const navigate = (data, navigation_view) => {
     page = new Res.SearchResultPageAbilityScore(page_data, navigation_view);
   } else if (page_data.url.includes("features")) {
     page = new Res.SearchResultPageFeature(page_data, navigation_view);
-  } else if (page_data.url.includes("equipment-categories")) {
-    page = new Res.SearchResultPageEquipmentCategory(page_data, navigation_view);
   } else if (page_data.url.includes("subclasses")) {
     page = new Res.SearchResultPageSubclass(page_data, navigation_view);
   } else if (page_data.url.includes("subraces")) {
@@ -425,22 +440,18 @@ export const navigate = (data, navigation_view) => {
 }
 
 
-
 export const get_sync = (url) => {
   if (use_local) {
-    let sub = url.split("/")[2];
-    sub = sub.split("-").join("_");
-    let array = API[sub];
-    let key = url.split("/")[3];
+    let section = API[url.split("/")[2]]; // classes, spells, ...
+    const key = url.split("/")[3]; // barbarian, fireball, ...
     if (!key) {
-      return { results: array };
+      return { results: Object.values(section) };
     }
-    if (url.split("/")[4]) {
-      array = API[url.split("/")[4]];
-      return array.filter((i) => i.url.includes(key));
+    if (url.split("/")[4]) { // catches urls of type "/api/classes/levels" which need to go to API["levels"]
+      section = API[url.split("/")[4]];
+      return Object.values(section).filter((i) => i.url.includes(key));
     }
-    let index = array.map((i) => i.index).indexOf(key);
-    return array[index];
+    return section[key];
   } else {
     let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
 
@@ -448,6 +459,29 @@ export const get_sync = (url) => {
     return JSON.parse(Decoder.decode(s));
   }
 }
+
+// export const get_sync = (url) => {
+//   if (use_local) {
+//     let sub = url.split("/")[2];
+//     sub = sub.split("-").join("_");
+//     let array = API[sub];
+//     let key = url.split("/")[3];
+//     if (!key) {
+//       return { results: array };
+//     }
+//     if (url.split("/")[4]) {
+//       array = API[url.split("/")[4]];
+//       return array.filter((i) => i.url.includes(key));
+//     }
+//     let index = array.map((i) => i.index).indexOf(key);
+//     return array[index];
+//   } else {
+//     let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
+
+//     let s = session.send_and_read(msg, Gio.Cancellable.new()).get_data();
+//     return JSON.parse(Decoder.decode(s));
+//   }
+// }
 
 export const get_any_sync = (url) => {
   let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
@@ -675,5 +709,30 @@ export const filter_options = {
     choices: [],
     func: (url, o) => { return url.includes("classes"); },
   },
-
+  Races: {
+    title: "Races",
+    choices: [],
+    func: (url, o) => { return url.includes("races"); },
+  },
 };
+
+
+export const make_filter = (filter) => {
+  return { title: filter.title, func: filter.func, choices: JSON.parse(JSON.stringify(filter.choices)) };
+}
+
+
+
+// eg. "Items", ["Light Armor", "Any"]
+export const make_manifest = (filter, settings) => {
+  return { filter: filter, settings: settings };
+}
+
+export const unmake_manifest = (manifest) => {
+  let filter = make_filter(filter_options[manifest.filter]);
+  for (let i in manifest.settings) {
+    filter.choices[i].selected = manifest.settings[i];
+  }
+  return filter;
+}
+

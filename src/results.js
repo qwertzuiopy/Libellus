@@ -25,7 +25,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
-import { get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
+import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
 import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
@@ -210,7 +210,8 @@ export const SearchResultPageArmor = GObject.registerClass({
     cards.push(new LinkCard(
       "Category",
       this.data.equipment_category.name,
-      this.data.equipment_category,
+      make_manifest("Items", [this.data.equipment_category.name, "Any"]),
+//      this.data.equipment_category,
       navigation_view));
 
     cards.push(new Card("Cost", this.data.cost.quantity.toString() + this.data.cost.unit));
@@ -229,6 +230,7 @@ export const SearchResultPageArmor = GObject.registerClass({
       cards.push(new Card("Stealth", "disadvantage"));
     }
 
+    // TODO make LinkCard with filter
     cards.push(new Card("Type", this.data.armor_category));
 
     this.wrapper.append(new BigDiv(cards));
@@ -245,7 +247,7 @@ export const SearchResultPageGear = GObject.registerClass({
     cards.push(new LinkCard(
       "Category",
       this.data.equipment_category.name,
-      this.data.equipment_category,
+      make_manifest("Items", [this.data.equipment_category.name, "Any"]),
       navigation_view));
 
     if (!this.data.quantity) {
@@ -420,21 +422,6 @@ export const SearchResultPageAbilityScore = GObject.registerClass({
     this.wrapper.append(new ModuleMultiText(this.data.desc));
 
     this.wrapper.append(new ModuleLinkList(this.data.skills.map( (i) => {
-      return { item: i };
-    } ), this.navigation_view));
-
-  }
-});
-
-
-export const SearchResultPageEquipmentCategory = GObject.registerClass({
-  GTypeName: 'SearchResultPageEquipmentCategory',
-}, class extends ResultPage {
-  constructor(data, navigation_view) {
-    super(data, navigation_view);
-    this.data = data;
-
-    this.wrapper.append(new ModuleLinkList(this.data.equipment.map( (i) => {
       return { item: i };
     } ), this.navigation_view));
 
@@ -620,7 +607,8 @@ export const SearchResultPageClass = GObject.registerClass({
     this.statrows.append(new ModuleLinkListRow("Proficiencies", this.data.proficiencies.filter((i) => {
       return !i.url.includes("saving-throw")
     }).map((i) => {
-      return get_sync(i.url).reference;
+      return get_url_for_proficiency (i);
+
     } ), this.navigation_view));
 
     this.statrows.append(new ModuleShortLinkListRow(
@@ -966,3 +954,16 @@ export const SearchResultPageWeaponProperty = GObject.registerClass({
   }
 });
 
+
+
+
+function get_url_for_proficiency(data) {
+  let reference = get_sync(data.url).reference;
+  if (reference.url.includes("equipment-categories")) {
+    let manifest = make_manifest("Items", [reference.name, "Any"]);
+    manifest.name = reference.name;
+    return manifest;
+  } else {
+    return reference;
+  }
+}

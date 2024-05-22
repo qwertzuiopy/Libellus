@@ -9,6 +9,7 @@
     <file>results.js</file>
     <file>character_sheet.js</file>
     <file>dbus.js</file>
+    <file>data_builder.js</file>
   </gresource>
 </gresources>
 
