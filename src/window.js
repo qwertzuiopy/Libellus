@@ -460,29 +460,6 @@ export const get_sync = (url) => {
   }
 }
 
-// export const get_sync = (url) => {
-//   if (use_local) {
-//     let sub = url.split("/")[2];
-//     sub = sub.split("-").join("_");
-//     let array = API[sub];
-//     let key = url.split("/")[3];
-//     if (!key) {
-//       return { results: array };
-//     }
-//     if (url.split("/")[4]) {
-//       array = API[url.split("/")[4]];
-//       return array.filter((i) => i.url.includes(key));
-//     }
-//     let index = array.map((i) => i.index).indexOf(key);
-//     return array[index];
-//   } else {
-//     let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-
-//     let s = session.send_and_read(msg, Gio.Cancellable.new()).get_data();
-//     return JSON.parse(Decoder.decode(s));
-//   }
-// }
-
 export const get_any_sync = (url) => {
   let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
   return session.send_and_read(msg, Gio.Cancellable.new()).get_data();
