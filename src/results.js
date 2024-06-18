@@ -24,35 +24,37 @@ import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
+import Pango from 'gi://Pango';
 
 import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
 import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
   GTypeName: 'SearchResult',
-}, class extends Adw.ActionRow {
+}, class extends Gtk.ListBoxRow {
   constructor(data, type) {
-    super({title_lines: 1});
+    super({});
     this.data = data;
     this.type = type;
+
+    this.child = new Gtk.Box();
+    let front = new Gtk.Box( { margin_start: 15, margin_top: 10, margin_bottom: 5, halign: Gtk.Align.START, hexpand: true, orientation: Gtk.Orientation.VERTICAL } );
+    this.child.append(front);
+    front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["title"], halign: Gtk.Align.START, label: this.data.name } ));
+    front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url
+      .split("/")[2]
+      .split("-")
+      .map((str) => { return str.charAt(0).toUpperCase() + str.slice(1); } )
+      .join(" ") } ));
 
     // for searching
     this.name = this.data.name;
 
-    this.set_title(this.data.name);
-    this.set_subtitle(this.data.url
-      .split("/")[2]
-      .split("-")
-      .map((str) => { return str.charAt(0).toUpperCase() + str.slice(1); } )
-      .join(" "));
-    this.arrow = new Gtk.Image({ iconName: "go-next-symbolic" });
-    this.add_suffix(this.arrow);
+    this.child.append(new Gtk.Image( { halign: Gtk.Align.END, iconName: "go-next-symbolic", margin_end: 15 } ));
     this.set_activatable(true);
 
   }
 });
-
-
 
 const ResultPage = GObject.registerClass({
   GTypeName: 'ResultPage',
@@ -489,20 +491,20 @@ export const SearchResultPageMonster = GObject.registerClass({
     cards.push(new Card("Challenge Rating", this.data.challenge_rating.toString()));
     cards.push(new Card("Size", this.data.size));
 
-    let s = [];
-    if (this.data.speed.walk)   s.push(this.data.speed.walk + " walk");
-    if (this.data.speed.swim)   s.push(this.data.speed.swim + " swim");
-    if (this.data.speed.fly)    s.push(this.data.speed.fly + " fly");
-    if (this.data.speed.burrow) s.push(this.data.speed.burrow + " burrow");
-    if (this.data.speed.climb) s.push(this.data.speed.climb + " climb");
-    cards.push(new Card("Speed", s.join(", ")));
-
     cards.push(new Card("Hit Points", this.data.hit_points.toString() + " / " + this.data.hit_points_roll));
 
     this.wrapper.append(new BigDiv(cards));
 
     this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
     this.wrapper.append(this.statrows);
+
+    let s = [];
+    if (this.data.speed.walk)   s.push(this.data.speed.walk + " walk");
+    if (this.data.speed.swim)   s.push(this.data.speed.swim + " swim");
+    if (this.data.speed.fly)    s.push(this.data.speed.fly + " fly");
+    if (this.data.speed.burrow) s.push(this.data.speed.burrow + " burrow");
+    if (this.data.speed.climb) s.push(this.data.speed.climb + " climb");
+    this.statrows.append(new ModuleStatListRow("Speed", s));
 
     this.statrows.append(new ModuleStatListRow("Languages", this.data.languages.split(", ")));
 

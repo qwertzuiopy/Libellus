@@ -65,11 +65,17 @@ export const LibellusWindow = GObject.registerClass({
     "overview",
     "toolbar_view",
     "header_bar",
-    "new_tab",
-    "tab_button", "tab_button_bottom",
     "tab_view",
-    "bookmark_popover", "bookmark_popover_bottom",
-    "back_button", "back_button_bottom",
+    "bookmark_popover",
+    "bottom_bar",
+    "menu_button",
+
+    "breakpoint",
+
+    "bookmark_button",
+    "tab_button",
+    "new_tab" ,
+    "back_button",
   ],
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
@@ -160,29 +166,43 @@ export const LibellusWindow = GObject.registerClass({
     } );
 
     this.tab_button.connect("clicked", () => { this.overview.open = true; } );
-    this.tab_button_bottom.connect("clicked", () => { this.overview.open = true; } );
 
     this.back_button.connect("clicked", () => { this.tab_view.selected_page.child.pop(); });
-    this.back_button_bottom.connect("clicked", () => { this.tab_view.selected_page.child.pop(); });
 
     this.menu = new Gio.Menu();
     this.menu.append_item(Gio.MenuItem.new("Keyboard Shortcuts", "win.show-help-overlay"));
     this.menu.append_item(Gio.MenuItem.new("About Libellus", "app.about"));
 
-    this.header_bar.pack_end(new Gtk.MenuButton( { icon_name: "open-menu-symbolic", menu_model: this.menu } ));
+    this.menu_button.menu_model = this.menu;
 
     this.bookmark_list = new Gtk.ListBox();
     this.bookmark_list.connect("row-activated", (_, row) => {
       row.activated();
     });
 
-    this.bookmark_list_bottom = new Gtk.ListBox();
-    this.bookmark_list_bottom.connect("row-activated", (_, row) => {
-      row.activated();
+    this.bookmark_popover.child = this.bookmark_list;
+
+    this.breakpoint.connect("apply", () => {
+      this.header_bar.remove(this.bookmark_button);
+      this.header_bar.remove(this.back_button);
+      this.header_bar.remove(this.tab_button);
+      this.header_bar.remove(this.new_tab);
+      this.bottom_bar.pack_start(this.back_button);
+      this.bottom_bar.pack_start(this.new_tab);
+      this.bottom_bar.pack_end(this.bookmark_button);
+      this.bottom_bar.pack_end(this.tab_button);
+    });
+    this.breakpoint.connect("unapply", () => {
+      this.bottom_bar.remove(this.bookmark_button);
+      this.bottom_bar.remove(this.back_button);
+      this.bottom_bar.remove(this.tab_button);
+      this.bottom_bar.remove(this.new_tab);
+      this.header_bar.pack_start(this.back_button);
+      this.header_bar.pack_start(this.new_tab);
+      this.header_bar.pack_end(this.bookmark_button);
+      this.header_bar.pack_end(this.tab_button);
     });
 
-    this.bookmark_popover.child = this.bookmark_list;
-    this.bookmark_popover_bottom.child = this.bookmark_list_bottom;
 
     window = this;
     try {
@@ -260,10 +280,7 @@ const SearchTab = GObject.registerClass({
 
     this.navigation_view.push(this);
 
-    this.scrolled_window = new Gtk.ScrolledWindow();
-    this.scrolled_window.set_halign(Gtk.Align.FILL);
-    this.scrolled_window.set_hexpand(true);
-    this.scrolled_window.set_size_request(400, 0);
+    this.scrolled_window = new Gtk.ScrolledWindow( { halign: Gtk.Align.FILL, hexpand: true, hscrollbar_policy: Gtk.PolicyType.NEVER } );
     this.scrolled_window.update_title = () => {
       this.navigation_view.tab_page.set_title("Search");
     }
@@ -276,19 +293,17 @@ const SearchTab = GObject.registerClass({
     this.wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
     this.scrolled_window.set_child(this.wrapper);
 
-    this.list_box = new Gtk.ListBox();
-    this.list_box.set_halign(Gtk.Align.CENTER);
-    this.list_box.set_margin_top(15);
-    this.list_box.set_margin_bottom(15);
-    this.list_box.add_css_class("boxed-list")
-    this.list_box.set_selection_mode(Gtk.SelectionMode.NONE);
+    this.list_box = new Gtk.ListBox( {
+      halign: Gtk.Align.CENTER,
+      margin_top: 15, margin_bottom: 15, margin_start: 15, margin_end: 15,
+      css_classes: ["boxed-list"],
+      selection_mode: Gtk.SelectionMode.NONE
+    } );
     this.wrapper.append(this.list_box);
-    this.entry = new Adw.EntryRow();
-    this.entry.set_title("Search...");
-    this.entry.set_size_request(380, 0);
+    this.entry = new Adw.EntryRow( { title: "Search..." } );
     this.list_box.append(this.entry);
 
-    this.filter_button = new Gtk.Button({ iconName: "funnel-symbolic" });
+    this.filter_button = new Gtk.Button( { iconName: "funnel-symbolic" } );
     this.filter_dialog = new FilterDialog();
     this.filter_dialog.connect("applied", () => {
       this.active_filter = this.filter_dialog.filter;
@@ -349,14 +364,11 @@ const SearchTab = GObject.registerClass({
     this.results = this.results.concat(get_sync("/api/weapon-properties").results.map((a) => new Res.SearchResult(a)));
 
 
-    for (let i in this.results) {
+    for (let i = 0; i < this.results.length; i++) {
       this.list_box.append(this.results[i]);
-      this.results[i].connect("activated", () => { this.open_result(i); });
     }
+    this.list_box.connect("row_activated", (_, i) => { navigate(i.data, this.navigation_view) } );
 
-    this.open_result = (i) => {
-      navigate(this.results[i].data, this.navigation_view);
-    }
     this.close_result = () => {
       this.navigation_view.navigate(Adw.NavigationDirection.BACK);
       setTimeout(() => { this.navigation_view.remove(this.open_result_page); this.open_result_page = null; }, 100);
@@ -495,10 +507,6 @@ function update_boookmark_menu() {
   window.bookmark_list.remove_all();
   for (let i = 0; i < bookmarks.length; i++) {
     window.bookmark_list.append(new BookmarkRow(bookmarks[i]));
-  }
-  window.bookmark_list_bottom.remove_all();
-  for (let i = 0; i < bookmarks.length; i++) {
-    window.bookmark_list_bottom.append(new BookmarkRow(bookmarks[i]));
   }
 }
 

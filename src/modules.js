@@ -324,21 +324,22 @@ export const ModuleLinkList = GObject.registerClass({
   }
 });
 
-
-
-// TODO make adaptive
 export const ModuleStatListRow = GObject.registerClass({
   GTypeName: 'ModuleStatListRow',
-}, class extends Adw.ActionRow {
+}, class extends Gtk.ListBoxRow {
   constructor(label, stats) {
-    super( { title: label, activatable: false, selectable: false } );
+    super( { activatable: false, selectable: false } );
+    this.child = new Gtk.Box( { } );
+    this.child.append(new Gtk.Label( { css_classes: ["heading"], width_request: 100, label: label, hexpand: false, halign: Gtk.Align.START, margin_top: 15, margin_bottom: 15, margin_start: 15, margin_end: 15 } ));
+    this.child.append(new Gtk.Separator( { orientation: Gtk.Orientation.VERTICAL } ));
+    let flowbox = new Gtk.FlowBox( { hexpand: true, selection_mode: Gtk.SelectionMode.NONE, row_spacing: 5, margin_start: 5, margin_end: 5, margin_top: 5, margin_bottom: 5 } );
     for (let i = 0; i < stats.length; i++) {
-      if (label != "" || i!= 0) this.add_suffix(new Gtk.Separator());
-      this.add_suffix(new Gtk.Label( {
-        label: stats[i], css_classes: ["heading"] } ));
+      flowbox.append(new Gtk.Label( { label:stats[i] } ));
     }
+    this.child.append(flowbox);
   }
 });
+
 export const ModuleShortLinkListRow = GObject.registerClass({
   GTypeName: 'ModuleShortLinkListRow',
 }, class extends Adw.ActionRow {
@@ -362,6 +363,7 @@ export const ModuleLinkListRow = GObject.registerClass({
     vbox.append(new Gtk.Label( {
       label: label,
       css_classes: ["heading"],
+      ellipsize: Pango.EllipsizeMode.END,
       margin_top: 15, margin_bottom: 10 } ))
     stats = stats.map((i) => new Link(i, navigation_view));
     vbox.append(new Div(stats));
