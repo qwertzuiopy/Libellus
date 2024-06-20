@@ -61,7 +61,7 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
-    <release version="1.0.3" date="2024-20-06">
+    <release version="1.0.3" date="2024-06-20">
       <description>
         <p>Deduplicate the adaptivity code and fix Stat Row widgets to also be adaptive + update appdata</p>
       </description>
