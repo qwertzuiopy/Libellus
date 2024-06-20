@@ -37,7 +37,7 @@
     </screenshot>
     <screenshot>
       <image>https://libellus.hummdudel.de/Images/screenshot-search.png</image>
-      <caption>Search view with a "Magic Items" filter</caption>
+      <caption>Search view with a "Spells" filter</caption>
     </screenshot>
     <screenshot>
       <image>https://libellus.hummdudel.de/Images/screenshot-tabs.png</image>
@@ -48,9 +48,25 @@
       <caption>An info page in a much smaller window</caption>
     </screenshot>
   </screenshots>
-
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge">300</display_length>
+  </requires>
+  <keywords>
+    <keyword translate="no">dnd</keyword>
+    <keyword>wiki</keyword>
+  </keywords>
   <releases>
-    <release version="1.0.1" date="2024-04-04">
+    <release version="1.0.3" date="2024-20-06">
+      <description>
+        <p>Deduplicate the adaptivity code and fix Stat Row widgets to also be adaptive + update appdata</p>
+      </description>
+    </release>
+    <release version="1.0.2" date="2024-04-04">
       <description>
         <p>Initial release</p>
       </description>
