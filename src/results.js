@@ -644,6 +644,7 @@ export const SearchResultPageClass = GObject.registerClass({
     } ), this.navigation_view));
 
     let level_data = get_sync(this.data.class_levels);
+    level_data.sort((a, b) => { return a.level - b.level; } );
 
     let level_select = new Gtk.Box( { halign: Gtk.Align.CENTER, spacing: 10 } );
     this.wrapper.append(level_select);
@@ -727,6 +728,7 @@ export const SearchResultPageSubclass = GObject.registerClass({
     this.wrapper.append(new ModuleMultiText(data.desc));
 
     let level_data = get_sync(this.data.subclass_levels);
+    level_data.sort((a, b) => { return a.level - b.level; } );
 
     this.wrapper.append(new ModuleTitle("Features", 4));
     let level_list = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
