@@ -340,6 +340,15 @@ export const ModuleStatListRow = GObject.registerClass({
   }
 });
 
+export const ModuleStatRow = GObject.registerClass({
+  GTypeName: 'ModuleStatRow',
+}, class extends Gtk.ListBoxRow {
+  constructor(label) {
+    super( { activatable: false, selectable: false } );
+    this.child = new Gtk.Label( { label: label, halign: Gtk.Align.FILL, margin_top: 15, margin_bottom: 15, margin_start: 15, margin_end: 15, wrap: true } );
+  }
+});
+
 export const ModuleShortLinkListRow = GObject.registerClass({
   GTypeName: 'ModuleShortLinkListRow',
 }, class extends Adw.ActionRow {

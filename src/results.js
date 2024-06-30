@@ -27,7 +27,7 @@ import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
 import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
-import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
+import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ModuleStatRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
   GTypeName: 'SearchResult',
@@ -591,16 +591,17 @@ export const SearchResultPageClass = GObject.registerClass({
     this.wrapper.append(this.statrows);
 
     for (let i in this.data.proficiency_choices) {
-      if (!this.data.proficiency_choices[i].from.options[0].item) {
-        this.statrows.append(new ModuleStatListRow(this.data.proficiency_choices[i].desc, []));
+      let choice = this.data.proficiency_choices[i];
+      if (!choice.from.options[0].item) {
+        this.statrows.append(new ModuleStatRow(choice.desc));
       } else {
         let s = "";
-        let arr = this.data.proficiency_choices[i].from.options;
+        let arr = choice.from.options;
         arr = arr.map((i) => { return get_sync(i.item.url).reference; } );
-        if (this.data.proficiency_choices[i].from.options[0].item.name.includes("Skill")) {
-          s = "Skills: Choose "+this.data.proficiency_choices[i].choose.toString();
+        if (choice.from.options[0].item.name.includes("Skill")) {
+          s = "Skills: Choose "+choice.choose.toString();
         } else {
-          s = this.data.proficiency_choices[i].desc;
+          s = choice.desc;
         }
         this.statrows.append(new ModuleLinkListRow(s, arr, this.navigation_view));
       }
