@@ -61,6 +61,11 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
+    <release version="1.0.4" date="2024-07-01">
+      <description>
+        <p>Fix the ordering of Class Features + Fix long stat labels to wrap on small screens</p>
+      </description>
+    </release>
     <release version="1.0.3" date="2024-06-20">
       <description>
         <p>Deduplicate the adaptivity code and fix Stat Row widgets to also be adaptive + update appdata</p>
