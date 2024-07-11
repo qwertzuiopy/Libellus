@@ -9,7 +9,7 @@ It uses https://www.dnd5eapi.co/ as a database and simply displays the informati
 But because making an http request every time is to slow a local copy of the database is shiped instead (Images are still downloaded though).
 
 The easiest way to test the app is to clone this repository and open it in Gnome Builder.
-Alternatively you can run "meson build && ninja -C build && sudo ninja -C build install" to install the app localy.
+Alternatively you can run "meson build && ninja -C build && sudo ninja -C build install" to install the app locally.
 
 Dependencies are Gtk4 and Libadwaita.
 
