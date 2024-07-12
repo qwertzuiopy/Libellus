@@ -6,6 +6,7 @@ src/window.js
 src/window.ui
 src/api.js
 src/modules.js
+src/dnd.js
 src/results.js
 src/character_sheet.js
 src/dbus.js

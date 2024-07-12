@@ -27,7 +27,8 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 
-import * as Res from "./results.js";
+import { resolve_link, get_search_results } from "./dnd.js";
+import { ResultPage, SearchResult } from "./results.js";
 
 import { FilterDialog } from "./filter.js";
 
@@ -46,17 +47,11 @@ import { DBUS } from './dbus.js';
 
 const use_local = true;
 
-
 const Soup = imports.gi.Soup;
 const Decoder = new TextDecoder();
 const session = Soup.Session.new();
 
-
-
 var window;
-
-
-
 
 export const LibellusWindow = GObject.registerClass({
   GTypeName: 'LibellusWindow',
@@ -348,20 +343,7 @@ const SearchTab = GObject.registerClass({
     }
     this.entry.connect("changed", this.update_search);
 
-    this.results = [];
-    this.results = this.results.concat(get_sync("/api/classes").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/subclasses").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/races").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/subraces").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/monsters").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/spells").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/equipment").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/magic-items").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/traits").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/alignments").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/skills").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/magic-schools").results.map((a) => new Res.SearchResult(a)));
-    this.results = this.results.concat(get_sync("/api/weapon-properties").results.map((a) => new Res.SearchResult(a)));
+    this.results = get_search_results([]);
 
 
     for (let i = 0; i < this.results.length; i++) {
@@ -407,42 +389,9 @@ export const navigate = (data, navigation_view) => {
     return;
   }
   var page_data = get_sync(data.url);
-  log(data.url);
-  var page = null;
-  if (page_data.armor_category) {
-    page = new Res.SearchResultPageArmor(page_data, navigation_view);
-  } else if (page_data.url.includes("equipment") && !page_data.contents && !page_data.url.includes("equipment-categories")) {
-    page = new Res.SearchResultPageGear(page_data, navigation_view);
-  } else if (page_data.components) {
-    page = new Res.SearchResultPageSpell(page_data, navigation_view);
-  } else if (page_data.contents && page_data.contents.length > 0) {
-    page = new Res.SearchResultPageBundle(page_data, navigation_view);
-  } else if (page_data.url.includes("magic-schools")) {
-    page = new Res.SearchResultPageSchool(page_data, navigation_view);
-  } else if (page_data.url.includes("monsters")) {
-    page = new Res.SearchResultPageMonster(page_data, navigation_view);
-  } else if (page_data.url.includes("alignments")) {
-    page = new Res.SearchResultPageAlignment(page_data, navigation_view);
-  } else if (page_data.url.includes("magic-items")) {
-    page = new Res.SearchResultPageMagicGear(page_data, navigation_view);
-  } else if (page_data.url.includes("classes") && !page_data.url.includes("subclasses")) {
-    page = new Res.SearchResultPageClass(page_data, navigation_view);
-  } else if (page_data.url.includes("skills")) {
-    page = new Res.SearchResultPageSkill(page_data, navigation_view);
-  } else if (page_data.url.includes("ability-scores")) {
-    page = new Res.SearchResultPageAbilityScore(page_data, navigation_view);
-  } else if (page_data.url.includes("features")) {
-    page = new Res.SearchResultPageFeature(page_data, navigation_view);
-  } else if (page_data.url.includes("subclasses")) {
-    page = new Res.SearchResultPageSubclass(page_data, navigation_view);
-  } else if (page_data.url.includes("subraces")) {
-    page = new Res.SearchResultPageSubrace(page_data, navigation_view);
-  } else if (page_data.url.includes("races")) {
-    page = new Res.SearchResultPageRace(page_data, navigation_view);
-  } else if (page_data.url.includes("traits")) {
-    page = new Res.SearchResultPageTrait(page_data, navigation_view);
-  } else if (page_data.url.includes("weapon-properties")) {
-    page = new Res.SearchResultPageWeaponProperty(page_data, navigation_view);
+  var page = resolve_link(data, navigation_view);
+  if (page == null) {
+    log("could not navigate to " + data.url);
   }
 
   navigation_view.push(new Adw.NavigationPage( { title: "no title", child: page } ));
