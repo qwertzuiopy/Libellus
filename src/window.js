@@ -258,7 +258,6 @@ const SearchTab = GObject.registerClass({
     this.bookmark_accel = () => {
     };
 
-
     this.key_controller = new Gtk.EventControllerKey();
     this.key_controller.connect("key-pressed", (_controller, val, _code, _state, _data) => {
       let name = Gdk.keyval_name(val);
@@ -285,16 +284,16 @@ const SearchTab = GObject.registerClass({
 
     this.child = this.scrolled_window;
 
-    this.wrapper = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
-    this.scrolled_window.set_child(this.wrapper);
+    this.clamp = new Adw.Clamp( { maximum_size: 500, tightening_threshold: 300 } );
+    this.scrolled_window.set_child(this.clamp);
 
     this.list_box = new Gtk.ListBox( {
-      halign: Gtk.Align.CENTER,
+      halign: Gtk.Align.FILL, valign: Gtk.Align.START,
       margin_top: 15, margin_bottom: 15, margin_start: 15, margin_end: 15,
       css_classes: ["boxed-list"],
       selection_mode: Gtk.SelectionMode.NONE
     } );
-    this.wrapper.append(this.list_box);
+    this.clamp.child = this.list_box;
     this.entry = new Adw.EntryRow( { title: "Search..." } );
     this.list_box.append(this.entry);
 
