@@ -33,29 +33,28 @@ export const Card = GObject.registerClass({
   GTypeName: 'Card',
 }, class extends Gtk.Box {
   constructor(title, content) {
-    super({});
+    super({ css_classes: ["card"],
+      orientation: Gtk.Orientation.VERTICAL,
+      spacing: 10,
+      vexpand: false,
+      valign: Gtk.Align.FILL, halign: Gtk.Align.FILL,
+      width_request: 120
+    });
 
-    this.orientation = Gtk.Orientation.VERTICAL;
-    this.add_css_class("card");
-    this.spacing = 10;
-    this.vexpand = false;
-    this.valign = Gtk.Align.FILL;
-    this.halign = Gtk.Align.FILL;
-    this.set_size_request(120, 0);
 
-    this.label = new Gtk.Label();
-    this.label.set_label(title); this.hexpand = true;
-    this.label.margin_top = 20;
-    this.label.margin_start = 15;
-    this.label.margin_end = 15;
+    this.label = new Gtk.Label( {
+      label: title,
+      hexpand: true,
+      margin_top: 20, margin_start: 15, margin_end: 15
+    } );
     this.append(this.label);
 
-    this.content = new Gtk.Label();
-    this.content.set_label(content);
-    this.content.add_css_class("title-4");
-    this.content.margin_bottom = 20;
-    this.content.margin_start = 15;
-    this.content.margin_end = 15;
+    this.content = new Gtk.Label( {
+      label: content,
+      css_classes: ["title-4"],
+      margin_bottom: 20, margin_start: 15, margin_end: 15,
+      selectable: true
+    } );
     this.append(this.content);
   }
 });
@@ -71,7 +70,8 @@ export const LinkCard = GObject.registerClass({
       vexpand: false,
       valign: Gtk.Align.FILL,
       halign: Gtk.Align.FILL,
-      width_request: 120 } );
+      width_request: 120,
+    } );
 
     this.navigation_view = navigation_view;
     this.data = data;
@@ -81,7 +81,8 @@ export const LinkCard = GObject.registerClass({
       label: title,
       margin_top: 20,
       margin_start: 20,
-      margin_end: 15 } );
+      margin_end: 15,
+    } );
     this.append(this.label);
 
     this.content = new Gtk.Button( {
@@ -89,7 +90,8 @@ export const LinkCard = GObject.registerClass({
       margin_bottom: 20,
       margin_start: 15,
       margin_end: 15,
-      css_classes: ["title-4", "accent"] } );
+      css_classes: ["title-4", "accent"],
+    } );
     this.content.connect("clicked", () => {
       navigate(this.data, this.navigation_view);
     } );
@@ -157,11 +159,10 @@ export const ModuleText = GObject.registerClass({
     this.label = new Gtk.Label({
       label: label,
       wrap: true,
-      margin_top: 10,
-      margin_start: 10,
-      margin_end: 10,
-      margin_bottom: 10,
-      hexpand: true });
+      margin_top: 10, margin_start: 10, margin_end: 10, margin_bottom: 10,
+      hexpand: true,
+      selectable: true,
+    });
     this.append(this.label);
   }
 });
@@ -172,7 +173,6 @@ export const ModuleMultiText = GObject.registerClass({
   constructor(label) {
     super({});
     this.add_css_class("boxed-list");
-    this.label = [];
     let table = null;
     for (let i in label) {
       if (label[i].split) label[i] = label[i].split("###");
@@ -196,7 +196,9 @@ export const ModuleMultiText = GObject.registerClass({
           label: label[i].slice(label[i].lastIndexOf("***") + 3),
           wrap: true,
           margin_top: 5, margin_start: 10, margin_end: 10, margin_bottom: 10,
-          hexpand: true });
+          hexpand: true,
+          selectable: true,
+        });
         box.append(label1);
         box.append(label2);
         listboxrow = new Gtk.ListBoxRow({
@@ -222,8 +224,10 @@ export const ModuleMultiText = GObject.registerClass({
             label: label[i],
             wrap: true,
             margin_top: 15, margin_start: 10, margin_end: 10, margin_bottom: 15,
-            hexpand: true })
-          });
+            hexpand: true,
+            selectable: true,
+          })
+        });
       }
       if (listboxrow != null) this.append(listboxrow);
     }
