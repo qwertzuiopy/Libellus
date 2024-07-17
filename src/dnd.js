@@ -27,7 +27,7 @@ import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
 import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
-import { BigDiv, Div, Card, Link, LinkCard, ModuleCardRow, ModuleText, ModuleTitle, ModuleLevelRow, ModuleStatRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
+import { BigDiv, Div, Card, Link, LinkCard, ModuleText, ModuleTitle, ModuleLevelRow, ModuleStatRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 import { ResultPage, SearchResult } from "./results.js";
 
 export const SearchResultPageSpell = GObject.registerClass({
@@ -225,7 +225,7 @@ export const SearchResultPageMagicGear = GObject.registerClass({
 
     let cards = [];
     cards.push(new Card("Rarity", this.data.rarity.name));
-    this.wrapper.append(new ModuleCardRow(cards));
+    this.wrapper.append(new BigDiv(cards));
 
     if (this.data.desc.length > 0) {
       this.wrapper.append(new ModuleTitle("Description", 3));

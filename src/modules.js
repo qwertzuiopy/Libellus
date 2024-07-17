@@ -123,22 +123,6 @@ export const Link = GObject.registerClass({
 });
 
 
-
-
-
-export const ModuleCardRow = GObject.registerClass({
-  GTypeName: 'ModuleCardRow',
-}, class extends Gtk.Box {
-  constructor(cards) {
-    super({});
-    this.spacing = 20;
-    this.cards = cards;
-    for (let i in this.cards) {
-      this.append(this.cards[i]);
-    }
-  }
-});
-
 export const ModuleTitle = GObject.registerClass({
   GTypeName: 'ModuleTitle',
 }, class extends Gtk.Label {
