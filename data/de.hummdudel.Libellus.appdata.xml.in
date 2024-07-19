@@ -23,8 +23,8 @@
   <url type="bugtracker">https://github.com/qwertzuiopy/Libellus/issues</url>
   <launchable type="desktop-id">de.hummdudel.Libellus.desktop</launchable>
   <branding>
-    <color type="primary" scheme_preference="light">#A88EE6</color>
-    <color type="primary" scheme_preference="dark">#241f31</color>
+    <color type="primary" scheme_preference="light">#c061cb</color>
+    <color type="primary" scheme_preference="dark">#813d9c</color>
   </branding>
   <screenshots>
     <screenshot type="default">
