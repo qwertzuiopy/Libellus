@@ -61,6 +61,11 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
+    <release version="1.0.5" date="2024-07-19">
+      <description>
+        <p>Fix the brand colors to have more contrast, make the main list sizing more consistent and allow copying of descriptions.</p>
+      </description>
+    </release>
     <release version="1.0.4" date="2024-07-01">
       <description>
         <p>Fix the ordering of Class Features + Fix long stat labels to wrap on small screens</p>

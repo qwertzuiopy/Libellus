@@ -48,7 +48,7 @@ export const LibellusApplication = GObject.registerClass(
                     application_name: 'Libellus',
                     application_icon: 'de.hummdudel.Libellus',
                     developer_name: 'Michael Hammer',
-                    version: '1.0.4',
+                    version: '1.0.5',
                     developers: [
                         'Michael Hammer'
                     ],
