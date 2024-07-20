@@ -1,7 +1,7 @@
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
-import { make_filter, filter_options, get_sync } from './window.js';
+import { make_filter, adapter } from './window.js';
 
 export const FilterDialog = GObject.registerClass({
   GTypeName: 'FilterDialog',
@@ -25,27 +25,27 @@ export const FilterDialog = GObject.registerClass({
   }
 
   filter_spells() {
-    this.push_filter(filter_options.Spells);
+    this.push_filter(adapter.filter_options.Spells);
   }
   filter_traits() {
-    this.push_filter(filter_options.Traits);
+    this.push_filter(adapter.filter_options.Traits);
   }
   filter_equipment() {
-    this.push_filter(filter_options.Items);
+    this.push_filter(adapter.filter_options.Items);
   }
   filter_monsters() {
-    this.push_filter(filter_options.Monsters);
+    this.push_filter(adapter.filter_options.Monsters);
   }
   filter_magic_items() {
-    this.push_filter(filter_options.MagicItems);
+    this.push_filter(adapter.filter_options.MagicItems);
   }
   filter_classes() {
-    this.filter = filter_options.Classes;
+    this.filter = adapter.filter_options.Classes;
     this.emit("applied");
     this.close();
   }
   filter_races() {
-    this.filter = filter_options.Races;
+    this.filter = adapter.filter_options.Races;
     this.emit("applied");
     this.close();
   }

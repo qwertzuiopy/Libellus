@@ -27,9 +27,18 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 
-import { resolve_link, get_search_results } from "./dnd.js";
-import { ResultPage, SearchResult } from "./results.js";
+import { resolve_link, get_search_results, get_sync, get_any_sync, get_any_async, filter_options, ident } from "./pf2e.js";
+export const adapter = {
+  resolve_link: resolve_link,
+  get_search_results: get_search_results,
+  get_sync: get_sync,
+  get_any_sync: get_any_sync,
+  get_any_async: get_any_async,
+  filter_options: filter_options,
+  ident: ident,
+};
 
+import { ResultPage, SearchResult } from "./results.js";
 import { FilterDialog } from "./filter.js";
 
 export const Tab = GObject.registerClass({
@@ -41,15 +50,7 @@ export const Tab = GObject.registerClass({
 });
 import { SheetTab } from "./character_sheet.js";
 
-
-import { API } from './api.js';
 import { DBUS } from './dbus.js';
-
-const use_local = true;
-
-const Soup = imports.gi.Soup;
-const Decoder = new TextDecoder();
-const session = Soup.Session.new();
 
 var window;
 
@@ -400,39 +401,6 @@ export const navigate = (data, navigation_view) => {
 }
 
 
-export const get_sync = (url) => {
-  if (use_local) {
-    let section = API[url.split("/")[2]]; // classes, spells, ...
-    const key = url.split("/")[3]; // barbarian, fireball, ...
-    if (!key) {
-      return { results: Object.values(section) };
-    }
-    if (url.split("/")[4]) { // catches urls of type "/api/classes/levels" which need to go to API["levels"]
-      section = API[url.split("/")[4]];
-      return Object.values(section).filter((i) => i.url.includes(key));
-    }
-    return section[key];
-  } else {
-    let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-
-    let s = session.send_and_read(msg, Gio.Cancellable.new()).get_data();
-    return JSON.parse(Decoder.decode(s));
-  }
-}
-
-export const get_any_sync = (url) => {
-  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-  return session.send_and_read(msg, Gio.Cancellable.new()).get_data();
-
-}
-
-
-export const get_any_async = (url, callback) => {
-  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-  session.send_and_read_async(msg, 1, Gio.Cancellable.new(), (a, b, c) => { callback(session.send_and_read_finish(b).get_data()); });
-}
-
-
 function read_sync(path) {
   const file = Gio.File.new_for_path(path);
 
@@ -442,11 +410,6 @@ function read_sync(path) {
   const contentsString = decoder.decode(contents);
   return contentsString;
 }
-
-
-
-
-
 
 
 export var bookmarks = [ { url: "/api/monsters/aboleth", name: "Aboleth" } ];
@@ -542,112 +505,6 @@ export const NavView = GObject.registerClass({
     }
   }
 });
-
-
-
-
-
-export const filter_options = {
-  Spells: {
-    title: "Spells",
-    choices: [
-      { title: "School", content: ["Any"].concat(get_sync("/api/magic-schools").results.map((i) => { return i.name; } )), selected: "Any" },
-      { title: "Level", min: 0, max: 9, value: 0, enabled: false },
-      { title: "Classes", content: ["Any"].concat(get_sync("/api/classes").results.map((i) => { return i.name; } )), selected: "Any" },
-    ],
-    func: (url, o) => {
-      if (!url.includes("spells")) return false;
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.school.name)
-          && (o.choices[1].enabled == false  || o.choices[1].value == data.level)
-          && (o.choices[2].selected == "Any" || data.classes.map((i) => i.name).indexOf(o.choices[2].selected) != -1);
-    },
-  },
-  Traits: {
-    title: "Traits",
-    choices: [
-      { title: "Classes", content: ["Any"].concat(get_sync("/api/races").results.map((i) => { return i.name; } )), selected: "Any" },
-    ],
-    func: (url, o) => {
-      if (!url.includes("traits")) return false;
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" || data.races.map((i) => i.name).indexOf(o.choices[0].selected) != -1);
-    },
-  },
-  Items: {
-    title: "Equipment",
-    choices: [
-      { title: "Categories", content: ["Any"].concat(get_sync("/api/equipment-categories").results
-        .map((i) => { return i.name; } ))
-        .filter((i) => i != "Land Vehicles" &&
-          i != "Wondrous Items" &&
-          i != "Rod" &&
-          i != "Potion" &&
-          i != "Ring" &&
-          i != "Scroll" &&
-          i != "Staff" &&
-          i != "Wand"), selected: "Any", enable_search: true },
-      { title: "Properties", content: ["Any"].concat(get_sync("/api/weapon-properties").results.map((i) => { return i.name; } )), selected: "Any", enable_search: true },
-    ],
-    func: (url, o) => {
-      if (!url.includes("equipment")) return false;
-      let data = get_sync(url);
-
-      let has = (s) =>
-        o.choices[0].selected.includes(s) || s.includes(o.choices[0].selected);
-
-      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.equipment_category.name ||
-        (data.gear_category && has(data.gear_category.name)) ||
-        (data.vehicle_category && has(data.vehicle_category)) ||
-        (data.armor_category && has(data.armor_category)) ||
-        (data.weapon_category && has(data.weapon_category)) ||
-        (data.weapon_range && has(data.weapon_range)) ||
-        (data.tool_category && has(data.tool_category))) && (
-        o.choices[1].selected == "Any" ||
-        data.properties && data.properties.map((i) => i.name).includes(o.choices[1].selected))
-
-
-    },
-  },
-  Monsters: {
-    title: "Monsters",
-    choices: [
-      { title: "Challenge Rating", min: 0, max: 50, value: 0, enabled: false },
-    ],
-    func: (url, o) => {
-      if (!url.includes("monsters")) return false;
-      let data = get_sync(url);
-      return o.choices[0].value == data.challenge_rating || o.choices[0].enabled == false;
-    },
-  },
-  MagicItems: {
-    title: "Magic Items",
-    choices: [
-      { title: "Rarity", content: ["Any", "Varies", "Common", "Uncommon", "Rare", "Very Rare", "Legendary", "Artifact"], selected: "Any" },
-      { title: "Type", content: ["Any", "Wondrous Item", "Rod", "Potion", "Ring", "Scroll", "Staff", "Wand"], selected: "Any" }
-    ],
-    func: (url, o) => {
-      if (!url.includes("magic-items")) return false;
-      let has = (s) =>
-        o.choices[1].selected.includes(s) || s.includes(o.choices[1].selected);
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" ||
-        o.choices[0].selected == data.rarity.name) && (
-        o.choices[1].selected == "Any" ||
-        data.equipment_category && has(data.equipment_category.name));
-    },
-  },
-  Classes: {
-    title: "Classes",
-    choices: [],
-    func: (url, o) => { return url.includes("classes"); },
-  },
-  Races: {
-    title: "Races",
-    choices: [],
-    func: (url, o) => { return url.includes("races"); },
-  },
-};
 
 
 export const make_filter = (filter) => {

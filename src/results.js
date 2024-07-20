@@ -26,7 +26,7 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
+import { make_manifest, unmake_manifest, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state, adapter } from "./window.js";
 import { ModuleTitle } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
@@ -40,12 +40,16 @@ export const SearchResult = GObject.registerClass({
     this.child = new Gtk.Box();
     let front = new Gtk.Box( { margin_start: 15, margin_top: 10, margin_bottom: 5, halign: Gtk.Align.START, hexpand: true, orientation: Gtk.Orientation.VERTICAL } );
     this.child.append(front);
-    front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["title"], halign: Gtk.Align.START, label: this.data.name } ));
-    front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url
-      .split("/")[2]
-      .split("-")
-      .map((str) => { return str.charAt(0).toUpperCase() + str.slice(1); } )
-      .join(" ") } ));
+    front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["title"], halign: Gtk.Align.START, label: this.data.name }));
+    if (adapter.ident == "dnd5e") {
+      front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url
+        .split("/")[2]
+        .split("-")
+        .map((str) => { return str.charAt(0).toUpperCase() + str.slice(1); } )
+        .join(" ") } ));
+    } else if (adapter.ident == "pf2e") {
+      front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url } ));
+    }
 
     // for searching
     this.name = this.data.name;

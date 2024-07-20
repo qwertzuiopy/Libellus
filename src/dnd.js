@@ -26,9 +26,13 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { make_manifest, unmake_manifest, get_sync, get_any_async, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
+import { make_manifest, unmake_manifest, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
 import { BigDiv, Div, Card, Link, LinkCard, ModuleText, ModuleTitle, ModuleLevelRow, ModuleStatRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 import { ResultPage, SearchResult } from "./results.js";
+
+
+export const indent = "dnd5e";
+
 
 export const SearchResultPageSpell = GObject.registerClass({
   GTypeName: 'SearchResultPageSpell',
@@ -100,7 +104,7 @@ export const SearchResultPageSpell = GObject.registerClass({
 
     this.wrapper.append(new ModuleLinkList(this.data.classes.map((i) => {
       return { item: i };
-    } ), navigation_view ));
+    }), navigation_view));
 
   }
 });
@@ -115,16 +119,16 @@ export const SearchResultPageArmor = GObject.registerClass({
       "Category",
       this.data.equipment_category.name,
       make_manifest("Items", [this.data.equipment_category.name, "Any"]),
-//      this.data.equipment_category,
+      //      this.data.equipment_category,
       navigation_view));
 
     cards.push(new Card("Cost", this.data.cost.quantity.toString() + this.data.cost.unit));
     cards.push(new Card("Weight", this.data.weight.toString() + "lb"));
     cards.push(new Card("Armor Class", this.data.armor_class.base.toString()
       + (this.data.armor_class.dex_bonus ? " + Dex"
-      + (this.data.armor_class.max_bonus ? " (max "
-      + this.data.armor_class.max_bonus.toString()
-      + ")" : "") : "")));
+        + (this.data.armor_class.max_bonus ? " (max "
+          + this.data.armor_class.max_bonus.toString()
+          + ")" : "") : "")));
 
     if (this.data.str_minimum != 0) {
       cards.push(new Card("Strength", "min " + this.data.str_minimum.toString()));
@@ -184,24 +188,24 @@ export const SearchResultPageGear = GObject.registerClass({
 
     this.wrapper.append(new BigDiv(cards));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     let counter = 0;
     if (this.data.range) {
       if (this.data.range.long) {
         this.statrows.append(new ModuleStatListRow("Range",
           [this.data.range.normal.toString()
-          + " ft normal", this.data.range.long.toString()
+            + " ft normal", this.data.range.long.toString()
           + " ft long"]));
       } else {
         this.statrows.append(new ModuleStatListRow("Range",
           [this.data.range.normal.toString() + " ft"]));
       }
-      counter ++;
+      counter++;
     }
     if (this.data.damage) {
       this.statrows.append(new ModuleStatListRow("Damage",
         [this.data.damage.damage_dice + " "
-        + this.data.damage.damage_type.name]));
+          + this.data.damage.damage_type.name]));
     }
     if (this.data.properties) {
       this.statrows.append(new ModuleShortLinkListRow("Properties", this.data.properties, this.navigation_view));
@@ -232,9 +236,9 @@ export const SearchResultPageMagicGear = GObject.registerClass({
       this.wrapper.append(new ModuleMultiText(this.data.desc));
     }
     if (this.data.variants.length > 0) {
-      this.wrapper.append(new ModuleLinkList(this.data.variants.map( (i) => {
+      this.wrapper.append(new ModuleLinkList(this.data.variants.map((i) => {
         return { item: i };
-      } ), this.navigation_view));
+      }), this.navigation_view));
     }
 
   }
@@ -325,9 +329,9 @@ export const SearchResultPageAbilityScore = GObject.registerClass({
 
     this.wrapper.append(new ModuleMultiText(this.data.desc));
 
-    this.wrapper.append(new ModuleLinkList(this.data.skills.map( (i) => {
+    this.wrapper.append(new ModuleLinkList(this.data.skills.map((i) => {
       return { item: i };
-    } ), this.navigation_view));
+    }), this.navigation_view));
 
   }
 });
@@ -346,8 +350,8 @@ export const SearchResultPageFeature = GObject.registerClass({
 
     this.wrapper.append(new ModuleMultiText(this.data.desc));
     let arr = [];
-    arr.push({item: this.data.class});
-    if (this.data.sub_class) arr.push({item: this.data.sub_class});
+    arr.push({ item: this.data.class });
+    if (this.data.sub_class) arr.push({ item: this.data.sub_class });
     this.wrapper.append(new ModuleLinkList(arr, this.navigation_view));
   }
 });
@@ -376,7 +380,7 @@ export const SearchResultPageMonster = GObject.registerClass({
       name: this.data.alignment.toString().split(" ").join("-"),
       url: "/api/alignments/"
         + this.data.alignment.toString().split(" ").join("-")
-      }, this.navigation_view));
+    }, this.navigation_view));
 
     cards.push(new Card("Armor Class", this.data.armor_class[0].value.toString()));
 
@@ -397,13 +401,13 @@ export const SearchResultPageMonster = GObject.registerClass({
 
     this.wrapper.append(new BigDiv(cards));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     this.wrapper.append(this.statrows);
 
     let s = [];
-    if (this.data.speed.walk)   s.push(this.data.speed.walk + " walk");
-    if (this.data.speed.swim)   s.push(this.data.speed.swim + " swim");
-    if (this.data.speed.fly)    s.push(this.data.speed.fly + " fly");
+    if (this.data.speed.walk) s.push(this.data.speed.walk + " walk");
+    if (this.data.speed.swim) s.push(this.data.speed.swim + " swim");
+    if (this.data.speed.fly) s.push(this.data.speed.fly + " fly");
     if (this.data.speed.burrow) s.push(this.data.speed.burrow + " burrow");
     if (this.data.speed.climb) s.push(this.data.speed.climb + " climb");
     this.statrows.append(new ModuleStatListRow("Speed", s));
@@ -411,56 +415,56 @@ export const SearchResultPageMonster = GObject.registerClass({
     this.statrows.append(new ModuleStatListRow("Languages", this.data.languages.split(", ")));
 
     s = [];
-    if (this.data.senses.blindsight  != undefined) s.push("blindsight "+this.data.senses.blindsight);
-    if (this.data.senses.darkvision  != undefined) s.push("darkvision "+this.data.senses.darkvision);
-    if (this.data.senses.tremorsense != undefined) s.push("tremorsense "+this.data.senses.tremorsense);
-    if (this.data.senses.truesight   != undefined) s.push("truesight "+this.data.senses.truesight);
+    if (this.data.senses.blindsight != undefined) s.push("blindsight " + this.data.senses.blindsight);
+    if (this.data.senses.darkvision != undefined) s.push("darkvision " + this.data.senses.darkvision);
+    if (this.data.senses.tremorsense != undefined) s.push("tremorsense " + this.data.senses.tremorsense);
+    if (this.data.senses.truesight != undefined) s.push("truesight " + this.data.senses.truesight);
     this.statrows.append(new ModuleStatListRow("Senses", s));
 
     this.statrows.append(new ModuleStatListRow("Saving Throws", this.data.proficiencies.filter((i) => {
       return i.proficiency.name.includes("Saving Throw");
-    } ).map( (i) => {
+    }).map((i) => {
       return "+"
         + i.value.toString() + " "
-        + i.proficiency.index.slice(i.proficiency.index.lastIndexOf("-")+1, i.proficiency.index.length)
-    } )));
+        + i.proficiency.index.slice(i.proficiency.index.lastIndexOf("-") + 1, i.proficiency.index.length)
+    })));
 
     this.statrows.append(new ModuleStatListRow("Skills", this.data.proficiencies.filter((i) => {
       return i.proficiency.name.includes("Skill");
-    } ).map( (i) => {
+    }).map((i) => {
       return "+"
         + i.value.toString() + " "
-        + i.proficiency.index.slice(i.proficiency.index.lastIndexOf("-")+1, i.proficiency.index.length)
-      } )));
+        + i.proficiency.index.slice(i.proficiency.index.lastIndexOf("-") + 1, i.proficiency.index.length)
+    })));
 
     if (this.data.desc) this.wrapper.append(new ModuleText(this.data.desc));
 
-    if (this.data.special_abilities)  {
+    if (this.data.special_abilities) {
       this.wrapper.append(new ModuleTitle("Abilities", 4));
-      this.wrapper.append(new ModuleMultiText(this.data.special_abilities.map( (i) => {
+      this.wrapper.append(new ModuleMultiText(this.data.special_abilities.map((i) => {
         // "***" gets interpreted as a list item by ModuleMultiText
         return "***"
-          + (!i.usage ? i.name : (i.name + " (" +i.usage.times+" "+i.usage.type+")" ))
+          + (!i.usage ? i.name : (i.name + " (" + i.usage.times + " " + i.usage.type + ")"))
           + ".***" + i.desc;
-        } )));
+      })));
     }
 
     if (this.data.actions) {
       this.wrapper.append(new ModuleTitle("Actions", 4));
-      this.wrapper.append(new ModuleMultiText(this.data.actions.map( (i) => {
+      this.wrapper.append(new ModuleMultiText(this.data.actions.map((i) => {
         return "***"
-          + (!i.usage ? i.name : (i.name + " (" +i.usage.times+" "+i.usage.type+")" ))
+          + (!i.usage ? i.name : (i.name + " (" + i.usage.times + " " + i.usage.type + ")"))
           + ".***" + i.desc;
-        } )));
+      })));
     }
 
     if (this.data.legendary_actions && this.data.legendary_actions.length > 0) {
       this.wrapper.append(new ModuleTitle("Legendary Actions", 4));
-      this.wrapper.append(new ModuleMultiText(this.data.legendary_actions.map( (i) => {
+      this.wrapper.append(new ModuleMultiText(this.data.legendary_actions.map((i) => {
         return "***"
-          + (!i.usage ? i.name : (i.name + " (" +i.usage.times+" "+i.usage.type+")" ))
+          + (!i.usage ? i.name : (i.name + " (" + i.usage.times + " " + i.usage.type + ")"))
           + ".***" + i.desc;
-        } )));
+      })));
     }
   }
 });
@@ -474,9 +478,9 @@ export const SearchResultPageClass = GObject.registerClass({
     let cards = [];
     cards.push(new Card("Hit die", "d"
       + this.data.hit_die.toString()
-      + " ("+Math.ceil(this.data.hit_die / 2 +0.5) + ")"));
+      + " (" + Math.ceil(this.data.hit_die / 2 + 0.5) + ")"));
 
-    cards.push(new Card("HP at Level 1", "Constitution + " + this.data.hit_die ));
+    cards.push(new Card("HP at Level 1", "Constitution + " + this.data.hit_die));
     if (this.data.spellcasting) {
       cards.push(new LinkCard(
         "Spellcasting",
@@ -489,7 +493,7 @@ export const SearchResultPageClass = GObject.registerClass({
 
     this.wrapper.append(new BigDiv(cards));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     this.wrapper.append(this.statrows);
 
     for (let i in this.data.proficiency_choices) {
@@ -499,9 +503,9 @@ export const SearchResultPageClass = GObject.registerClass({
       } else {
         let s = "";
         let arr = choice.from.options;
-        arr = arr.map((i) => { return get_sync(i.item.url).reference; } );
+        arr = arr.map((i) => { return get_sync(i.item.url).reference; });
         if (choice.from.options[0].item.name.includes("Skill")) {
-          s = "Skills: Choose "+choice.choose.toString();
+          s = "Skills: Choose " + choice.choose.toString();
         } else {
           s = choice.desc;
         }
@@ -512,9 +516,9 @@ export const SearchResultPageClass = GObject.registerClass({
     this.statrows.append(new ModuleLinkListRow("Proficiencies", this.data.proficiencies.filter((i) => {
       return !i.url.includes("saving-throw")
     }).map((i) => {
-      return get_url_for_proficiency (i);
+      return get_url_for_proficiency(i);
 
-    } ), this.navigation_view));
+    }), this.navigation_view));
 
     this.statrows.append(new ModuleShortLinkListRow(
       "Saving Throws",
@@ -532,37 +536,41 @@ export const SearchResultPageClass = GObject.registerClass({
     this.wrapper.append(new ModuleTitle("Starting Equipment", 4));
     if (this.data.starting_equipment.length > 0) {
       this.wrapper.append(new ModuleLinkList(this.data.starting_equipment.map((i) => {
-        return { item: {
-          url: i.equipment.url,
-          name: i.quantity > 1 ? (i.quantity.toString() + "x "+  i.equipment.name) : i.equipment.name }
+        return {
+          item: {
+            url: i.equipment.url,
+            name: i.quantity > 1 ? (i.quantity.toString() + "x " + i.equipment.name) : i.equipment.name
+          }
         };
-      } ), this.navigation_view));
+      }), this.navigation_view));
     }
 
-    this.wrapper.append(new ModuleMultiText(this.data.starting_equipment_options.map((i) => i.desc ), 4));
+    this.wrapper.append(new ModuleMultiText(this.data.starting_equipment_options.map((i) => i.desc), 4));
 
     this.wrapper.append(new ModuleTitle("Subclasses", 4));
     this.wrapper.append(new ModuleLinkList(this.data.subclasses.map((i) => {
-      return { item: i};
-    } ), this.navigation_view));
+      return { item: i };
+    }), this.navigation_view));
 
     let level_data = get_sync(this.data.class_levels);
-    level_data.sort((a, b) => { return a.level - b.level; } );
+    level_data.sort((a, b) => { return a.level - b.level; });
 
-    let level_select = new Gtk.Box( { halign: Gtk.Align.CENTER, spacing: 10 } );
+    let level_select = new Gtk.Box({ halign: Gtk.Align.CENTER, spacing: 10 });
     this.wrapper.append(level_select);
 
-    level_select.append(new Gtk.Label( {
+    level_select.append(new Gtk.Label({
       label: "Stats on Level",
-      css_classes: ["title-4"] } ));
+      css_classes: ["title-4"]
+    }));
 
     this.level_spin = Gtk.SpinButton.new_with_range(1, 20, 1);
     level_select.append(this.level_spin);
 
     this.level_children = [];
-    this.level_box = new Gtk.Box( {
+    this.level_box = new Gtk.Box({
       orientation: Gtk.Orientation.VERTICAL,
-      spacing: 30 } );
+      spacing: 30
+    });
     this.wrapper.append(this.level_box);
 
     this.update_levels = () => {
@@ -571,7 +579,7 @@ export const SearchResultPageClass = GObject.registerClass({
       }
       this.level_children = [];
 
-      let d = level_data[this.level_spin.value-1];
+      let d = level_data[this.level_spin.value - 1];
       if (d.spellcasting) {
         let t = {};
         let n = 0;
@@ -614,7 +622,7 @@ export const SearchResultPageClass = GObject.registerClass({
 
 
     this.wrapper.append(new ModuleTitle("Features", 4));
-    let level_list = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    let level_list = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     for (let i in level_data) {
       level_list.append(new ModuleLevelRow(level_data[i], this.navigation_view));
     }
@@ -631,10 +639,10 @@ export const SearchResultPageSubclass = GObject.registerClass({
     this.wrapper.append(new ModuleMultiText(data.desc));
 
     let level_data = get_sync(this.data.subclass_levels);
-    level_data.sort((a, b) => { return a.level - b.level; } );
+    level_data.sort((a, b) => { return a.level - b.level; });
 
     this.wrapper.append(new ModuleTitle("Features", 4));
-    let level_list = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    let level_list = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     for (let i in level_data) {
       level_list.append(new ModuleLevelRow(level_data[i], this.navigation_view));
     }
@@ -644,16 +652,17 @@ export const SearchResultPageSubclass = GObject.registerClass({
       let spells = this.data.spells.map((i) => {
         return {
           name: i.spell.name + ": " + i.prerequisites.map((j) => {
-            if ( j.type != "level") {
+            if (j.type != "level") {
               log("ERROR subclass spells");
             }
-            return "Level"+j.name.slice(-2);
+            return "Level" + j.name.slice(-2);
           }).join(" "),
-          url: i.spell.url }
-        } );
+          url: i.spell.url
+        }
+      });
       this.wrapper.append(new ModuleLinkList(spells.map((i) => {
         return { item: i };
-      } ), navigation_view));
+      }), navigation_view));
     }
 
 
@@ -663,15 +672,15 @@ export const SearchResultPageSubclass = GObject.registerClass({
         specific[0].push(j.split("_").join(" "));
       }
       for (let i in level_data) {
-        specific[i+1] = [i];
+        specific[i + 1] = [i];
         for (let j in level_data[i].subclass_specific) {
-          specific[i+1].push(level_data[i].subclass_specific[j].toString());
+          specific[i + 1].push(level_data[i].subclass_specific[j].toString());
         }
       }
-      this.wrapper.append(new Adw.Bin( {
+      this.wrapper.append(new Adw.Bin({
         css_classes: ["card"],
         child: new ModuleNTable(specific)
-      } ));
+      }));
     }
 
   }
@@ -692,12 +701,12 @@ export const SearchResultPageRace = GObject.registerClass({
     this.wrapper.append(new BigDiv(cards));
 
     this.wrapper.append(new ModuleMultiText([
-      "***Age.***"+this.data.age,
-      "***Alignment.***"+this.data.alignment,
-      "***Languages.***"+this.data.language_desc,
-      "***Size.***"+this.data.size_description]));
+      "***Age.***" + this.data.age,
+      "***Alignment.***" + this.data.alignment,
+      "***Languages.***" + this.data.language_desc,
+      "***Size.***" + this.data.size_description]));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     this.wrapper.append(this.statrows);
     for (let i in this.data.starting_proficiency_choices) {
       if (!this.data.starting_proficiency_choices[i].from.options[0].item) {
@@ -705,9 +714,9 @@ export const SearchResultPageRace = GObject.registerClass({
       } else {
         let s = "";
         let arr = this.data.starting_proficiency_choices[i].from.options;
-        arr = arr.map((i) => { return get_sync(i.item.url).reference; } );
+        arr = arr.map((i) => { return get_sync(i.item.url).reference; });
         if (this.data.starting_proficiency_choices[i].from.options[0].item.name.includes("Skill")) {
-          s = "Skills: Choose "+this.data.starting_proficiency_choices[i].choose.toString();
+          s = "Skills: Choose " + this.data.starting_proficiency_choices[i].choose.toString();
         } else {
           s = this.data.starting_proficiency_choices[i].desc;
         }
@@ -719,11 +728,11 @@ export const SearchResultPageRace = GObject.registerClass({
       return !i.url.includes("saving-throw")
     }).map((i) => {
       return get_sync(i.url).reference;
-    } ), this.navigation_view));
+    }), this.navigation_view));
 
     this.statrows.append(new ModuleStatListRow("Ability bonuses", this.data.ability_bonuses.map((i) => {
-      return "+" + i.bonus.toString() + " " +i.ability_score.name;
-    } )));
+      return "+" + i.bonus.toString() + " " + i.ability_score.name;
+    })));
 
     this.statrows.append(new ModuleStatListRow("Languages", this.data.languages.map((i) => i.name)));
 
@@ -734,8 +743,8 @@ export const SearchResultPageRace = GObject.registerClass({
 
     this.wrapper.append(new ModuleTitle("Subraces", 4));
     this.wrapper.append(new ModuleLinkList(this.data.subraces.map((i) => {
-      return { item: i};
-    } ), this.navigation_view));
+      return { item: i };
+    }), this.navigation_view));
 
   }
 });
@@ -751,18 +760,18 @@ export const SearchResultPageSubrace = GObject.registerClass({
 
     this.wrapper.append(new ModuleText(this.data.desc));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     this.wrapper.append(this.statrows);
 
     this.statrows.append(new ModuleShortLinkListRow("Proficiencies", this.data.starting_proficiencies.filter((i) => {
       return !i.url.includes("saving-throw");
     }).map((i) => {
       return get_sync(i.url).reference;
-    } ), this.navigation_view));
+    }), this.navigation_view));
 
     this.statrows.append(new ModuleStatListRow("Ability bonuses", this.data.ability_bonuses.map((i) => {
-      return "+" + i.bonus.toString() + " " +i.ability_score.name;
-    } )));
+      return "+" + i.bonus.toString() + " " + i.ability_score.name;
+    })));
 
     this.statrows.append(new ModuleStatListRow("Languages", this.data.languages.map((i) => i.name)));
 
@@ -784,14 +793,14 @@ export const SearchResultPageTrait = GObject.registerClass({
 
     this.wrapper.append(new ModuleMultiText(this.data.desc));
 
-    this.statrows = new Gtk.ListBox( { css_classes: ["boxed-list"] } );
+    this.statrows = new Gtk.ListBox({ css_classes: ["boxed-list"] });
     let hascontent = false;
     // for some unholy reason this.data.proficiency_choices isn't an array in the API like literally everywhere else!
     // and does not have the same attributes
     if (this.data.proficiency_choices) {
       hascontent = true;
       let s = "Choose " + this.data.proficiency_choices.choose + ":";
-      let arr = this.data.proficiency_choices.from.options.map((i)=>i.item);
+      let arr = this.data.proficiency_choices.from.options.map((i) => i.item);
       this.statrows.append(new ModuleShortLinkListRow(s, arr, this.navigation_view));
     }
 
@@ -800,10 +809,10 @@ export const SearchResultPageTrait = GObject.registerClass({
       this.statrows.append(new ModuleLinkListRow(
         "Proficiencies",
         this.data.proficiencies.filter((i) => {
-            return !i.url.includes("saving-throw")
-          }).map((i) => {
-            return get_sync(i.url).reference;
-          } ),
+          return !i.url.includes("saving-throw")
+        }).map((i) => {
+          return get_sync(i.url).reference;
+        }),
         this.navigation_view));
     }
 
@@ -838,15 +847,15 @@ export const SearchResultPageTrait = GObject.registerClass({
     if (this.data.subraces.length > 0) {
       this.wrapper.append(new ModuleTitle("Subraces", 4));
       this.wrapper.append(new ModuleLinkList(this.data.subraces.map((i) => {
-        return { item: i};
-      } ), this.navigation_view));
+        return { item: i };
+      }), this.navigation_view));
     }
 
     if (this.data.races.length > 0) {
       this.wrapper.append(new ModuleTitle("Races", 4));
       this.wrapper.append(new ModuleLinkList(this.data.races.map((i) => {
-        return { item: i};
-      } ), this.navigation_view));
+        return { item: i };
+      }), this.navigation_view));
     }
 
   }
@@ -865,21 +874,22 @@ export const SearchResultPageWeaponProperty = GObject.registerClass({
 
 
 export const get_search_results = (results) => {
-    results = results.concat(get_sync("/api/classes").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/subclasses").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/races").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/subraces").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/monsters").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/spells").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/equipment").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/magic-items").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/traits").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/alignments").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/skills").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/magic-schools").results.map((a) => new SearchResult(a)));
-    results = results.concat(get_sync("/api/weapon-properties").results.map((a) => new SearchResult(a)));
-    return results;
+  results = results.concat(get_sync("/api/classes").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/subclasses").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/races").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/subraces").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/monsters").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/spells").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/equipment").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/magic-items").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/traits").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/alignments").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/skills").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/magic-schools").results.map((a) => new SearchResult(a)));
+  results = results.concat(get_sync("/api/weapon-properties").results.map((a) => new SearchResult(a)));
+  return results;
 }
+
 export const resolve_link = (data, navigation_view) => {
   var page_data = get_sync(data.url);
   var page = null;
@@ -921,6 +931,146 @@ export const resolve_link = (data, navigation_view) => {
   return page;
 }
 
+const Soup = imports.gi.Soup;
+const Decoder = new TextDecoder();
+const session = Soup.Session.new();
+const use_local = true;
+import { API } from './api.js';
+
+export const get_sync = (url) => {
+  if (use_local) {
+    let section = API[url.split("/")[2]]; // classes, spells, ...
+    const key = url.split("/")[3]; // barbarian, fireball, ...
+    if (!key) {
+      return { results: Object.values(section) };
+    }
+    if (url.split("/")[4]) { // catches urls of type "/api/classes/levels" which need to go to API["levels"]
+      section = API[url.split("/")[4]];
+      return Object.values(section).filter((i) => i.url.includes(key));
+    }
+    return section[key];
+  } else {
+    let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
+
+    let s = session.send_and_read(msg, Gio.Cancellable.new()).get_data();
+    return JSON.parse(Decoder.decode(s));
+  }
+}
+
+export const get_any_sync = (url) => {
+  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
+  return session.send_and_read(msg, Gio.Cancellable.new()).get_data();
+}
+
+export const get_any_async = (url, callback) => {
+  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
+  session.send_and_read_async(msg, 1, Gio.Cancellable.new(), (a, b, c) => { callback(session.send_and_read_finish(b).get_data()); });
+}
+
+
+export const filter_options = {
+  Spells: {
+    title: "Spells",
+    choices: [
+      { title: "School", content: ["Any"].concat(get_sync("/api/magic-schools").results.map((i) => { return i.name; })), selected: "Any" },
+      { title: "Level", min: 0, max: 9, value: 0, enabled: false },
+      { title: "Classes", content: ["Any"].concat(get_sync("/api/classes").results.map((i) => { return i.name; })), selected: "Any" },
+    ],
+    func: (url, o) => {
+      if (!url.includes("spells")) return false;
+      let data = get_sync(url);
+      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.school.name)
+        && (o.choices[1].enabled == false || o.choices[1].value == data.level)
+        && (o.choices[2].selected == "Any" || data.classes.map((i) => i.name).indexOf(o.choices[2].selected) != -1);
+    },
+  },
+  Traits: {
+    title: "Traits",
+    choices: [
+      { title: "Classes", content: ["Any"].concat(get_sync("/api/races").results.map((i) => { return i.name; })), selected: "Any" },
+    ],
+    func: (url, o) => {
+      if (!url.includes("traits")) return false;
+      let data = get_sync(url);
+      return (o.choices[0].selected == "Any" || data.races.map((i) => i.name).indexOf(o.choices[0].selected) != -1);
+    },
+  },
+  Items: {
+    title: "Equipment",
+    choices: [
+      {
+        title: "Categories", content: ["Any"].concat(get_sync("/api/equipment-categories").results
+          .map((i) => { return i.name; }))
+          .filter((i) => i != "Land Vehicles" &&
+            i != "Wondrous Items" &&
+            i != "Rod" &&
+            i != "Potion" &&
+            i != "Ring" &&
+            i != "Scroll" &&
+            i != "Staff" &&
+            i != "Wand"), selected: "Any", enable_search: true
+      },
+      { title: "Properties", content: ["Any"].concat(get_sync("/api/weapon-properties").results.map((i) => { return i.name; })), selected: "Any", enable_search: true },
+    ],
+    func: (url, o) => {
+      if (!url.includes("equipment")) return false;
+      let data = get_sync(url);
+
+      let has = (s) =>
+        o.choices[0].selected.includes(s) || s.includes(o.choices[0].selected);
+
+      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.equipment_category.name ||
+        (data.gear_category && has(data.gear_category.name)) ||
+        (data.vehicle_category && has(data.vehicle_category)) ||
+        (data.armor_category && has(data.armor_category)) ||
+        (data.weapon_category && has(data.weapon_category)) ||
+        (data.weapon_range && has(data.weapon_range)) ||
+        (data.tool_category && has(data.tool_category))) && (
+          o.choices[1].selected == "Any" ||
+          data.properties && data.properties.map((i) => i.name).includes(o.choices[1].selected))
+
+
+    },
+  },
+  Monsters: {
+    title: "Monsters",
+    choices: [
+      { title: "Challenge Rating", min: 0, max: 50, value: 0, enabled: false },
+    ],
+    func: (url, o) => {
+      if (!url.includes("monsters")) return false;
+      let data = get_sync(url);
+      return o.choices[0].value == data.challenge_rating || o.choices[0].enabled == false;
+    },
+  },
+  MagicItems: {
+    title: "Magic Items",
+    choices: [
+      { title: "Rarity", content: ["Any", "Varies", "Common", "Uncommon", "Rare", "Very Rare", "Legendary", "Artifact"], selected: "Any" },
+      { title: "Type", content: ["Any", "Wondrous Item", "Rod", "Potion", "Ring", "Scroll", "Staff", "Wand"], selected: "Any" }
+    ],
+    func: (url, o) => {
+      if (!url.includes("magic-items")) return false;
+      let has = (s) =>
+        o.choices[1].selected.includes(s) || s.includes(o.choices[1].selected);
+      let data = get_sync(url);
+      return (o.choices[0].selected == "Any" ||
+        o.choices[0].selected == data.rarity.name) && (
+          o.choices[1].selected == "Any" ||
+          data.equipment_category && has(data.equipment_category.name));
+    },
+  },
+  Classes: {
+    title: "Classes",
+    choices: [],
+    func: (url, o) => { return url.includes("classes"); },
+  },
+  Races: {
+    title: "Races",
+    choices: [],
+    func: (url, o) => { return url.includes("races"); },
+  },
+};
 
 
 function get_url_for_proficiency(data) {
@@ -933,7 +1083,3 @@ function get_url_for_proficiency(data) {
     return reference;
   }
 }
-
-
-
-

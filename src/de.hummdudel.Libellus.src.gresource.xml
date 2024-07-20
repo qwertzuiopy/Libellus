@@ -5,8 +5,10 @@
     <file>window.js</file>
     <file>filter.js</file>
     <file>api.js</file>
-    <file>modules.js</file>
     <file>dnd.js</file>
+    <file>api_pf2e.js</file>
+    <file>pf2e.js</file>
+    <file>modules.js</file>
     <file>results.js</file>
     <file>character_sheet.js</file>
     <file>dbus.js</file>
