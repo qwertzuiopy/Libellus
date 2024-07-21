@@ -25,6 +25,11 @@
             <child type="top">
               <object class="AdwHeaderBar" id="header_bar">
                 <child type="start">
+                  <object class="GtkButton" id="open_file_test_button">
+                    <property name="label">OPEN</property>
+                  </object>
+                </child>
+                <child type="start">
                   <object class="GtkButton" id="back_button">
                     <property name="icon-name">go-previous</property>
                   </object>

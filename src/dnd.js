@@ -31,7 +31,7 @@ import { BigDiv, Div, Card, Link, LinkCard, ModuleText, ModuleTitle, ModuleLevel
 import { ResultPage, SearchResult } from "./results.js";
 
 
-export const indent = "dnd5e";
+export const ident = "dnd5e";
 
 
 export const SearchResultPageSpell = GObject.registerClass({

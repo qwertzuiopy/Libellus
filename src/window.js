@@ -27,8 +27,15 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 
-import { resolve_link, get_search_results, get_sync, get_any_sync, get_any_async, filter_options, ident } from "./pf2e.js";
-export const adapter = {
+import { resolve_link,
+  get_search_results,
+  get_sync,
+  get_any_sync,
+  get_any_async,
+  filter_options,
+  ident } from "./dnd.js";
+
+export let adapter = {
   resolve_link: resolve_link,
   get_search_results: get_search_results,
   get_sync: get_sync,
@@ -72,6 +79,8 @@ export const LibellusWindow = GObject.registerClass({
     "tab_button",
     "new_tab" ,
     "back_button",
+
+    "open_file_test_button",
   ],
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
@@ -197,6 +206,58 @@ export const LibellusWindow = GObject.registerClass({
       this.header_bar.pack_start(this.new_tab);
       this.header_bar.pack_end(this.bookmark_button);
       this.header_bar.pack_end(this.tab_button);
+    });
+
+
+
+
+
+
+    this.source_resource = null;
+
+    this.open_file_test_button.connect("clicked", () => {
+      const fileDialog = new Gtk.FileDialog();
+        fileDialog.open(this, null, async (self, result) => {
+        try {
+          const file = self.open_finish(result);
+          if (file) {
+            let bytes = file.load_bytes (null)[0];
+            let resource = Gio.Resource.new_from_data(bytes);
+            if (this.source_resource) {
+              Gio.resources_unregister(this.source_resource);
+            }
+            Gio.resources_register(resource);
+            this.source_resource = resource;
+            import('resource://de/hummdudel/Libellus/database/js/adapter.js').then((module) => {
+              log("######");
+              log("from module: " + module.ping());
+
+              for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
+                this.tab_view.close_page(this.tab_view.get_nth_page(0));
+              }
+
+              adapter = {
+                resolve_link: module.resolve_link,
+                get_search_results: module.get_search_results,
+                get_sync: module.get_sync,
+                get_any_sync: module.get_any_sync,
+                get_any_async: module.get_any_async,
+                filter_options: module.filter_options,
+                ident: module.ident,
+              };
+
+              let tab = new SearchTab(new NavView());
+              let tab_page = this.tab_view.append(tab.navigation_view);
+              tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+              tab.navigation_view.window = this;
+              this.tab_view.selected_page = tab_page;
+
+            }).catch((e) => { log(e); } );
+          }
+        } catch(e) {
+          log("oops: " + e);
+        }
+      });
     });
 
 
@@ -343,7 +404,7 @@ const SearchTab = GObject.registerClass({
     }
     this.entry.connect("changed", this.update_search);
 
-    this.results = get_search_results([]);
+    this.results = adapter.get_search_results([]);
 
 
     for (let i = 0; i < this.results.length; i++) {
@@ -388,8 +449,8 @@ export const navigate = (data, navigation_view) => {
     page.set_filter(unmake_manifest(data));
     return;
   }
-  var page_data = get_sync(data.url);
-  var page = resolve_link(data, navigation_view);
+  var page_data = adapter.get_sync(data.url);
+  var page = adapter.resolve_link(data, navigation_view);
   if (page == null) {
     log("could not navigate to " + data.url);
   }
