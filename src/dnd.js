@@ -26,13 +26,11 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { make_manifest, unmake_manifest, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state } from "./window.js";
+import { make_manifest, score_to_modifier } from "./window.js";
 import { BigDiv, Div, Card, Link, LinkCard, ModuleText, ModuleTitle, ModuleLevelRow, ModuleStatRow, ImageAsync, ModuleLinkListRow, ModuleShortLinkListRow, ModuleStatListRow, ModuleLinkList, ModuleNTable, Module2Table, ModuleMultiText } from "./modules.js";
 import { ResultPage, SearchResult } from "./results.js";
 
-
 export const ident = "dnd5e";
-
 
 export const SearchResultPageSpell = GObject.registerClass({
   GTypeName: 'SearchResultPageSpell',

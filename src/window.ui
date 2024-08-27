@@ -24,11 +24,7 @@
             <property name="reveal-bottom-bars">False</property>
             <child type="top">
               <object class="AdwHeaderBar" id="header_bar">
-                <child type="start">
-                  <object class="GtkButton" id="open_file_test_button">
-                    <property name="label">OPEN</property>
-                  </object>
-                </child>
+
                 <child type="start">
                   <object class="GtkButton" id="back_button">
                     <property name="icon-name">go-previous</property>
@@ -50,6 +46,11 @@
                     <property name="popover">
                       <object class="GtkPopover" id="bookmark_popover"/>
                     </property>
+                  </object>
+                </child>
+                <child type="end">
+                  <object class="GtkButton" id="library_button">
+                    <property name="icon-name">library-symbolic</property>
                   </object>
                 </child>
                 <child type="end">

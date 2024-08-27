@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="Adw" version="1.0"/>
+  <template class="SourceRow" parent="AdwActionRow">
+    <property name="activatable">true</property>
+    <child type="suffix">
+      <object class="GtkButton" id="remove_button">
+        <style>
+          <class name="error"/>
+        </style>
+        <property name="valign">center</property>
+        <property name="icon-name">user-trash-symbolic</property>
+        <signal name="clicked" handler="remove_row" swapped="no"/>
+      </object>
+    </child>
+    <child type="suffix">
+      <object class="GtkImage">
+        <property name="icon-name">go-next</property>
+      </object>
+    </child>
+  </template>
+</interface>
+

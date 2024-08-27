@@ -4,6 +4,7 @@
     <file>main.js</file>
     <file>window.js</file>
     <file>filter.js</file>
+    <file>source.js</file>
     <file>api.js</file>
     <file>dnd.js</file>
     <file>modules.js</file>

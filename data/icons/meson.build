@@ -18,6 +18,7 @@ action_icons = [
     join_paths(action_dir, 'star-large-symbolic.svg'),
     join_paths(action_dir, 'funnel-outline-symbolic.svg'),
     join_paths(action_dir, 'funnel-symbolic.svg'),
+    join_paths(action_dir, 'library-symbolic.svg'),
 ]
 install_data(
   action_icons,

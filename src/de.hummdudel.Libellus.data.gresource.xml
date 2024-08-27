@@ -5,6 +5,8 @@
     <file preprocess="xml-stripblanks">filter_dialog.ui</file>
     <file preprocess="xml-stripblanks">filter_row.ui</file>
     <file preprocess="xml-stripblanks">filter_page.ui</file>
+    <file preprocess="xml-stripblanks">source_dialog.ui</file>
+    <file preprocess="xml-stripblanks">source_row.ui</file>
     <file preprocess="xml-stripblanks">gtk/help-overlay.ui</file>
     <!-- <file>api/5e-SRD-Ability-Scores.json</file> -->
     <!-- <file>api/5e-SRD-Alignments.json</file> -->

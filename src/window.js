@@ -47,6 +47,7 @@ export let adapter = {
 
 import { ResultPage, SearchResult } from "./results.js";
 import { FilterDialog } from "./filter.js";
+import { SourceDialog } from "./source.js";
 
 export const Tab = GObject.registerClass({
   GTypeName: 'Tab',
@@ -79,8 +80,7 @@ export const LibellusWindow = GObject.registerClass({
     "tab_button",
     "new_tab" ,
     "back_button",
-
-    "open_file_test_button",
+    "library_button",
   ],
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
@@ -189,77 +189,157 @@ export const LibellusWindow = GObject.registerClass({
 
     this.breakpoint.connect("apply", () => {
       this.header_bar.remove(this.bookmark_button);
+      this.header_bar.remove(this.library_button);
       this.header_bar.remove(this.back_button);
       this.header_bar.remove(this.tab_button);
       this.header_bar.remove(this.new_tab);
       this.bottom_bar.pack_start(this.back_button);
       this.bottom_bar.pack_start(this.new_tab);
       this.bottom_bar.pack_end(this.bookmark_button);
+      this.bottom_bar.pack_end(this.library_button);
       this.bottom_bar.pack_end(this.tab_button);
     });
     this.breakpoint.connect("unapply", () => {
       this.bottom_bar.remove(this.bookmark_button);
+      this.bottom_bar.remove(this.library_button);
       this.bottom_bar.remove(this.back_button);
       this.bottom_bar.remove(this.tab_button);
       this.bottom_bar.remove(this.new_tab);
       this.header_bar.pack_start(this.back_button);
       this.header_bar.pack_start(this.new_tab);
       this.header_bar.pack_end(this.bookmark_button);
+      this.header_bar.pack_end(this.library_button);
       this.header_bar.pack_end(this.tab_button);
     });
 
 
-
-
-
-
     this.source_resource = null;
+    this.source_index = 0;
 
-    this.open_file_test_button.connect("clicked", () => {
-      const fileDialog = new Gtk.FileDialog();
-        fileDialog.open(this, null, async (self, result) => {
-        try {
-          const file = self.open_finish(result);
-          if (file) {
-            let bytes = file.load_bytes (null)[0];
-            let resource = Gio.Resource.new_from_data(bytes);
-            if (this.source_resource) {
-              Gio.resources_unregister(this.source_resource);
-            }
-            Gio.resources_register(resource);
-            this.source_resource = resource;
-            import('resource://de/hummdudel/Libellus/database/js/adapter.js').then((module) => {
-              log("######");
-              log("from module: " + module.ping());
+    this.import_source = (path) => {
+      const file = Gio.File.new_for_path(GLib.build_filenamev( [ GLib.get_user_data_dir(), "Sources", path ] ));
+      let bytes = file.load_bytes (null)[0];
+      let resource = Gio.Resource.new_from_data(bytes);
+      if (this.source_resource) {
+        adapter = {};
+        Gio.resources_unregister(this.source_resource);
+      }
+      Gio.resources_register(resource);
+      this.source_resource = resource;
 
-              for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
-                this.tab_view.close_page(this.tab_view.get_nth_page(0));
-              }
+      bytes = this.source_resource.lookup_data('/de/hummdudel/Libellus/database/manifest.json', 0);
+      let array = bytes.toArray();
+      let string = new TextDecoder().decode(array);
+      let data = JSON.parse(string);
 
-              adapter = {
-                resolve_link: module.resolve_link,
-                get_search_results: module.get_search_results,
-                get_sync: module.get_sync,
-                get_any_sync: module.get_any_sync,
-                get_any_async: module.get_any_async,
-                filter_options: module.filter_options,
-                ident: module.ident,
-              };
+      sources.push( {
+          built_in: false,
+          path: path,
+          name: data.name,
+          bookmarks: [],
+        } );
+      save_state();
+      this.load_source (sources.length - 1);
+    };
 
-              let tab = new SearchTab(new NavView());
-              let tab_page = this.tab_view.append(tab.navigation_view);
-              tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
-              tab.navigation_view.window = this;
-              this.tab_view.selected_page = tab_page;
+    this.delete_source = (index) => {
+      if (index == 0) {
+        log("trying to delete built-in source");
+        return;
+      }
+      if (this.source_index == index) {
+        this.load_source(0);
+      }
+      sources.splice(index, 1);
+      save_state();
+    };
 
-            }).catch((e) => { log(e); } );
+    this.load_source = async (index) => {
+      // giant ugly try / catch block to get errors printed to the console
+      try {
+        const source = sources[index];
+        if (source.built_in) {
+          this.source_index = index;
+
+          for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
+            this.tab_view.close_page(this.tab_view.get_nth_page(0));
           }
-        } catch(e) {
-          log("oops: " + e);
-        }
-      });
-    });
 
+          adapter = {
+            resolve_link: resolve_link,
+            get_search_results: get_search_results,
+            get_sync: get_sync,
+            get_any_sync: get_any_sync,
+            get_any_async: get_any_async,
+            filter_options: filter_options,
+            ident: ident,
+          };
+
+          let tab = new SearchTab(new NavView());
+          let tab_page = this.tab_view.append(tab.navigation_view);
+          tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+          tab.navigation_view.window = this;
+          this.tab_view.selected_page = tab_page;
+        } else {
+          const file = Gio.File.new_for_path(GLib.build_filenamev( [ GLib.get_user_data_dir(), "Sources", source.path ] ));
+
+          let bytes = file.load_bytes (null)[0];
+          let resource = Gio.Resource.new_from_data(bytes);
+
+          if (this.source_resource) {
+            adapter = {};
+            Gio.resources_unregister(this.source_resource);
+          }
+
+          Gio.resources_register(resource);
+          this.source_resource = resource;
+          this.source_index = index;
+          bytes = this.source_resource.lookup_data('/de/hummdudel/Libellus/database/manifest.json', 0);
+          let array = bytes.toArray();
+          let string = new TextDecoder().decode(array);
+          let data = JSON.parse(string);
+
+          // let module = await import('resource://de/hummdudel/Libellus/database/js/adapter.js?u='+Number((new Date())));
+          let module = await import(data.adapter_name);
+
+          for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
+            this.tab_view.close_page(this.tab_view.get_nth_page(0));
+          }
+
+          adapter = {
+            resolve_link: module.resolve_link,
+            get_search_results: module.get_search_results,
+            get_sync: module.get_sync,
+            get_any_sync: module.get_any_sync,
+            get_any_async: module.get_any_async,
+            filter_options: module.filter_options,
+            ident: module.ident,
+          };
+
+          let tab = new SearchTab(new NavView());
+          let tab_page = this.tab_view.append(tab.navigation_view);
+          tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+          tab.navigation_view.window = this;
+          this.tab_view.selected_page = tab_page;
+        }
+      } catch (e) {
+        log("oops "+e);
+      }
+    };
+
+    this.library_button.connect("clicked", () => {
+      const source_dialog = new SourceDialog(sources);
+      source_dialog.connect("imported_source", (_, path) => {
+        this.import_source(path);
+      });
+      source_dialog.connect("load_source", (_, index) => {
+        this.load_source(index);
+      });
+      source_dialog.connect("delete_source", (_, index) => {
+        this.delete_source(index);
+      });
+      source_dialog.present (this);
+    });
 
     window = this;
     try {
@@ -455,7 +535,7 @@ export const navigate = (data, navigation_view) => {
     log("could not navigate to " + data.url);
   }
 
-  navigation_view.push(new Adw.NavigationPage( { title: "no title", child: page } ));
+  navigation_view.push(new Adw.NavigationPage( { title: "temp", child: page } ));
   setTimeout(page.update_title, 10);
   log("navigated to " + data.url)
   return;
@@ -472,34 +552,42 @@ function read_sync(path) {
   return contentsString;
 }
 
-
-export var bookmarks = [ { url: "/api/monsters/aboleth", name: "Aboleth" } ];
+export let sources = [
+  {
+    built_in: true,
+    path: "",
+    name: "Player's Handbook",
+    bookmarks: [
+      { url: "/api/monsters/aboleth", name: "Aboleth" }
+    ]
+  },
+];
 
 function update_boookmark_menu() {
   window.bookmark_list.remove_all();
-  for (let i = 0; i < bookmarks.length; i++) {
-    window.bookmark_list.append(new BookmarkRow(bookmarks[i]));
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    window.bookmark_list.append(new BookmarkRow(sources[window.source_index].bookmarks[i]));
   }
 }
 
 export function is_bookmarked(data) {
-  for (let i = 0; i < bookmarks.length; i++) {
-    if (bookmarks[i].url == data.url) {
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    if (sources[window.source_index].bookmarks[i].url == data.url) {
       return true;
     }
   }
   return false;
 }
 export function toggle_bookmarked(data, bookmarked) {
-  for (let i = 0; i < bookmarks.length; i++) {
-    if (bookmarks[i].url == data.url) {
-      bookmarks.splice(i, 1);
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    if (sources[window.sources_index].bookmarks[i].url == data.url) {
+      sources[window.source_index].bookmarks.splice(i, 1);
       save_state();
       update_boookmark_menu();
       return false;
     }
   }
-  bookmarks.push(data);
+  sources[window.source_index].bookmarks.push(data);
   save_state();
   update_boookmark_menu();
   return true;
@@ -509,7 +597,7 @@ export function toggle_bookmarked(data, bookmarked) {
 
 export function save_state() {
   let data = {
-    bookmarks: bookmarks,
+    sources: sources,
   };
   let dataJSON = JSON.stringify(data);
   let dataDir = GLib.get_user_config_dir();
@@ -529,15 +617,9 @@ function load_state() {
   const decoder = new TextDecoder();
   const contentsString = decoder.decode(contents);
   let data = JSON.parse(contentsString);
-  bookmarks = data.bookmarks;
+  sources = data.sources;
   log("loaded state");
 }
-
-const filter_actions = [];
-
-
-
-
 
 export const NavView = GObject.registerClass({
   GTypeName: 'NavView',

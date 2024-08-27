@@ -26,7 +26,7 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { make_manifest, unmake_manifest, score_to_modifier, bookmarks, toggle_bookmarked, is_bookmarked, save_state, adapter } from "./window.js";
+import { make_manifest, unmake_manifest, score_to_modifier, sources, toggle_bookmarked, is_bookmarked, save_state, adapter } from "./window.js";
 import { ModuleTitle } from "./modules.js";
 
 export const SearchResult = GObject.registerClass({
@@ -48,6 +48,8 @@ export const SearchResult = GObject.registerClass({
         .map((str) => { return str.charAt(0).toUpperCase() + str.slice(1); } )
         .join(" ") } ));
     } else if (adapter.ident == "pf2e") {
+      front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url } ));
+    } else {
       front.append(new Gtk.Label( { ellipsize: Pango.EllipsizeMode.END, css_classes: ["subtitle"], halign: Gtk.Align.START, label: this.data.url } ));
     }
 
