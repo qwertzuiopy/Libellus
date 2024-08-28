@@ -23,53 +23,11 @@
                     <property name="spacing">10</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkListBox">
+                      <object class="GtkListBox" id="filters">
                         <property name="selection-mode">none</property>
                         <style>
                           <class name="boxed-list"/>
                         </style>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Spells</property>
-                            <signal name="activated" handler="filter_spells" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Traits</property>
-                            <signal name="activated" handler="filter_traits" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Equipment</property>
-                            <signal name="activated" handler="filter_equipment" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Monsters</property>
-                            <signal name="activated" handler="filter_monsters" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Magic Items</property>
-                            <signal name="activated" handler="filter_magic_items" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Classes</property>
-                            <signal name="activated" handler="filter_classes" swapped="no"/>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="FilterRow">
-                            <property name="title">Races</property>
-                            <signal name="activated" handler="filter_races" swapped="no"/>
-                          </object>
-                        </child>
                       </object>
                     </child>
                     <child>

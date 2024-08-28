@@ -36,6 +36,7 @@ export const SourceDialog = GObject.registerClass({
 
         file.delete(null);
         this.emit("delete_source", i);
+        this.close();
       });
       this.source_list.append(row);
     }

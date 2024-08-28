@@ -440,7 +440,7 @@ const SearchTab = GObject.registerClass({
     this.list_box.append(this.entry);
 
     this.filter_button = new Gtk.Button( { iconName: "funnel-symbolic" } );
-    this.filter_dialog = new FilterDialog();
+    this.filter_dialog = new FilterDialog(adapter.filter_options);
     this.filter_dialog.connect("applied", () => {
       this.active_filter = this.filter_dialog.filter;
       this.update_search();
