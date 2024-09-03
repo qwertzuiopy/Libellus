@@ -580,7 +580,7 @@ export function is_bookmarked(data) {
 }
 export function toggle_bookmarked(data, bookmarked) {
   for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
-    if (sources[window.sources_index].bookmarks[i].url == data.url) {
+    if (sources[window.source_index].bookmarks[i].url == data.url) {
       sources[window.source_index].bookmarks.splice(i, 1);
       save_state();
       update_boookmark_menu();
