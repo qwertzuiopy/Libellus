@@ -322,6 +322,7 @@ export const LibellusWindow = GObject.registerClass({
           tab.navigation_view.window = this;
           this.tab_view.selected_page = tab_page;
         }
+        update_boookmark_menu(this);
       } catch (e) {
         log("oops "+e);
       }
