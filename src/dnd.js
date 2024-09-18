@@ -1,6 +1,6 @@
 /* dnd.js
  *
- * Copyright 2024 Michael Hammer
+ * Copyright 2024 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

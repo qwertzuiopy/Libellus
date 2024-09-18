@@ -1,6 +1,6 @@
 /* modules.js
  *
- * Copyright 2023 Michael Hammer
+ * Copyright 2023 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

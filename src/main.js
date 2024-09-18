@@ -1,6 +1,6 @@
 /* main.js
  *
- * Copyright 2023 Michael Hammer
+ * Copyright 2023 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,12 +48,12 @@ export const LibellusApplication = GObject.registerClass(
                     transient_for: this.active_window,
                     application_name: 'Libellus',
                     application_icon: 'de.hummdudel.Libellus',
-                    developer_name: 'Michael Hammer',
+                    developer_name: 'Luna',
                     version: '1.0.5',
                     developers: [
-                        'Michael Hammer'
+                        'Luna'
                     ],
-                    copyright: '© 2023 Michael Hammer',
+                    copyright: '© 2023 Luna',
                     license_type: Gtk.License.GPL_3_0,
                     website: "https://libellus.hummdudel.de"
                 };
