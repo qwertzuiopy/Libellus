@@ -61,6 +61,13 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
+    <release version="1.1.0" date="2024-09-20">
+      <description>
+        <p>Add initial support for multiple sources.</p>
+        <p>Update Sdk to version 47 (accent colors!).</p>
+        <p>Fix the Sorcerers details page.</p>
+      </description>
+    </release>
     <release version="1.0.5" date="2024-07-19">
       <description>
         <p>Fix the brand colors to have more contrast, make the main list sizing more consistent and allow copying of descriptions.</p>
