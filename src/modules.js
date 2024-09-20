@@ -218,6 +218,12 @@ export const ModuleMultiText = GObject.registerClass({
   }
 });
 
+
+// Format for object:
+// {
+// desc: "content",
+// desc2: "content2",
+// }
 export const Module2Table = GObject.registerClass({
   GTypeName: 'Module2Table',
 }, class extends Gtk.Grid {

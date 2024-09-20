@@ -597,18 +597,37 @@ export const SearchResultPageClass = GObject.registerClass({
 
       let c = d.class_specific;
       for (let i in c) {
+        if (i == "creating_spell_slots") {
+          continue;
+        }
         if (typeof c[i] == "object") {
           for (let j in c[i]) {
             cards.push(new Card(
-              i.split("_").join(" ") + ": " + j.split("_").join(" "),
+              i.split("_")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ")
+                + ": " + j.split("_")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" "),
               c[i][j].toString()));
           }
         } else {
-          cards.push(new Card(i.split("_").join(" "), c[i].toString()));
+          cards.push(new Card(i.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" "), c[i].toString()));
         }
       }
 
       this.level_children.push(new BigDiv(cards));
+
+      if (c.creating_spell_slots) {
+        let data = {};
+        for (let i in c.creating_spell_slots) {
+          data[c.creating_spell_slots[i].spell_slot_level] = c.creating_spell_slots[i].sorcery_point_cost.toString();
+        }
+        if (Object.keys(data).length > 0) {
+          this.level_children.push(new ModuleTitle("Flexible Casting", 4));
+          this.level_children.push(new Module2Table(data, "Slot Level", "Point Cost"));
+        }
+      }
 
       for (let i in this.level_children) {
         this.level_box.append(this.level_children[i]);
