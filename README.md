@@ -11,6 +11,8 @@ But because making an http request every time is to slow a local copy of the dat
 The easiest way to test the app is to clone this repository and open it in Gnome Builder.
 Alternatively you can run "meson build && ninja -C build && sudo ninja -C build install" to install the app locally.
 
+Other sources than the Player's Handbook can also be added / viewed in the app, please see https://github.com/qwertzuiopy/LibellusSources.
+
 Dependencies are Gtk4 and Libadwaita.
 
 NOTE: This project is not finished, there will be bugs.

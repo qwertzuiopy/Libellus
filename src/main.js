@@ -1,6 +1,6 @@
 /* main.js
  *
- * Copyright 2023 Michael Hammer
+ * Copyright 2023 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 import GObject from 'gi://GObject';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Gtk from 'gi://Gtk?version=4.0';
 import Adw from 'gi://Adw?version=1';
 
@@ -47,12 +48,12 @@ export const LibellusApplication = GObject.registerClass(
                     transient_for: this.active_window,
                     application_name: 'Libellus',
                     application_icon: 'de.hummdudel.Libellus',
-                    developer_name: 'Michael Hammer',
+                    developer_name: 'Luna',
                     version: '1.0.5',
                     developers: [
-                        'Michael Hammer'
+                        'Luna'
                     ],
-                    copyright: '© 2023 Michael Hammer',
+                    copyright: '© 2023 Luna',
                     license_type: Gtk.License.GPL_3_0,
                     website: "https://libellus.hummdudel.de"
                 };
@@ -61,6 +62,17 @@ export const LibellusApplication = GObject.registerClass(
                 aboutWindow.present();
             });
             this.add_action(show_about_action);
+
+            this.setup_filestructure();
+        }
+
+        setup_filestructure() {
+          const path = GLib.get_user_data_dir();
+          const file = Gio.File.new_for_path(GLib.build_filenamev([path, "Sources"]));
+          if (!file.query_exists(null)) {
+            file.make_directory(null);
+            log ("created empty sources file");
+          }
         }
 
         vfunc_activate() {

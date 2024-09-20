@@ -1,6 +1,6 @@
 /* modules.js
  *
- * Copyright 2023 Michael Hammer
+ * Copyright 2023 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 import Pango from 'gi://Pango';
 
-import { navigate, get_sync, get_any_async } from "./window.js";
+import { adapter, navigate } from "./window.js";
 
 export const Card = GObject.registerClass({
   GTypeName: 'Card',
@@ -218,6 +218,12 @@ export const ModuleMultiText = GObject.registerClass({
   }
 });
 
+
+// Format for object:
+// {
+// desc: "content",
+// desc2: "content2",
+// }
 export const Module2Table = GObject.registerClass({
   GTypeName: 'Module2Table',
 }, class extends Gtk.Grid {
@@ -385,7 +391,7 @@ export const Image = GObject.registerClass({
 }, class extends Adw.Bin {
   constructor(image) {
     super({});
-    let response = get_any_sync(image);
+    let response = adapter.get_any_sync(image);
     let loader = new GdkPixbuf.PixbufLoader()
     loader.write_bytes(GLib.Bytes.new(response))
     loader.close()
@@ -400,7 +406,7 @@ export const ImageAsync = GObject.registerClass({
 }, class extends Adw.Bin {
   constructor(image) {
     super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true, height_request: 300 } );
-    get_any_async(image, (response) => {
+      adapter.get_any_async(image, (response) => {
       this.halign = Gtk.Align.CENTER;
       let loader = new GdkPixbuf.PixbufLoader()
       loader.write_bytes(GLib.Bytes.new(response))

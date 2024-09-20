@@ -1,6 +1,6 @@
 /* window.js
  *
- * Copyright 2023 Michael Hammer
+ * Copyright 2023 Luna
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,10 +27,27 @@ import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
 
-import { resolve_link, get_search_results } from "./dnd.js";
-import { ResultPage, SearchResult } from "./results.js";
+import { resolve_link,
+  get_search_results,
+  get_sync,
+  get_any_sync,
+  get_any_async,
+  filter_options,
+  ident } from "./dnd.js";
 
+export let adapter = {
+  resolve_link: resolve_link,
+  get_search_results: get_search_results,
+  get_sync: get_sync,
+  get_any_sync: get_any_sync,
+  get_any_async: get_any_async,
+  filter_options: filter_options,
+  ident: ident,
+};
+
+import { ResultPage, SearchResult } from "./results.js";
 import { FilterDialog } from "./filter.js";
+import { SourceDialog } from "./source.js";
 
 export const Tab = GObject.registerClass({
   GTypeName: 'Tab',
@@ -41,15 +58,7 @@ export const Tab = GObject.registerClass({
 });
 import { SheetTab } from "./character_sheet.js";
 
-
-import { API } from './api.js';
 import { DBUS } from './dbus.js';
-
-const use_local = true;
-
-const Soup = imports.gi.Soup;
-const Decoder = new TextDecoder();
-const session = Soup.Session.new();
 
 var window;
 
@@ -71,6 +80,7 @@ export const LibellusWindow = GObject.registerClass({
     "tab_button",
     "new_tab" ,
     "back_button",
+    "library_button",
   ],
 }, class LibellusWindow extends Adw.ApplicationWindow {
   constructor(application, main_window = false) {
@@ -179,25 +189,158 @@ export const LibellusWindow = GObject.registerClass({
 
     this.breakpoint.connect("apply", () => {
       this.header_bar.remove(this.bookmark_button);
+      this.header_bar.remove(this.library_button);
       this.header_bar.remove(this.back_button);
       this.header_bar.remove(this.tab_button);
       this.header_bar.remove(this.new_tab);
       this.bottom_bar.pack_start(this.back_button);
       this.bottom_bar.pack_start(this.new_tab);
       this.bottom_bar.pack_end(this.bookmark_button);
+      this.bottom_bar.pack_end(this.library_button);
       this.bottom_bar.pack_end(this.tab_button);
     });
     this.breakpoint.connect("unapply", () => {
       this.bottom_bar.remove(this.bookmark_button);
+      this.bottom_bar.remove(this.library_button);
       this.bottom_bar.remove(this.back_button);
       this.bottom_bar.remove(this.tab_button);
       this.bottom_bar.remove(this.new_tab);
       this.header_bar.pack_start(this.back_button);
       this.header_bar.pack_start(this.new_tab);
       this.header_bar.pack_end(this.bookmark_button);
+      this.header_bar.pack_end(this.library_button);
       this.header_bar.pack_end(this.tab_button);
     });
 
+
+    this.source_resource = null;
+    this.source_index = 0;
+
+    this.import_source = (path) => {
+      const file = Gio.File.new_for_path(GLib.build_filenamev( [ GLib.get_user_data_dir(), "Sources", path ] ));
+      let bytes = file.load_bytes (null)[0];
+      let resource = Gio.Resource.new_from_data(bytes);
+      if (this.source_resource) {
+        adapter = {};
+        Gio.resources_unregister(this.source_resource);
+      }
+      Gio.resources_register(resource);
+      this.source_resource = resource;
+
+      bytes = this.source_resource.lookup_data('/de/hummdudel/Libellus/database/manifest.json', 0);
+      let array = bytes.toArray();
+      let string = new TextDecoder().decode(array);
+      let data = JSON.parse(string);
+
+      sources.push( {
+          built_in: false,
+          path: path,
+          name: data.name,
+          bookmarks: [],
+        } );
+      save_state();
+      this.load_source (sources.length - 1);
+    };
+
+    this.delete_source = (index) => {
+      if (index == 0) {
+        log("trying to delete built-in source");
+        return;
+      }
+      if (this.source_index == index) {
+        this.load_source(0);
+      }
+      sources.splice(index, 1);
+      save_state();
+    };
+
+    this.load_source = async (index) => {
+      // giant ugly try / catch block to get errors printed to the console
+      try {
+        const source = sources[index];
+        if (source.built_in) {
+          this.source_index = index;
+
+          for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
+            this.tab_view.close_page(this.tab_view.get_nth_page(0));
+          }
+
+          adapter = {
+            resolve_link: resolve_link,
+            get_search_results: get_search_results,
+            get_sync: get_sync,
+            get_any_sync: get_any_sync,
+            get_any_async: get_any_async,
+            filter_options: filter_options,
+            ident: ident,
+          };
+
+          let tab = new SearchTab(new NavView());
+          let tab_page = this.tab_view.append(tab.navigation_view);
+          tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+          tab.navigation_view.window = this;
+          this.tab_view.selected_page = tab_page;
+        } else {
+          const file = Gio.File.new_for_path(GLib.build_filenamev( [ GLib.get_user_data_dir(), "Sources", source.path ] ));
+
+          let bytes = file.load_bytes (null)[0];
+          let resource = Gio.Resource.new_from_data(bytes);
+
+          if (this.source_resource) {
+            adapter = {};
+            Gio.resources_unregister(this.source_resource);
+          }
+
+          Gio.resources_register(resource);
+          this.source_resource = resource;
+          this.source_index = index;
+          bytes = this.source_resource.lookup_data('/de/hummdudel/Libellus/database/manifest.json', 0);
+          let array = bytes.toArray();
+          let string = new TextDecoder().decode(array);
+          let data = JSON.parse(string);
+
+          // let module = await import('resource://de/hummdudel/Libellus/database/js/adapter.js?u='+Number((new Date())));
+          let module = await import(data.adapter_name);
+
+          for (let i = 0; i < this.tab_view.get_n_pages(); i++) {
+            this.tab_view.close_page(this.tab_view.get_nth_page(0));
+          }
+
+          adapter = {
+            resolve_link: module.resolve_link,
+            get_search_results: module.get_search_results,
+            get_sync: module.get_sync,
+            get_any_sync: module.get_any_sync,
+            get_any_async: module.get_any_async,
+            filter_options: module.filter_options,
+            ident: module.ident,
+          };
+
+          let tab = new SearchTab(new NavView());
+          let tab_page = this.tab_view.append(tab.navigation_view);
+          tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
+          tab.navigation_view.window = this;
+          this.tab_view.selected_page = tab_page;
+        }
+        update_boookmark_menu(this);
+      } catch (e) {
+        log("oops "+e);
+      }
+    };
+
+    this.library_button.connect("clicked", () => {
+      const source_dialog = new SourceDialog(sources);
+      source_dialog.connect("imported_source", (_, path) => {
+        this.import_source(path);
+      });
+      source_dialog.connect("load_source", (_, index) => {
+        this.load_source(index);
+      });
+      source_dialog.connect("delete_source", (_, index) => {
+        this.delete_source(index);
+      });
+      source_dialog.present (this);
+    });
 
     window = this;
     try {
@@ -298,7 +441,7 @@ const SearchTab = GObject.registerClass({
     this.list_box.append(this.entry);
 
     this.filter_button = new Gtk.Button( { iconName: "funnel-symbolic" } );
-    this.filter_dialog = new FilterDialog();
+    this.filter_dialog = new FilterDialog(adapter.filter_options);
     this.filter_dialog.connect("applied", () => {
       this.active_filter = this.filter_dialog.filter;
       this.update_search();
@@ -342,7 +485,7 @@ const SearchTab = GObject.registerClass({
     }
     this.entry.connect("changed", this.update_search);
 
-    this.results = get_search_results([]);
+    this.results = adapter.get_search_results([]);
 
 
     for (let i = 0; i < this.results.length; i++) {
@@ -387,49 +530,16 @@ export const navigate = (data, navigation_view) => {
     page.set_filter(unmake_manifest(data));
     return;
   }
-  var page_data = get_sync(data.url);
-  var page = resolve_link(data, navigation_view);
+  var page_data = adapter.get_sync(data.url);
+  var page = adapter.resolve_link(data, navigation_view);
   if (page == null) {
     log("could not navigate to " + data.url);
   }
 
-  navigation_view.push(new Adw.NavigationPage( { title: "no title", child: page } ));
+  navigation_view.push(new Adw.NavigationPage( { title: "temp", child: page } ));
   setTimeout(page.update_title, 10);
   log("navigated to " + data.url)
   return;
-}
-
-
-export const get_sync = (url) => {
-  if (use_local) {
-    let section = API[url.split("/")[2]]; // classes, spells, ...
-    const key = url.split("/")[3]; // barbarian, fireball, ...
-    if (!key) {
-      return { results: Object.values(section) };
-    }
-    if (url.split("/")[4]) { // catches urls of type "/api/classes/levels" which need to go to API["levels"]
-      section = API[url.split("/")[4]];
-      return Object.values(section).filter((i) => i.url.includes(key));
-    }
-    return section[key];
-  } else {
-    let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-
-    let s = session.send_and_read(msg, Gio.Cancellable.new()).get_data();
-    return JSON.parse(Decoder.decode(s));
-  }
-}
-
-export const get_any_sync = (url) => {
-  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-  return session.send_and_read(msg, Gio.Cancellable.new()).get_data();
-
-}
-
-
-export const get_any_async = (url, callback) => {
-  let msg = Soup.Message.new('GET', 'https://www.dnd5eapi.co' + url);
-  session.send_and_read_async(msg, 1, Gio.Cancellable.new(), (a, b, c) => { callback(session.send_and_read_finish(b).get_data()); });
 }
 
 
@@ -443,39 +553,42 @@ function read_sync(path) {
   return contentsString;
 }
 
-
-
-
-
-
-
-export var bookmarks = [ { url: "/api/monsters/aboleth", name: "Aboleth" } ];
+export let sources = [
+  {
+    built_in: true,
+    path: "",
+    name: "Player's Handbook",
+    bookmarks: [
+      { url: "/api/monsters/aboleth", name: "Aboleth" }
+    ]
+  },
+];
 
 function update_boookmark_menu() {
   window.bookmark_list.remove_all();
-  for (let i = 0; i < bookmarks.length; i++) {
-    window.bookmark_list.append(new BookmarkRow(bookmarks[i]));
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    window.bookmark_list.append(new BookmarkRow(sources[window.source_index].bookmarks[i]));
   }
 }
 
 export function is_bookmarked(data) {
-  for (let i = 0; i < bookmarks.length; i++) {
-    if (bookmarks[i].url == data.url) {
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    if (sources[window.source_index].bookmarks[i].url == data.url) {
       return true;
     }
   }
   return false;
 }
 export function toggle_bookmarked(data, bookmarked) {
-  for (let i = 0; i < bookmarks.length; i++) {
-    if (bookmarks[i].url == data.url) {
-      bookmarks.splice(i, 1);
+  for (let i = 0; i < sources[window.source_index].bookmarks.length; i++) {
+    if (sources[window.source_index].bookmarks[i].url == data.url) {
+      sources[window.source_index].bookmarks.splice(i, 1);
       save_state();
       update_boookmark_menu();
       return false;
     }
   }
-  bookmarks.push(data);
+  sources[window.source_index].bookmarks.push(data);
   save_state();
   update_boookmark_menu();
   return true;
@@ -485,7 +598,7 @@ export function toggle_bookmarked(data, bookmarked) {
 
 export function save_state() {
   let data = {
-    bookmarks: bookmarks,
+    sources: sources,
   };
   let dataJSON = JSON.stringify(data);
   let dataDir = GLib.get_user_config_dir();
@@ -505,15 +618,9 @@ function load_state() {
   const decoder = new TextDecoder();
   const contentsString = decoder.decode(contents);
   let data = JSON.parse(contentsString);
-  bookmarks = data.bookmarks;
+  sources = data.sources;
   log("loaded state");
 }
-
-const filter_actions = [];
-
-
-
-
 
 export const NavView = GObject.registerClass({
   GTypeName: 'NavView',
@@ -542,112 +649,6 @@ export const NavView = GObject.registerClass({
     }
   }
 });
-
-
-
-
-
-export const filter_options = {
-  Spells: {
-    title: "Spells",
-    choices: [
-      { title: "School", content: ["Any"].concat(get_sync("/api/magic-schools").results.map((i) => { return i.name; } )), selected: "Any" },
-      { title: "Level", min: 0, max: 9, value: 0, enabled: false },
-      { title: "Classes", content: ["Any"].concat(get_sync("/api/classes").results.map((i) => { return i.name; } )), selected: "Any" },
-    ],
-    func: (url, o) => {
-      if (!url.includes("spells")) return false;
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.school.name)
-          && (o.choices[1].enabled == false  || o.choices[1].value == data.level)
-          && (o.choices[2].selected == "Any" || data.classes.map((i) => i.name).indexOf(o.choices[2].selected) != -1);
-    },
-  },
-  Traits: {
-    title: "Traits",
-    choices: [
-      { title: "Classes", content: ["Any"].concat(get_sync("/api/races").results.map((i) => { return i.name; } )), selected: "Any" },
-    ],
-    func: (url, o) => {
-      if (!url.includes("traits")) return false;
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" || data.races.map((i) => i.name).indexOf(o.choices[0].selected) != -1);
-    },
-  },
-  Items: {
-    title: "Equipment",
-    choices: [
-      { title: "Categories", content: ["Any"].concat(get_sync("/api/equipment-categories").results
-        .map((i) => { return i.name; } ))
-        .filter((i) => i != "Land Vehicles" &&
-          i != "Wondrous Items" &&
-          i != "Rod" &&
-          i != "Potion" &&
-          i != "Ring" &&
-          i != "Scroll" &&
-          i != "Staff" &&
-          i != "Wand"), selected: "Any", enable_search: true },
-      { title: "Properties", content: ["Any"].concat(get_sync("/api/weapon-properties").results.map((i) => { return i.name; } )), selected: "Any", enable_search: true },
-    ],
-    func: (url, o) => {
-      if (!url.includes("equipment")) return false;
-      let data = get_sync(url);
-
-      let has = (s) =>
-        o.choices[0].selected.includes(s) || s.includes(o.choices[0].selected);
-
-      return (o.choices[0].selected == "Any" || o.choices[0].selected == data.equipment_category.name ||
-        (data.gear_category && has(data.gear_category.name)) ||
-        (data.vehicle_category && has(data.vehicle_category)) ||
-        (data.armor_category && has(data.armor_category)) ||
-        (data.weapon_category && has(data.weapon_category)) ||
-        (data.weapon_range && has(data.weapon_range)) ||
-        (data.tool_category && has(data.tool_category))) && (
-        o.choices[1].selected == "Any" ||
-        data.properties && data.properties.map((i) => i.name).includes(o.choices[1].selected))
-
-
-    },
-  },
-  Monsters: {
-    title: "Monsters",
-    choices: [
-      { title: "Challenge Rating", min: 0, max: 50, value: 0, enabled: false },
-    ],
-    func: (url, o) => {
-      if (!url.includes("monsters")) return false;
-      let data = get_sync(url);
-      return o.choices[0].value == data.challenge_rating || o.choices[0].enabled == false;
-    },
-  },
-  MagicItems: {
-    title: "Magic Items",
-    choices: [
-      { title: "Rarity", content: ["Any", "Varies", "Common", "Uncommon", "Rare", "Very Rare", "Legendary", "Artifact"], selected: "Any" },
-      { title: "Type", content: ["Any", "Wondrous Item", "Rod", "Potion", "Ring", "Scroll", "Staff", "Wand"], selected: "Any" }
-    ],
-    func: (url, o) => {
-      if (!url.includes("magic-items")) return false;
-      let has = (s) =>
-        o.choices[1].selected.includes(s) || s.includes(o.choices[1].selected);
-      let data = get_sync(url);
-      return (o.choices[0].selected == "Any" ||
-        o.choices[0].selected == data.rarity.name) && (
-        o.choices[1].selected == "Any" ||
-        data.equipment_category && has(data.equipment_category.name));
-    },
-  },
-  Classes: {
-    title: "Classes",
-    choices: [],
-    func: (url, o) => { return url.includes("classes"); },
-  },
-  Races: {
-    title: "Races",
-    choices: [],
-    func: (url, o) => { return url.includes("races"); },
-  },
-};
 
 
 export const make_filter = (filter) => {

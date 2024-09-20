@@ -1,18 +1,32 @@
 import GObject from 'gi://GObject';
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
-import { make_filter, filter_options, get_sync } from './window.js';
+import { make_filter, adapter } from './window.js';
 
 export const FilterDialog = GObject.registerClass({
   GTypeName: 'FilterDialog',
   Template: 'resource:///de/hummdudel/Libellus/filter_dialog.ui',
-  Children: ["view"],
+  Children: ["view", "filters"],
   Signals: {
     "applied": {},
   },
 }, class extends Adw.Dialog {
-  constructor() {
+  constructor(filters) {
     super({});
+
+    for (let i in filters) {
+      const row = new FilterRow(filters[i].title);
+      row.connect("activated", () => {
+        if (filters[i].choices.length == 0) {
+          this.filter = filters[i];
+          this.emit("applied");
+          this.close();
+        } else {
+          this.push_filter(filters[i]);
+        }
+      });
+      this.filters.append(row);
+    }
 
     this.filter = null;
   }
@@ -24,31 +38,6 @@ export const FilterDialog = GObject.registerClass({
     this.push_filter(filter);
   }
 
-  filter_spells() {
-    this.push_filter(filter_options.Spells);
-  }
-  filter_traits() {
-    this.push_filter(filter_options.Traits);
-  }
-  filter_equipment() {
-    this.push_filter(filter_options.Items);
-  }
-  filter_monsters() {
-    this.push_filter(filter_options.Monsters);
-  }
-  filter_magic_items() {
-    this.push_filter(filter_options.MagicItems);
-  }
-  filter_classes() {
-    this.filter = filter_options.Classes;
-    this.emit("applied");
-    this.close();
-  }
-  filter_races() {
-    this.filter = filter_options.Races;
-    this.emit("applied");
-    this.close();
-  }
   filter_none() {
     this.filter = null;
     this.emit("applied");
@@ -72,8 +61,8 @@ export const FilterRow = GObject.registerClass({
   GTypeName: 'FilterRow',
   Template: 'resource:///de/hummdudel/Libellus/filter_row.ui',
 }, class extends Adw.ActionRow {
-  constructor() {
-    super({});
+  constructor(title) {
+    super( { title: title } );
   }
 });
 

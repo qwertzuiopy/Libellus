@@ -11,7 +11,7 @@
   <name>Libellus</name>
   <summary>View DnD information in style</summary>
   <developer id="tld.vendor">
-    <name>Michael Hammer</name>
+    <name>Luna</name>
   </developer>
   <description>
     <p>Libellus lets you browse and read DnD 5th edition information like a wiki / lexicon. The basic navigation is tab-based, so multiple pages can be viewed at the same time. There is a basic search / filter system. The data is stored locally, images are downloaded.</p>
