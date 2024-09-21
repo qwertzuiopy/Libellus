@@ -614,12 +614,22 @@ function load_state() {
   let destination = GLib.build_filenamev([dataDir, 'libellus_state.json']);
   let file = Gio.File.new_for_path(destination);
 
-  const [ok, contents, etag] = file.load_contents(null);
-  const decoder = new TextDecoder();
-  const contentsString = decoder.decode(contents);
-  let data = JSON.parse(contentsString);
-  sources = data.sources;
-  log("loaded state");
+  try {
+    const [ok, contents, etag] = file.load_contents(null);
+    const decoder = new TextDecoder();
+    const contentsString = decoder.decode(contents);
+    let data = JSON.parse(contentsString);
+    if (!data.sources) {
+      log("sources not defined, probably old version");
+      save_state();
+      return;
+    }
+    sources = data.sources;
+    log("loaded state");
+  } catch(e) {
+    log("ERROR WHILE LOADING STATE: " + e);
+    save_state();
+  }
 }
 
 export const NavView = GObject.registerClass({

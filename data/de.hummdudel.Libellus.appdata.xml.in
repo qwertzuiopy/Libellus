@@ -61,6 +61,11 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
+    <release version="1.1.1" date="2024-09-21">
+      <description>
+        <p>Fix a potential crash on startup due to an old save file version.</p>
+      </description>
+    </release>
     <release version="1.1.0" date="2024-09-20">
       <description>
         <p>Add initial support for multiple sources.</p>
