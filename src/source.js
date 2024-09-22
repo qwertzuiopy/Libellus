@@ -43,31 +43,51 @@ export const SourceDialog = GObject.registerClass({
   }
 
   import_source () {
-    const fileDialog = new Gtk.FileDialog();
-    fileDialog.open(this.get_root(), null, (self, result) => {
-      try {
-        const file = self.open_finish(result);
-        if (file) {
-          const destination = Gio.File.new_for_path(GLib.build_filenamev( [
-            GLib.get_user_data_dir(),
-            "Sources",
-            file.get_basename() ] ));
+    const dialog = new Adw.AlertDialog( {
+      heading: "Warning",
+      body: "Sources can execute arbitrary code, only use sources from places you trust!" } );
 
-          const bytes = file.load_bytes (null)[0];
-          const stream = destination.create(Gio.FileCreateFlags.NONE, null);
-          const bytes_written = stream.write_bytes(bytes, null);
+    dialog.add_response("C", "Cancel");
+    dialog.add_response("O", "Ok");
+    dialog.set_response_appearance("C", Adw.ResponseAppearance.SUGGESTED);
+    dialog.set_response_appearance("O", Adw.ResponseAppearance.DESTRUCTIVE);
 
-          // This fails with "Gio.IOErrorEnum: Error splicing file: Input/output error",
-          // no idea how to fix that (and searching the error is also not that helpful)
-          // file.copy(destination, Gio.FileCopyFlags.NONE, null, null);
+    dialog.connect("response", (_, c) => {
+      if (c == "C") {
+        return;
+      } else if (c == "O") {
+        const fileDialog = new Gtk.FileDialog();
+        fileDialog.open(this.get_root(), null, (self, result) => {
+          try {
+            const file = self.open_finish(result);
+            if (file) {
+              const destination = Gio.File.new_for_path(GLib.build_filenamev( [
+                GLib.get_user_data_dir(),
+                "Sources",
+                file.get_basename() ] ));
 
-          this.emit("imported_source", destination.get_basename());
-          this.close();
-        }
-      } catch(e) {
-        log("oops: " + e);
+              const bytes = file.load_bytes (null)[0];
+              const stream = destination.create(Gio.FileCreateFlags.NONE, null);
+              const bytes_written = stream.write_bytes(bytes, null);
+
+              // This fails with "Gio.IOErrorEnum: Error splicing file: Input/output error",
+              // no idea how to fix that (and searching the error is also not that helpful)
+              // file.copy(destination, Gio.FileCopyFlags.NONE, null, null);
+
+              this.emit("imported_source", destination.get_basename());
+              this.close();
+            }
+          } catch(e) {
+            log("oops: " + e);
+          }
+        });
+      } else {
+        log("WELL OOOOPS");
+        return;
       }
     });
+    dialog.present(this);
+
   }
 });
 
