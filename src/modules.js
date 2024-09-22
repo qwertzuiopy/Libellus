@@ -275,6 +275,7 @@ export const ModuleNTable = GObject.registerClass({
     for (let i in n) {
       for (let j in n[i]) {
         let l = new Gtk.Label( {
+          wrap: true,
           hexpand: true,
           label: n[i][j],
           margin_top: 10, margin_bottom: 10 } );
@@ -328,7 +329,7 @@ export const ModuleStatListRow = GObject.registerClass({
     this.child.append(new Gtk.Separator( { orientation: Gtk.Orientation.VERTICAL } ));
     let flowbox = new Gtk.FlowBox( { hexpand: true, selection_mode: Gtk.SelectionMode.NONE, row_spacing: 5, margin_start: 5, margin_end: 5, margin_top: 5, margin_bottom: 5 } );
     for (let i = 0; i < stats.length; i++) {
-      flowbox.append(new Gtk.Label( { label:stats[i] } ));
+      flowbox.append(new Gtk.Label( { wrap: true, label:stats[i] } ));
     }
     this.child.append(flowbox);
   }
