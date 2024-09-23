@@ -405,13 +405,15 @@ export const Image = GObject.registerClass({
 export const ImageAsync = GObject.registerClass({
   GTypeName: 'ImageAsync',
 }, class extends Adw.Bin {
-  constructor(image) {
-    super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true, height_request: 300 } );
-      adapter.get_any_async(image, (response) => {
+  constructor(image, height = 300) {
+    super( { css_classes: ["card"], halign: Gtk.Align.FILL, valign: Gtk.Align.FILL, vexpand: true, hexpand: true, height_request: height } );
+    adapter.get_any_async(image, (response) => {
       this.halign = Gtk.Align.CENTER;
-      let loader = new GdkPixbuf.PixbufLoader()
-      loader.write_bytes(GLib.Bytes.new(response))
-      loader.close()
+      this.valign = Gtk.Align.START;
+      this.vexpand = false;
+      let loader = new GdkPixbuf.PixbufLoader();
+      loader.write_bytes(GLib.Bytes.new(response));
+      loader.close();
       let img = new Gtk.Picture( { css_classes: ["card"] } );
       img.set_pixbuf(loader.get_pixbuf());
 
@@ -429,18 +431,16 @@ export const ImageAsync = GObject.registerClass({
         margin_bottom: 5,
         margin_end: 5 })
       button.connect("clicked", () => {
-        let dataDir = GLib.get_user_config_dir()
-        let name = image.split(".")[0]
-        name = name.split("/").at(-1)
-        let destination = GLib.build_filenamev([dataDir, name+'.jpeg'])
-        loader.get_pixbuf().savev(destination, "jpeg", null, null)
-        let file = Gio.File.new_for_path(destination)
-        let launcher = new Gtk.FileLauncher({file:file})
-        launcher.launch(null, null, null)
-      })
+        let dataDir = GLib.get_user_config_dir();
+        let name = image.split(".")[0];
+        name = name.split("/").at(-1);
+        let destination = GLib.build_filenamev([dataDir, name+'.jpeg']);
+        loader.get_pixbuf().savev(destination, "jpeg", null, null);
+        let file = Gio.File.new_for_path(destination);
+        let launcher = new Gtk.FileLauncher({file:file});
+        launcher.launch(null, null, null);
+      });
       overlay.add_overlay(button);
-
-
     });
     let spinner = new Gtk.Spinner( { halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER } );
     spinner.start();
