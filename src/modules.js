@@ -298,7 +298,6 @@ export const ModuleLinkList = GObject.registerClass({
   constructor(label, navigation_view) {
     super({});
     this.add_css_class("boxed-list");
-    this.label = label;
     for (let i = 0; i < label.length; i++) {
       let listboxrow = null;
       let data = label[i].item;
@@ -442,13 +441,11 @@ export const ImageAsync = GObject.registerClass({
       });
       overlay.add_overlay(button);
     });
-    let spinner = new Gtk.Spinner( { halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER } );
-    spinner.start();
+    let spinner = new Adw.Spinner( { halign: Gtk.Align.FILL, valign: Gtk.Align.FILL } );
+    // spinner.start();
     this.set_child(new Adw.Bin({child: spinner, halign: Gtk.Align.FILL, hexpand: true}));
   }
 });
-
-
 
 export const ModuleLevelRow = GObject.registerClass({
   GTypeName: 'ModuleLevelRow',
@@ -475,22 +472,16 @@ export const ModuleLevelRow = GObject.registerClass({
   }
 });
 
-
-
-
-
 export const Div = GObject.registerClass({
   GTypeName: 'Div',
-}, class extends Gtk.FlowBox {
+}, class extends Adw.WrapBox {
   constructor(cards) {
     super({
       orientation: Gtk.Orientation.HORIZONTAL,
-      max_children_per_line: 10,
-      min_children_per_line: 1,
-      selection_mode: Gtk.SelectionMode.NONE,
-      // if halign is set to CENTER (which looks better) the FlowBox completely breaks for some reason
-      halign: Gtk.Align.FILL,
+      halign: Gtk.Align.CENTER,
       hexpand: true,
+      justify_last_line: Adw.JustifyMode.NONE,
+      align: 0.5,
     });
     for (let i in cards) {
       this.append(cards[i]);
@@ -498,22 +489,18 @@ export const Div = GObject.registerClass({
   }
 });
 
-
 export const BigDiv = GObject.registerClass({
   GTypeName: 'BigDiv',
-}, class extends Gtk.FlowBox {
+}, class extends Adw.WrapBox {
   constructor(cards) {
     super({
       orientation: Gtk.Orientation.HORIZONTAL,
-      max_children_per_line: 10,
-      min_children_per_line: 1,
-      selection_mode: Gtk.SelectionMode.NONE,
-      // if halign is set to CENTER (which looks better) the FlowBox completely breaks for some reason
-      halign: Gtk.Align.FILL,
+      halign: Gtk.Align.CENTER,
+      line_spacing: 10,
+      child_spacing: 10,
       hexpand: true,
-      homogeneous: true,
-      column_spacing: 10,
-      row_spacing: 10,
+      justify_last_line: Adw.JustifyMode.NONE,
+      align: 0.5,
     });
     for (let i in cards) {
       this.append(cards[i]);

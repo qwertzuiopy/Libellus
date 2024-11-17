@@ -1,7 +1,7 @@
 {
     "app-id" : "de.hummdudel.Libellus",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "47",
+    "runtime-version" : "master",
     "sdk" : "org.gnome.Sdk",
     "command" : "de.hummdudel.Libellus",
     "finish-args" : [
