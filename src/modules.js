@@ -326,11 +326,14 @@ export const ModuleStatListRow = GObject.registerClass({
     this.child = new Gtk.Box( { } );
     this.child.append(new Gtk.Label( { css_classes: ["heading"], width_request: 100, label: label, hexpand: false, halign: Gtk.Align.START, margin_top: 15, margin_bottom: 15, margin_start: 15, margin_end: 15 } ));
     this.child.append(new Gtk.Separator( { orientation: Gtk.Orientation.VERTICAL } ));
-    let flowbox = new Gtk.FlowBox( { hexpand: true, selection_mode: Gtk.SelectionMode.NONE, row_spacing: 5, margin_start: 5, margin_end: 5, margin_top: 5, margin_bottom: 5 } );
+    let wrapbox = new Adw.WrapBox( {
+      hexpand: true, line_spacing: 5, line_homogeneous: true, child_spacing: 5,
+      margin_start: 5, margin_end: 5, margin_top: 5, margin_bottom: 5
+    } );
     for (let i = 0; i < stats.length; i++) {
-      flowbox.append(new Gtk.Label( { wrap: true, label:stats[i] } ));
+      wrapbox.append(new Gtk.Label( { wrap: true, label:stats[i] } ));
     }
-    this.child.append(flowbox);
+    this.child.append(wrapbox);
   }
 });
 
@@ -370,17 +373,6 @@ export const ModuleLinkListRow = GObject.registerClass({
       margin_top: 15, margin_bottom: 10 } ))
     stats = stats.map((i) => new Link(i, navigation_view));
     vbox.append(new Div(stats));
-
-    /*while (stats.length > 0) {
-      let hbox = new Gtk.Box( { halign: Gtk.Align.CENTER } );
-      vbox.append(hbox);
-      for (let chars = 0; chars < 60;) {
-        if (!stats[0]) break;
-        hbox.append(new Link(stats[0], navigation_view));
-        chars += stats[0].name.length;
-        stats.splice(0, 1);
-      }
-    }*/
   }
 });
 
