@@ -316,6 +316,10 @@ export const LibellusWindow = GObject.registerClass({
             ident: module.ident,
           };
 
+          if (module.init) {
+            module.init(this.source_resource);
+          }
+
           let tab = new SearchTab(new NavView());
           let tab_page = this.tab_view.append(tab.navigation_view);
           tab.navigation_view.tab_page = this.tab_view.get_nth_page(this.tab_view.n_pages-1);
