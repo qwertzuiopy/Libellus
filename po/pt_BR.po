@@ -1,0 +1,117 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the libellus package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: libellus\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-31 02:05-0300\n"
+"PO-Revision-Date: 2025-01-31 02:11-0300\n"
+"Last-Translator: john peter <johnppetersa@gmail.com>\n"
+"Language-Team: \n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.5\n"
+
+#: data/de.hummdudel.Libellus.desktop.in:2
+#: data/de.hummdudel.Libellus.appdata.xml.in:11
+msgid "Libellus"
+msgstr "Petição"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:12
+msgid "View DnD information in style"
+msgstr "Veja as informações do DND em estilo"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:14
+msgid "Luna"
+msgstr "Principal"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:17
+msgid ""
+"Libellus lets you browse and read DnD 5th edition information like a wiki / "
+"lexicon. The basic navigation is tab-based, so multiple pages can be viewed "
+"at the same time. There is a basic search / filter system. The data is "
+"stored locally, images are downloaded."
+msgstr ""
+"Libellus permite navegar e ler informações da 5ª edição da DND, como um "
+"wiki / léxico. A navegação básica é baseada em guias, para que várias "
+"páginas possam ser visualizadas ao mesmo tempo. Existe um sistema básico de "
+"pesquisa / filtro. Os dados são armazenados localmente, as imagens são "
+"baixadas."
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:18
+msgid ""
+"Libellus currently supports Classes, Races, Spells, Magic Items, Equipment, "
+"and Monsters"
+msgstr ""
+"Atualmente, Libellus suporta aulas, corridas, feitiços, itens mágicos, "
+"equipamentos e monstros"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:32
+msgid "Info page for the Aboleth monster"
+msgstr "Página de informações para o ABOLETH Monster"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:36
+msgid "Detailed class info page"
+msgstr "Página de informações detalhadas da classe"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:40
+msgid "Search view with a \"Spells\" filter"
+msgstr "Visualização de pesquisa com um filtro \"feitiços\""
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:44
+msgid "The overview showing multiple tabs with images"
+msgstr "A visão geral mostrando várias guias com imagens"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:48
+msgid "An info page in a much smaller window"
+msgstr "Uma página de informações em uma janela muito menor"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:61
+msgid "wiki"
+msgstr "Wiki"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:66
+msgid "Add initial support for multiple sources."
+msgstr "Adicione suporte inicial a várias fontes."
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:67
+msgid "Update Sdk to version 47 (accent colors!)."
+msgstr "Atualize o SDK para a versão 47 (cores de destaque!)."
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:68
+msgid "Fix the Sorcerers details page."
+msgstr "Corrija a página Detalhes dos Feiticeiros."
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:73
+msgid ""
+"Fix the brand colors to have more contrast, make the main list sizing more "
+"consistent and allow copying of descriptions."
+msgstr ""
+"Corrija as cores da marca para ter mais contraste, tornar o dimensionamento "
+"da lista principal mais consistente e permitir a cópia das descrições."
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:78
+msgid ""
+"Fix the ordering of Class Features + Fix long stat labels to wrap on small "
+"screens"
+msgstr ""
+"Corrija a ordem dos recursos da classe + Fix Long Stat Rótulos para envolver "
+"em telas pequenas"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:83
+msgid ""
+"Deduplicate the adaptivity code and fix Stat Row widgets to also be adaptive "
+"+ update appdata"
+msgstr ""
+"Desduplique o código de adaptividade e corrija os widgets de linha "
+"estatística para também ser adaptativo + atualização AppData"
+
+#: data/de.hummdudel.Libellus.appdata.xml.in:88
+msgid "Initial release"
+msgstr "Liberação inicial"
