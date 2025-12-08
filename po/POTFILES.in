@@ -1,0 +1,8 @@
+# List of source files containing translatable strings.
+# Please keep this file sorted alphabetically.
+data/de.hummdudel.Libellus.desktop.in
+data/de.hummdudel.Libellus.metainfo.xml.in
+data/de.hummdudel.Libellus.gschema.xml
+src/main.vala
+src/window.vala
+src/window.blp

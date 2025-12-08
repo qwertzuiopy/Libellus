@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=de.hummdudel.Libellus
+Exec=@bindir@/libellus --gapplication-service

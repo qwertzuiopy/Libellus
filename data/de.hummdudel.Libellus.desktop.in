@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=libellus
+Exec=libellus
+Icon=de.hummdudel.Libellus
+Terminal=false
+Type=Application
+Categories=Utility;
+Keywords=GTK;
+StartupNotify=true
+DBusActivatable=true

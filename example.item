@@ -1,0 +1,9 @@
+Spell {
+  name: "fireball";
+  level: 10;
+  field: 42;
+  field2: "hello world";
+  field3: {
+    
+  }
+}
