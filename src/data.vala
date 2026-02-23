@@ -2,161 +2,187 @@ using Gee;
 
 public class Libellus.Data {
     public Data (string data) {
-        Value v = Value.parse (data);
+        int offset = 0;
+        Value v = Value.parse (data, ref offset);
         message (v.to_str());
     }
 }
 
 public class Value {
+    public static Value from_str(string data) {
+        int offset = 0;
+        return parse(data, ref offset);
+    }
+    public static Value parse(string data, ref int offset) {
+        unichar c;
+        Value.trim(data, ref offset);
+        int _tmp = offset;
+        data.get_next_char(ref _tmp, out c);
+        if (c == '{') {
+            return new MapValue.from_str(data, ref offset);
+        } else if (c == '[') {
+            return new ArrValue.from_str(data, ref offset);
+        } else if (c.isdigit() || c == '-') {
+            return new NumValue.from_str(data, ref offset);
+        } else if (c == '"') {
+            return new StrValue.from_str(data, ref offset);
+        }
+        GLib.error(@"expected '[', '{', '\"' or number but got '$c'");
+    }
+    public static void trim(string data, ref int offset) {
+        unichar c;
+        int next = offset;
+        data.get_next_char (ref next, out c);
+        while (c.isspace()) {
+            offset = next;
+            data.get_next_char (ref next, out c);
+        }
+    }
+    public string to_str () {
+        switch (this.kind) {
+            case Kind.ARR:
+                return ((ArrValue) this).to_str ();
+            case Kind.STR:
+                return ((StrValue) this).to_str ();
+            case Kind.NUM:
+                return ((NumValue) this).to_str ();
+            case Kind.MAP:
+                return ((MapValue) this).to_str ();
+       }
+       GLib.error("can't sreialize");
+    }
     public enum Kind {
-        ARRAY,
-        STRING,
-        NUMBER,
+        NONE,
+        ARR,
+        STR,
+        NUM,
         MAP,
     }
-    public Kind kind;
+    public Kind kind = Kind.NONE;
+}
+
+public class NumValue: Value {
     public double num;
-    public string str;
-    public ArrayList<Value> arr;
-    public HashMap<string, Value> hashmap;
-    public Value.string(string str) {
-        this.str = str;
-        this.kind = Kind.STRING;
+    public NumValue (double v) {
+        this.kind = Kind.NUM;
+        this.num = v;
     }
-    public Value.number(double num) {
-        this.num = num;
-        this.kind = Kind.NUMBER;
-    }
-    public Value.array() {
-        this.arr = new ArrayList<Value>();
-        this.kind = Kind.ARRAY;
-    }
-    public void append(Value v) {
-        assert(this.kind == Kind.ARRAY);
-        this.arr.add(v);
-    }
-    public Value.map() {
-        this.hashmap = new HashMap<string, Value>();
-        this.kind = Kind.MAP;
-    }
-    public void add(string key, Value val) {
-        assert(this.kind == Kind.MAP);
-        this.hashmap[key] = val;
-    }
-
     public string to_str() {
-        switch (this.kind) {
-            case Kind.STRING:
-                return "\"" + this.str + "\"";
-            case Kind.NUMBER:
-                return this.num.to_string();
-            case Kind.ARRAY:
-                string s = "[";
-                bool first = true;
-                foreach(Value v in this.arr) {
-                    if (!first) {
-                        s += ",";
-                    }
-                    first = false;
-                    s += v.to_str();
-                }
-                s += "]";
-                return s;
-            case Kind.MAP:
-                string s = "{";
-                bool first = true;
-                foreach (var e in this.hashmap.entries) {
-                    if (!first) {
-                        s+= ",";
-                    }
-                    first = false;
-                    s += e.key + ":" + e.value.to_str();
-                }
-                s += "}";
-                return s;
-        }
-        assert_not_reached();
+        return this.num.to_string();
     }
-
-    public static Value parse(string data) {
-        int c = 0;
-        return parse_inner(data, ref c);
-    }
-    private static Value parse_inner(string data, ref int offset) {
+    public NumValue.from_str(string data, ref int offset) {
+        this.kind = Kind.NUM;
         unichar c;
-        int tmp = offset;
-        data.get_next_char (ref tmp, out c);
-        while (c.isspace()) {
-            data.get_next_char (ref tmp, out c);
-        }
-        if (c == '{') {
-            return parse_map(data, ref offset);
-        } else if (c == '[') {
-            return parse_array(data, ref offset);
-        } else if (c.isdigit() || c == '-') {
-            return parse_number(data, ref offset);
-        } else if (c == '"') {
-            return parse_string(data, ref offset);
-        } else {
-            message(c.isspace().to_string());
-            GLib.error(@"oops $c ");
-        }
-    }
-    private static Value parse_number(string data, ref int offset) {
-        unichar c;
-        var tmp = offset;
+        var start = offset;
         data.get_next_char (ref offset, out c);
         while (c.isdigit() || c == '-' || c == '.' || c == 'e') {
             data.get_next_char (ref offset, out c);
         }
-        return new Value.number(double.parse(data.slice(tmp, -1)));
+        this.num = double.parse(data.slice(start, -1));
+        data.get_prev_char(ref offset, out c);
     }
-    private static Value parse_string(string data, ref int offset) {
+}
+
+public class StrValue: Value {
+    public string str;
+    public StrValue (string v) {
+        this.kind = Kind.STR;
+        this.str = v;
+    }
+    public string to_str() {
+        return "\"" + this.str + "\"";
+    }
+    public StrValue.from_str(string data, ref int offset) {
+        this.kind = Kind.STR;
         int tmp = offset;
         int end = data.index_of("\"", offset+1);
         offset = end;
         data.get_next_char (ref offset, null);
-        return new Value.string(data.slice(tmp+1, end));
+        this.str = data.slice(tmp+1, end);
     }
-    private static Value parse_array (string data, ref int offset) {
-        var v = new Value.array();
+}
+
+public class ArrValue: Value {
+    public ArrayList<Value> arr;
+    public ArrValue () {
+        this.kind = Kind.ARR;
+        this.arr = new ArrayList<Value>();
+    }
+    public string to_str () {
+        string s = "[";
+        bool first = true;
+        foreach(Value v in this.arr) {
+            if (!first) {
+                s += ",";
+            }
+            first = false;
+            s += v.to_str();
+        }
+        s += "]";
+        return s;
+    }
+    public ArrValue.from_str(string data, ref int offset) {
+        this.kind = Kind.ARR;
+        this.arr = new ArrayList<Value>();
         unichar c;
         data.get_next_char (ref offset, out c);
+        if (c != '[') {
+            GLib.error(@"expected '[' but got '$c'");
+        }
         while (c == ',' || c == '[') {
-            v.append (parse_inner (data, ref offset));
+            this.arr.add (Value.parse (data, ref offset));
             data.get_next_char (ref offset, out c);
-            while (c.isspace()) {
-                data.get_next_char (ref offset, out c);
-            }
+        }
+        if (c != ']') {
+            GLib.error(@"expected ']' but got '$c'");
         }
         data.get_next_char (ref offset, out c);
-        return v;
     }
+}
 
-    private static Value parse_map (string data, ref int offset) {
-        var v = new Value.map();
-        unichar c;
-        data.get_next_char (ref offset, out c); // skip ","
-        while (c != '}') {
-            data.get_next_char (ref offset, out c); // skip ","
-            while (c.isspace()) {
-                data.get_next_char (ref offset, out c);
+public class MapValue: Value {
+    public HashMap<string, Value> map;
+    public MapValue () {
+        this.kind = Kind.MAP;
+        this.map = new HashMap<string, Value>();
+    }
+    public string to_str () {
+        string s = "{";
+        bool first = true;
+        foreach (var e in this.map.entries) {
+            if (!first) {
+                s+= ",";
             }
+            first = false;
+            s += e.key + ":" + e.value.to_str();
+        }
+        s += "}";
+        return s;
+    }
+    public MapValue.from_str (string data, ref int offset) {
+        this.kind = Kind.MAP;
+        this.map = new HashMap<string, Value>();
+        unichar c;
+        data.get_next_char (ref offset, out c); // skip "{"
+        if (c != '{') {
+            GLib.error(@"expected '{' but got $c");
+        }
+        while (c != '}') {
+            this.trim(data, ref offset);
             int colon = data.index_of(":", offset);
-            string ident = data.slice(offset-1, colon);
+            if (colon == -1) {
+                GLib.error(@"expected ':' but never found it");
+            }
+            string ident = data.slice(offset, colon).strip();
             offset = colon;
             data.get_next_char (ref offset, out c);
-            message(@"$c, $offset");
-            v.add (ident, parse_inner (data, ref offset));
-            c = data.get_char(offset);
-            message(@"$c, $offset");
-            while (c.isspace()) {
-                data.get_next_char (ref offset, out c);
+            if (c != ':') {
+                GLib.error(@"expected ':' but got '$c'");
             }
+            this.map[ident] = Value.parse (data, ref offset);
+            c = data.get_char(offset);
+            this.trim(data, ref offset);
+            data.get_next_char (ref offset, out c); // skip ","
         }
-        data.get_next_char (ref offset, out c);
-        message(@"returning with $c");
-        return v;
     }
-
 }

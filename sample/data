@@ -1,4 +1,18 @@
 {
-  ablalala: 4242,
-  abba: "test"
+  id: "fireball",
+  content: [
+    {
+      id: "Title",
+      content: "Fireball",
+    },
+    {
+      id: "StatGrid",
+      content: [
+        {
+          title: "test",
+          value: "4d6",
+        }
+      ],
+    }
+  ],
 }

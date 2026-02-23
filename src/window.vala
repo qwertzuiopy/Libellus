@@ -40,6 +40,23 @@ public class Libellus.Window : Adw.ApplicationWindow {
         } catch (Error e) {
             critical (e.message);
         }
+    }
+}
 
+public class Libellus.Page : Adw.Bin {
+    public MapValue data;
+    public Page (File file) {
+        try {
+            uint8[] contents;
+            string etag_out;
+            file.load_contents (null, out contents, out etag_out);
+            Value v = Value.from_str((string) contents);
+            if (!(v is MapValue)) {
+                GLib.error("expected toplevel node to be a map");
+            }
+            this.data = (MapValue) v;
+        } catch (Error e) {
+            critical (e.message);
+        }
     }
 }
