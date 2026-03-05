@@ -1,5 +1,6 @@
 {
   id: "fireball",
+  name: "Fireball",
   content: [
     {
       id: "Title",

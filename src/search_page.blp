@@ -2,6 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $LibellusSearchPage : Adw.NavigationPage {
+  title: "Search";
   child: Gtk.ScrolledWindow {
     child: Adw.Clamp {
       child: Gtk.Box {
@@ -14,20 +15,25 @@ template $LibellusSearchPage : Adw.NavigationPage {
           margin-bottom: 12;
           spacing: 6;
           orientation: horizontal;
-          Gtk.Entry {
+          Gtk.Entry entry {
             hexpand: true;
+            margin-start: 6;
             margin-top: 6;
             margin-bottom: 6;
           }
           Gtk.Button {
             icon-name: "funnel";
+            margin-top: 6;
+            margin-end: 6;
+            margin-bottom: 6;
           }
         }
         Gtk.ListView listview {
           styles [
             "card",
           ]
-
+          single-click-activate: true;
+          margin-bottom: 12;
         }
       };
     };

@@ -6,11 +6,19 @@ template $LibellusTab : Adw.Bin {
     [top]
     Adw.HeaderBar {
       [start]
+      Gtk.Button back_button {
+        icon-name: "go-previous-symbolic";
+      }
+      [start]
       Gtk.Button new_tab_button {
         icon-name: "tab-new-symbolic";
       }
-      [start]
+      [end]
       Adw.TabButton overview_button {
+      }
+      [end]
+      Gtk.MenuButton bookmark_button {
+        icon-name: "user-bookmarks-symbolic";
       }
     }
     [top]

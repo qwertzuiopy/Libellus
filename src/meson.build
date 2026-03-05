@@ -5,6 +5,7 @@ libellus_sources = [
   'data.vala',
   'modules.vala',
   'searchpage.vala',
+  'bookmarkmenu.vala',
 ]
 
 libellus_deps = [
@@ -12,6 +13,7 @@ libellus_deps = [
   dependency('gtk4'),
   dependency('gee-0.8'),
   dependency('gio-2.0'),
+  dependency('libsoup-3.0'),
   dependency('libadwaita-1', version: '>= 1.4'),
 ]
 

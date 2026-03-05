@@ -1,5 +1,6 @@
 {
   id: "acid_splash",
+  name: "Acid Splash",
   content: [
     {
       id: "Title",
