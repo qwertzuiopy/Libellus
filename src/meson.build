@@ -3,12 +3,15 @@ libellus_sources = [
   'application.vala',
   'window.vala',
   'data.vala',
+  'modules.vala',
+  'searchpage.vala',
 ]
 
 libellus_deps = [
   config_dep,
   dependency('gtk4'),
   dependency('gee-0.8'),
+  dependency('gio-2.0'),
   dependency('libadwaita-1', version: '>= 1.4'),
 ]
 
@@ -16,6 +19,9 @@ blueprints = custom_target('blueprints',
   input: files(
     'shortcuts-dialog.blp',
     'window.blp',
+    'page.blp',
+    'tab.blp',
+    'search_page.blp',
   ),
   output: '.',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],

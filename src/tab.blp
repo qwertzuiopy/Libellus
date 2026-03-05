@@ -1,0 +1,22 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LibellusTab : Adw.Bin {
+  child: Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      [start]
+      Gtk.Button new_tab_button {
+        icon-name: "tab-new-symbolic";
+      }
+      [start]
+      Adw.TabButton overview_button {
+      }
+    }
+    [top]
+    Adw.TabBar tabbar {
+    }
+    content: Adw.NavigationView navview {
+    };
+  };
+}

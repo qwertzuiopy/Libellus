@@ -8,7 +8,7 @@ public class Libellus.Data {
     }
 }
 
-public class Value {
+public class Value: Object {
     public static Value from_str(string data) {
         int offset = 0;
         return parse(data, ref offset);
@@ -33,7 +33,7 @@ public class Value {
         unichar c;
         int next = offset;
         data.get_next_char (ref next, out c);
-        while (c.isspace()) {
+        while (c.isspace() || c == '\n') {
             offset = next;
             data.get_next_char (ref next, out c);
         }
@@ -129,14 +129,16 @@ public class ArrValue: Value {
         if (c != '[') {
             GLib.error(@"expected '[' but got '$c'");
         }
+        this.trim(data, ref offset);
         while (c == ',' || c == '[') {
+            this.trim(data, ref offset);
             this.arr.add (Value.parse (data, ref offset));
+            this.trim(data, ref offset);
             data.get_next_char (ref offset, out c);
         }
         if (c != ']') {
             GLib.error(@"expected ']' but got '$c'");
         }
-        data.get_next_char (ref offset, out c);
     }
 }
 

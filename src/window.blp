@@ -6,43 +6,8 @@ template $LibellusWindow: Adw.ApplicationWindow {
   default-width: 800;
   default-height: 600;
 
-  content: Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      [end]
-      MenuButton {
-        primary: true;
-        icon-name: "open-menu-symbolic";
-        tooltip-text: _("Main Menu");
-        menu-model: primary_menu;
-      }
-    }
-
-    content: Label label {
-      label: _("Hello, World!");
-
-      styles [
-        "title-1",
-      ]
+  content: Adw.TabOverview overview {
+    child: Adw.TabView tabview {
     };
   };
-}
-
-menu primary_menu {
-  section {
-    item {
-      label: _("_Preferences");
-      action: "app.preferences";
-    }
-
-    item {
-      label: _("_Keyboard Shortcuts");
-      action: "app.shortcuts";
-    }
-
-    item {
-      label: _("_About Libellus");
-      action: "app.about";
-    }
-  }
 }

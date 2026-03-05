@@ -20,11 +20,35 @@
 
 [GtkTemplate (ui = "/de/hummdudel/Libellus/window.ui")]
 public class Libellus.Window : Adw.ApplicationWindow {
+    File data_folder;
+    File dir_file;
+    ArrValue dir;
+    public ListStore liststore;
+    public Gtk.SignalListItemFactory factory;
+
     [GtkChild]
-    private unowned Gtk.Label label;
+    public unowned Adw.TabView tabview;
+    [GtkChild]
+    public unowned Adw.TabOverview overview;
 
     public Window (Gtk.Application app) {
         Object (application: app);
+
+        liststore = new ListStore(typeof(MapValue));
+        factory = new Gtk.SignalListItemFactory();
+        factory.setup.connect((item) => {
+            var list_item = (Gtk.ListItem) item;
+            list_item.child = new SearchEntry();
+        });
+        factory.bind.connect ((item) => {
+            var list_item = (Gtk.ListItem) item;
+            var entry = (SearchEntry) list_item.child;
+            var map = ((MapValue) list_item.item).map;
+            entry.label.label = ((StrValue)map["name"]).str;
+        });
+
+        overview.view = tabview;
+        tabview.append(new Libellus.Tab(this));
 
         test.begin ();
     }
@@ -32,19 +56,55 @@ public class Libellus.Window : Adw.ApplicationWindow {
         var file_dialog = new Gtk.FileDialog ();
 
         try {
-            File file = yield file_dialog.open (this, null);
+            File folder = yield file_dialog.select_folder (this, null);
+            data_folder = folder.get_child("data");
+            dir_file = folder.get_child("dir");
             uint8[] contents;
             string etag_out;
-            file.load_contents (null, out contents, out etag_out);
-            Data d = new Data((string) contents);
+            dir_file.load_contents (null, out contents, out etag_out);
+            dir = (ArrValue)Value.from_str((string) contents);
+            foreach(var v in dir.arr) {
+                liststore.append((MapValue)v);
+            }
+            Tab tab = new Tab(this);
+            tab.navview.push(new SearchPage(this));
+            tabview.append(tab);
         } catch (Error e) {
             critical (e.message);
         }
     }
 }
 
+[GtkTemplate (ui = "/de/hummdudel/Libellus/tab.ui")]
+public class Libellus.Tab : Adw.Bin {
+    [GtkChild]
+    unowned Gtk.Button new_tab_button;
+    [GtkChild]
+    unowned Adw.TabButton overview_button;
+    [GtkChild]
+    unowned Adw.TabBar tabbar;
+    [GtkChild]
+    public unowned Adw.NavigationView navview;
+
+    public Window window;
+
+    public Tab(Window window) {
+        this.window = window;
+        overview_button.view = window.tabview;
+        overview_button.clicked.connect(() => {
+            this.window.overview.open = true;
+        });
+        tabbar.view = window.tabview;
+    }
+}
+
+[GtkTemplate (ui = "/de/hummdudel/Libellus/page.ui")]
 public class Libellus.Page : Adw.Bin {
-    public MapValue data;
+    MapValue data;
+
+    [GtkChild]
+    unowned Gtk.Box box;
+
     public Page (File file) {
         try {
             uint8[] contents;
@@ -53,6 +113,33 @@ public class Libellus.Page : Adw.Bin {
             Value v = Value.from_str((string) contents);
             if (!(v is MapValue)) {
                 GLib.error("expected toplevel node to be a map");
+            }
+            ArrValue content = (ArrValue) ((MapValue)v).map["content"];
+            foreach (var c in content.arr) {
+                Gtk.Widget w;
+                string id = ((StrValue)((MapValue)c).map["id"]).str;
+                switch (id) {
+                    case "Title":
+                        w = new TitleModule((MapValue)c);
+                        break;
+                    case "Subtitle":
+                        w = new SubtitleModule((MapValue)c);
+                        break;
+                    case "StatGrid":
+                        w = new StatGridModule((MapValue)c);
+                        break;
+                    case "MultiText":
+                        w = new MultiTextModule((MapValue)c);
+                        break;
+                    case "Table":
+                        w = new TableModule((MapValue)c);
+                        break;
+
+                    default:
+                        GLib.error(@"unrecongnised Module '$id'");
+                        break;
+                }
+                box.append(w);
             }
             this.data = (MapValue) v;
         } catch (Error e) {
