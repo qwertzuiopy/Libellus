@@ -4,10 +4,14 @@ class Libellus.SearchPage : Adw.NavigationPage {
     unowned Gtk.ListView listview;
     [GtkChild]
     unowned Gtk.Entry entry;
+    [GtkChild]
+    unowned Gtk.Button filter_button;
 
     Window window;
     Tab tab;
     SearchFilter search_filter;
+
+    FilterDialog filter;
 
     public SearchPage(Window window, Tab tab) {
         this.window = window;
@@ -28,7 +32,10 @@ class Libellus.SearchPage : Adw.NavigationPage {
             this.tab.navview.push(new Page(this.window.data_folder.get_child(((StrValue)v.map["id"]).str), this.window));
             this.tab.update_title.begin();
         });
-
+        this.filter = new FilterDialog(this.window);
+        filter_button.clicked.connect(() => {
+            this.filter.present(this.window);
+        });
     }
 }
 

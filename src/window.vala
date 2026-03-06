@@ -21,11 +21,13 @@
 [GtkTemplate (ui = "/de/hummdudel/Libellus/window.ui")]
 public class Libellus.Window : Adw.ApplicationWindow {
     public File data_folder;
+    public File filter_file;
     File dir_file;
     public File bookmark_file;
     public Bookmarks bookmarks;
 
     ArrValue dir;
+    public ArrValue filter_data;
     public ListStore liststore;
     public Gtk.SignalListItemFactory factory;
 
@@ -79,6 +81,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
             File folder = yield file_dialog.select_folder (this, null);
             this.data_folder = folder.get_child("data");
             this.dir_file = folder.get_child("dir");
+            this.filter_file = folder.get_child("filter");
             this.bookmark_file = folder.get_child("bookmarks");
             this.bookmarks = new Bookmarks(this);
 
@@ -86,6 +89,10 @@ public class Libellus.Window : Adw.ApplicationWindow {
             string etag_out;
             this.dir_file.load_contents (null, out contents, out etag_out);
             this.dir = (ArrValue)Value.from_str((string) contents);
+
+            this.filter_file.load_contents (null, out contents, out etag_out);
+            this.filter_data = (ArrValue)Value.from_str((string) contents);
+
             foreach(var v in this.dir.arr) {
                 this.liststore.append((MapValue)v);
             }

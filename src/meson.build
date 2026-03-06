@@ -6,6 +6,7 @@ libellus_sources = [
   'modules.vala',
   'searchpage.vala',
   'bookmarkmenu.vala',
+  'filter_dialog.vala',
 ]
 
 libellus_deps = [
@@ -24,6 +25,8 @@ blueprints = custom_target('blueprints',
     'page.blp',
     'tab.blp',
     'search_page.blp',
+    'filter_dialog.blp',
+    'filter_page.blp',
   ),
   output: '.',
   command: [find_program('blueprint-compiler'), 'batch-compile', '@OUTPUT@', '@CURRENT_SOURCE_DIR@', '@INPUT@'],

@@ -5,6 +5,8 @@
     <file preprocess="xml-stripblanks">page.ui</file>
     <file preprocess="xml-stripblanks">tab.ui</file>
     <file preprocess="xml-stripblanks">search_page.ui</file>
+    <file preprocess="xml-stripblanks">filter_dialog.ui</file>
+    <file preprocess="xml-stripblanks">filter_page.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
   </gresource>
 </gresources>

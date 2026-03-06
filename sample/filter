@@ -1,5 +1,74 @@
 [
   {
-    ...
+    title: "spells",
+    value: "spell",
+    filters: [
+      {
+        id: "Dropdown",
+        title: "school",
+        field: "school",
+        options: [
+          { value: "abjuration", title: "Abjuration" },
+          { value: "conjuration", title: "Conjuration" },
+          { value: "divination", title: "Divination" },
+          { value: "enchantment", title: "Enchantment" },
+          { value: "evocation", title: "Evocation" },
+          { value: "illusion", title: "Illusion" },
+          { value: "necromancy", title: "Necromancy" },
+          { value: "transmutation", title: "Transmutation" }
+        ]
+      },
+      {
+        id: "Range",
+        title: "level",
+        field: "level",
+        min: 0,
+        max: 9
+      },
+      {
+        id: "Dropdown",
+        title: "class",
+        field: "class",
+        options: [
+          { value: "barbarian", title: "Barbarian" },
+          { value: "bard", title: "Bard"},
+          { value: "cleric", title: "Cleric"},
+          { value: "druid", title: "Druid"},
+          { value: "fighter", title: "Fighter"},
+          { value: "monk", title: "Monk"},
+          { value: "paladin", title: "Paladin"},
+          { value: "ranger", title: "Ranger"},
+          { value: "rogue", title: "Rogue"},
+          { value: "sorcerer", title: "Sorcerer"},
+          { value: "warlock", title: "Warlock"},
+          { value: "wizard", title: "Wizard"}
+        ]
+      }
+    ]
+  },
+  {
+    title: "traits",
+    value: "trait",
+    filters: [
+      {
+        id: "Dropdown",
+        title: "class",
+        field: "class",
+        options: [
+          { value: "barbarian", title: "Barbarian" },
+          { value: "bard", title: "Bard"},
+          { value: "cleric", title: "Cleric"},
+          { value: "druid", title: "Druid"},
+          { value: "fighter", title: "Fighter"},
+          { value: "monk", title: "Monk"},
+          { value: "paladin", title: "Paladin"},
+          { value: "ranger", title: "Ranger"},
+          { value: "rogue", title: "Rogue"},
+          { value: "sorcerer", title: "Sorcerer"},
+          { value: "warlock", title: "Warlock"},
+          { value: "wizard", title: "Wizard"}
+        ]
+      }
+    ]
   }
 ]

@@ -185,6 +185,9 @@ public class MapValue: Value {
             c = data.get_char(offset);
             this.trim(data, ref offset);
             data.get_next_char (ref offset, out c); // skip ","
+            if (c != ',' && c != '}') {
+                GLib.error(@"expected ',' or '}' but got '$c'");
+            }
         }
     }
 }

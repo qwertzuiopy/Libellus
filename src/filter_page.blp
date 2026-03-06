@@ -1,0 +1,23 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LibellusFilterPage : Adw.NavigationPage {
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+    }
+    Gtk.ListBox box {
+      styles [
+        "boxed-list",
+      ]
+      valign: start;
+      selection-mode: none;
+      margin-start: 12;
+      margin-end: 12;
+      margin-bottom: 12;
+      Adw.ButtonRow apply_button {
+        title: "apply";
+      }
+    }
+  }
+}

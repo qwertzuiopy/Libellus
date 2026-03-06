@@ -1,5 +1,5 @@
 [
-  {id: "fireball", name: "Fireball"},
-  {id: "acid_splash", name: "Acid Splash"},
-  {id: "adult_black_dragon", name: "Adult Black Dragon"}
+  {id: "fireball", name: "Fireball", category: "spell"},
+  {id: "acid_splash", name: "Acid Splash", category: "spell"},
+  {id: "adult_black_dragon", name: "Adult Black Dragon", category: "monster"}
 ]
