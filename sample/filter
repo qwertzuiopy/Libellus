@@ -26,7 +26,7 @@
         max: 9
       },
       {
-        id: "Dropdown",
+        id: "ArrayDropdown",
         title: "class",
         field: "class",
         options: [
@@ -51,7 +51,7 @@
     value: "trait",
     filters: [
       {
-        id: "Dropdown",
+        id: "ArrayDropdown",
         title: "class",
         field: "class",
         options: [
