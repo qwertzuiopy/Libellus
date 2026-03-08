@@ -34,19 +34,27 @@ class Libellus.FilterPage : Adw.NavigationPage {
     [GtkChild]
     unowned Adw.ButtonRow apply_button;
 
-    public FilterPage (FilterDialog dialog, MapValue data) {
-        message(data.to_str());
+    public Gtk.FilterListModel filter;
+
+    public FilterPage (FilterDialog dialog, MapValue data, Gtk.FilterListModel origin) {
         this.title = ((StrValue)data.map["title"]).str;
         foreach (var v in ((ArrValue)data.map["filters"]).arr) {
             var row = (MapValue)v;
             string id = ((StrValue)row.map["id"]).str;
             switch (id) {
                 case "Dropdown":
-                    this.box.insert(new DropdownFilter(row), 0);
+                    var comborow = new Adw.ComboRow ();
+                    var list = new Gtk.StringList({"any"});
+                    foreach (var option in ((ArrValue)row.map["options"]).arr) {
+                        list.append(((StrValue)((MapValue)option).map["title"]).str);
+                    }
+                    comborow.model = list;
+                    comborow.title = ((StrValue)row.map["title"]).str;
+                    this.box.insert(comborow, 0);
                     break;
                 case "Range":
                     var spinrow = new Adw.SpinRow.with_range(((NumValue)row.map["min"]).num, ((NumValue)row.map["max"]).num, 1.0);
-                    spinrow.title = ((StrValue)data.map["title"]).str;
+                    spinrow.title = ((StrValue)row.map["title"]).str;
                     var enabled = new Gtk.Switch() { valign = CENTER };
                     spinrow.add_suffix(enabled);
                     this.box.insert(spinrow, 0);
@@ -58,14 +66,74 @@ class Libellus.FilterPage : Adw.NavigationPage {
         }
     }
 }
+class Libellus.DropdownFilter : Gtk.Filter {
+    string val;
+    string field;
+    bool enabled;
+    Gtk.FilterMatch strictness;
 
-class Libellus.DropdownFilter : Adw.ComboRow {
-    public DropdownFilter (MapValue data) {
-        var list = new Gtk.StringList({"any"});
-        foreach (var row in ((ArrValue)data.map["options"]).arr) {
-            list.append(((StrValue)((MapValue)row).map["title"]).str);
+    public DropdownFilter (string val, string field) {
+        this.field = field;
+        this.update_term (val);
+    }
+    public void update_term (string val) {
+        this.val = val;
+        if (this.val == "any") {
+            this.enabled = false;
+            this.strictness = ALL;
+        } else {
+            this.enabled = true;
+            this.strictness = SOME;
         }
-        this.model = list;
-        this.title = ((StrValue)data.map["title"]).str;
+        this.changed (DIFFERENT);
+    }
+    public override bool match (Object? item) {
+        if (!this.enabled) {
+            return true;
+        }
+        var map = (MapValue) item;
+        if (((StrValue) map.map[this.field]).str == this.val) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public override Gtk.FilterMatch get_strictness () {
+        return this.strictness;
+    }
+}
+
+class Libellus.RangeFilter : Gtk.Filter {
+    double val;
+    string field;
+    public bool enabled = false;
+    Gtk.FilterMatch strictness;
+
+    public RangeFilter (double val, string field) {
+        this.field = field;
+        this.update_term (val);
+    }
+    public void update_term (double val) {
+        this.val = val;
+        if (this.enabled) {
+            this.strictness = SOME;
+        } else {
+            this.strictness = ALL;
+        }
+        this.changed (DIFFERENT);
+    }
+    public override bool match (Object? item) {
+        if (!this.enabled) {
+            return true;
+        }
+        var map = (MapValue) item;
+        if (((NumValue) map.map[this.field]).num == this.val) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public override Gtk.FilterMatch get_strictness () {
+        return this.strictness;
     }
 }

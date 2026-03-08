@@ -1,5 +1,5 @@
 [
-  {id: "fireball", name: "Fireball", category: "spell"},
-  {id: "acid_splash", name: "Acid Splash", category: "spell"},
+  {id: "fireball", name: "Fireball", category: "spell", school: "abjuration", class: "barbarian", level: 3},
+  {id: "acid_splash", name: "Acid Splash", category: "spell", school: "abjuration", class: "barbarian", level: 3},
   {id: "adult_black_dragon", name: "Adult Black Dragon", category: "monster"}
 ]
