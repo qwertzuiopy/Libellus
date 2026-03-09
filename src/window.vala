@@ -55,9 +55,12 @@ public class Libellus.Window : Adw.ApplicationWindow {
             var map = ((MapValue) list_item.item).map;
             entry.label.label = ((StrValue)map["name"]).str;
         });
-
+        factory.unbind.connect((item) => {
+            var list_item = (Gtk.ListItem) item;
+            var entry = (SearchEntry) list_item.child;
+            entry.label.label = "";
+        });
         overview.view = tabview;
-        // tabview.append(new Libellus.Tab(this));
 
 
 

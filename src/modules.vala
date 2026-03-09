@@ -102,14 +102,37 @@ class Libellus.MultiTextModule : Adw.Bin {
         box.add_css_class("boxed-list");
         box.selection_mode = Gtk.SelectionMode.NONE;
         foreach (var v in ((ArrValue)((MapValue)data).map["content"]).arr) {
-            var row = new Gtk.ListBoxRow();
-            var label = new Gtk.Label(((StrValue)v).str);
-            label.wrap = true;
-            label.margin_top = 10;
-            label.margin_bottom = 10;
-            label.margin_start = 10;
-            label.margin_end = 10;
-            row.child = label;
+            var row = new Gtk.ListBoxRow() {
+                activatable = false,
+            };
+            var text = ((StrValue)v).str;
+            if (text.has_prefix("***")) {
+                var temp = new Gtk.Box(VERTICAL, 6);
+                var heading = new Gtk.Label(text.slice(3, text.index_of("***", 4)-1)) {
+                    margin_start = 12,
+                    margin_end = 12,
+                    margin_top = 12,
+                    css_classes = {"heading"},
+                };
+                var label = new Gtk.Label(text.slice(text.index_of("***", 4)+4, -1)) {
+                    wrap = true,
+                    margin_bottom = 12,
+                    margin_start = 12,
+                    margin_end = 12,
+                };
+                temp.append(heading);
+                temp.append(label);
+                row.child = temp;
+            } else {
+                var label = new Gtk.Label(text) {
+                    wrap = true,
+                    margin_bottom = 12,
+                    margin_start = 12,
+                    margin_end = 12,
+                    margin_top = 12,
+                };
+                row.child = label;
+            }
             box.append(row);
         }
         this.child = box;

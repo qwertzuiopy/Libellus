@@ -27,7 +27,7 @@ public class Value: Object {
         } else if (c == '"') {
             return new StrValue.from_str(data, ref offset);
         }
-        GLib.error(@"expected '[', '{', '\"' or number but got '$c'");
+        GLib.error(@"expected '[', '{', '\"' or number but got '$c' at $offset");
     }
     public static void trim(string data, ref int offset) {
         unichar c;
@@ -37,6 +37,11 @@ public class Value: Object {
             offset = next;
             data.get_next_char (ref next, out c);
         }
+    }
+    public static unichar peek(string data, int offset) {
+        unichar c;
+        data.get_next_char (ref offset, out c);
+        return c;
     }
     public string to_str () {
         switch (this.kind) {
@@ -130,6 +135,10 @@ public class ArrValue: Value {
             GLib.error(@"expected '[' but got '$c'");
         }
         this.trim(data, ref offset);
+        if (Value.peek(data, offset) == ']') {
+            data.get_next_char (ref offset, out c);
+            return;
+        }
         while (c == ',' || c == '[') {
             this.trim(data, ref offset);
             this.arr.add (Value.parse (data, ref offset));
