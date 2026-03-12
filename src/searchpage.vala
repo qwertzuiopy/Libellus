@@ -30,7 +30,7 @@ class Libellus.SearchPage : Adw.NavigationPage {
         this.listview.show_separators = true;
         this.listview.activate.connect((position) => {
             var v = (MapValue) this.listview.model.get_item(position);
-            this.tab.navview.push(new Page(this.window.data_folder.get_child(((StrValue)v.map["id"]).str), this.window));
+            this.tab.navview.push(new Page(this.window.data_folder.get_child(((StrValue)v.map["id"]).str), this.window, this.tab));
             this.tab.update_title.begin();
         });
         this.filter = new FilterDialog(this.window, this);

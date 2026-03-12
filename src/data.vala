@@ -134,15 +134,15 @@ public class ArrValue: Value {
         if (c != '[') {
             GLib.error(@"expected '[' but got '$c'");
         }
-        this.trim(data, ref offset);
+        Value.trim(data, ref offset);
         if (Value.peek(data, offset) == ']') {
             data.get_next_char (ref offset, out c);
             return;
         }
         while (c == ',' || c == '[') {
-            this.trim(data, ref offset);
+            Value.trim(data, ref offset);
             this.arr.add (Value.parse (data, ref offset));
-            this.trim(data, ref offset);
+            Value.trim(data, ref offset);
             data.get_next_char (ref offset, out c);
         }
         if (c != ']') {
@@ -179,10 +179,10 @@ public class MapValue: Value {
             GLib.error(@"expected '{' but got $c");
         }
         while (c != '}') {
-            this.trim(data, ref offset);
+            Value.trim(data, ref offset);
             int colon = data.index_of(":", offset);
             if (colon == -1) {
-                GLib.error(@"expected ':' but never found it");
+                GLib.error(@"expected ':' but never found it near $offset");
             }
             string ident = data.slice(offset, colon).strip();
             offset = colon;
@@ -192,7 +192,7 @@ public class MapValue: Value {
             }
             this.map[ident] = Value.parse (data, ref offset);
             c = data.get_char(offset);
-            this.trim(data, ref offset);
+            Value.trim(data, ref offset);
             data.get_next_char (ref offset, out c); // skip ","
             if (c != ',' && c != '}') {
                 GLib.error(@"expected ',' or '}' but got '$c'");

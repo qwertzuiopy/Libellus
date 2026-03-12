@@ -1,3 +1,49 @@
+class Libellus.LinkButton : Gtk.Button {
+    public LinkButton(string id, Tab tab) {
+        var owned_id = id;
+        this.valign = CENTER;
+        this.add_css_class("accent");
+        if (owned_id.has_prefix("@")) {
+            owned_id = owned_id.substring(1, owned_id.length-1);
+        }
+        var data = tab.window.fetch_dir_for_id(owned_id);
+        if (data == null) {
+            this.label = "[NOT FOUND]"+owned_id;
+        } else {
+            this.label = ((StrValue)data.map["name"]).str;
+        }
+        this.clicked.connect(() => {
+            tab.navview.push(new Page(tab.window.data_folder.get_child(owned_id), tab.window, tab));
+        });
+    }
+}
+
+class Libellus.LinkListModule : Adw.Bin {
+    public LinkListModule (MapValue data, Tab tab) {
+        var box = new Gtk.ListBox () {
+            css_classes = {"boxed-list"},
+            selection_mode = NONE,
+        };
+        foreach (var row in ((ArrValue)data.map["content"]).arr) {
+            var str = ((StrValue)((MapValue)row).map["id"]).str;
+            if (str.has_prefix("@")) {
+                str = str.substring(1, str.length-1);
+            }
+            var item = new Adw.ActionRow() {
+                title = ((StrValue)tab.window.fetch_dir_for_id(str).map["name"]).str,
+                subtitle = ((StrValue)((MapValue)row).map["content"]).str,
+                activatable = true,
+            };
+            item.add_suffix(new Gtk.Image.from_icon_name("go-next-symbolic"));
+            item.activated.connect(() => {
+                tab.navview.push(new Page(tab.window.data_folder.get_child(str), tab.window, tab));
+            });
+            box.append(item);
+        }
+        this.child = box;
+    }
+}
+
 class Libellus.ImageModule : Adw.Bin {
     public ImageModule (MapValue data) {
         this.height_request = 300;
@@ -9,6 +55,7 @@ class Libellus.ImageModule : Adw.Bin {
         var url = ((StrValue)data.map["url"]).str;
         var message = new Soup.Message("GET", url);
         var session = new Soup.Session();
+        try {
         var bytes = yield session.send_and_read_async(message, 1, null);
         var texture = Gdk.Texture.from_bytes(bytes);
         var picture = new Gtk.Picture() {
@@ -17,6 +64,9 @@ class Libellus.ImageModule : Adw.Bin {
             halign = CENTER,
         };
         this.child = picture;
+        } catch (Error e) {
+            critical (e.message);
+        }
     }
 }
 
@@ -49,14 +99,16 @@ class Libellus.TitledTextModule : Adw.Bin {
 }
 
 class Libellus.StatListModule : Adw.Bin {
-    public StatListModule (MapValue data) {
+    public StatListModule (MapValue data, Tab tab) {
         var listbox = new Gtk.ListBox() {
             selection_mode = NONE,
             css_classes = {"boxed-list"},
         };
         var arr = (ArrValue)data.map["content"];
         foreach (var row in arr.arr) {
-            var box = new Gtk.Box(HORIZONTAL, 6);
+            var box = new Gtk.Box(HORIZONTAL, 6) {
+                margin_end = 6,
+            };
             var title = ((StrValue) ((MapValue) row).map["title"]);
             box.append(new Gtk.Label(title.str) {
                 css_classes = {"heading"},
@@ -68,7 +120,12 @@ class Libellus.StatListModule : Adw.Bin {
             });
             // box.append(new Gtk.Separator(VERTICAL));
             foreach (var entry in ((ArrValue)((MapValue)row).map["content"]).arr) {
-                box.append(new Gtk.Label(((StrValue)entry).str) { margin_end = 6 } );
+                var str =((StrValue)entry).str;
+                if (str.has_prefix("@")) {
+                    box.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6 });
+                } else {
+                    box.append(new Gtk.Label(str) { margin_top = 6, margin_bottom = 6 } );
+                }
             }
             listbox.append(new Gtk.ListBoxRow() {
                 child = box,
@@ -139,7 +196,7 @@ class Libellus.MultiTextModule : Adw.Bin {
     }
 }
 class Libellus.StatGridModule : Adw.Bin {
-    public StatGridModule (MapValue data) {
+    public StatGridModule (MapValue data, Tab tab) {
         var box = new Adw.WrapBox() {
             child_spacing = 10,
             line_spacing = 10,
@@ -152,17 +209,24 @@ class Libellus.StatGridModule : Adw.Bin {
             var b = new Gtk.Box(Gtk.Orientation.VERTICAL, 5);
             b.width_request = 70;
             b.add_css_class("card");
-            var title = new Gtk.Label(((StrValue)item.map["title"]).str);
-            title.margin_top = 15;
-            title.margin_start = 10;
-            title.margin_end = 10;
+            var title = new Gtk.Label(((StrValue)item.map["title"]).str) {
+                margin_top = 15,
+                margin_start = 10,
+                margin_end = 10,
+            };
             b.append(title);
-            var subtitle = new Gtk.Label(((StrValue)item.map["content"]).str);
-            subtitle.add_css_class("heading");
-            subtitle.margin_bottom = 15;
-            subtitle.margin_start = 10;
-            subtitle.margin_end = 10;
-            b.append(subtitle);
+            var str = ((StrValue)item.map["content"]).str;
+            if (str.has_prefix("@")) {
+                b.append(new LinkButton(str, tab));
+            } else {
+                var subtitle = new Gtk.Label(str) {
+                    css_classes = {"heading"},
+                    margin_bottom = 15,
+                    margin_start = 10,
+                    margin_end = 10,
+                };
+                b.append(subtitle);
+            }
             box.append(b);
         }
         this.child = box;

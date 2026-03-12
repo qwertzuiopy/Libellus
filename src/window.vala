@@ -62,7 +62,8 @@ public class Libellus.Window : Adw.ApplicationWindow {
         });
         overview.view = tabview;
 
-
+        var theme = Gtk.IconTheme.get_for_display (Gdk.Display.get_default ());
+        theme.add_resource_path ("/de/hummdudel/Libellus/icons");
 
         test.begin ();
     }
@@ -72,9 +73,18 @@ public class Libellus.Window : Adw.ApplicationWindow {
     }
     public void open(string id) {
         var tab = new Tab(this);
-        tab.navview.push(new Page(this.data_folder.get_child(id), this));
+        tab.navview.push(new Page(this.data_folder.get_child(id), this, tab));
         tabview.append(tab);
         tabview.selected_page = tabview.get_page(tab);
+    }
+    public MapValue? fetch_dir_for_id(string id) {
+        foreach(var item in this.dir.arr) {
+            if (((StrValue)((MapValue)item).map["id"]).str == id) {
+                return (MapValue)item;
+            }
+        }
+        critical(@"could not find id '$id'");
+        return null;
     }
 
     public async void test () {
@@ -156,6 +166,7 @@ public class Libellus.Tab : Adw.Bin {
 public class Libellus.Page : Adw.NavigationPage {
     MapValue data;
     Window window;
+    Tab tab;
 
     bool changing_bookmark = false;
 
@@ -164,8 +175,9 @@ public class Libellus.Page : Adw.NavigationPage {
     [GtkChild]
     unowned Gtk.ToggleButton bookmark_button;
 
-    public Page (File file, Window window) {
+    public Page (File file, Window window, Tab tab) {
         this.window = window;
+        this.tab = tab;
         try {
             uint8[] contents;
             string etag_out;
@@ -187,7 +199,10 @@ public class Libellus.Page : Adw.NavigationPage {
                         w = new SubtitleModule((MapValue)c);
                         break;
                     case "StatGrid":
-                        w = new StatGridModule((MapValue)c);
+                        w = new StatGridModule((MapValue)c, tab);
+                        break;
+                    case "LinkList":
+                        w = new LinkListModule((MapValue)c, tab);
                         break;
                     case "MultiText":
                         w = new MultiTextModule((MapValue)c);
@@ -196,7 +211,7 @@ public class Libellus.Page : Adw.NavigationPage {
                         w = new TableModule((MapValue)c);
                         break;
                     case "StatList":
-                        w = new StatListModule((MapValue)c);
+                        w = new StatListModule((MapValue)c, tab);
                         break;
                     case "TitledText":
                         w = new TitledTextModule((MapValue)c);
@@ -242,10 +257,8 @@ public class Libellus.Page : Adw.NavigationPage {
                     this.window.bookmarks.bookmarks.arr.add(bookmark_data);
                     this.window.bookmarks.changed();
                     this.bookmark_button.css_classes = {"accent"};
-                    message("added");
                 } else {
                     this.window.bookmarks.remove_bookmark(((StrValue)this.data.map["id"]).str);
-                    message("removed");
                     this.bookmark_button.css_classes = {};
                 }
                 this.changing_bookmark = false;
