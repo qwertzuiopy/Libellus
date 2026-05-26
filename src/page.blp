@@ -12,17 +12,9 @@ template $LibellusPage: Adw.NavigationPage {
         margin-end: 12;
         margin-top: 12;
       }
-      child: Adw.Clamp {
+      child: Adw.Clamp clamp {
         maximum-size: 800;
         tightening-threshold: 400;
-        child: Gtk.Box box {
-          margin-start: 12;
-          margin-end: 12;
-          margin-top: 12;
-          margin-bottom: 24;
-          spacing: 10;
-          orientation: vertical;
-        };
       };
     };
   };

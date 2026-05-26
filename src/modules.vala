@@ -29,8 +29,13 @@ class Libellus.LinkListModule : Adw.Bin {
             if (str.has_prefix("@")) {
                 str = str.substring(1, str.length-1);
             }
+            var map = tab.window.fetch_dir_for_id(str);
+            var title = "";
+            if (map != null) {
+                title =((StrValue)map.map["name"]).str;
+            }
             var item = new Adw.ActionRow() {
-                title = ((StrValue)tab.window.fetch_dir_for_id(str).map["name"]).str,
+                title = title,
                 subtitle = ((StrValue)((MapValue)row).map["content"]).str,
                 activatable = true,
             };
@@ -110,23 +115,37 @@ class Libellus.StatListModule : Adw.Bin {
                 margin_end = 6,
             };
             var title = ((StrValue) ((MapValue) row).map["title"]);
-            box.append(new Gtk.Label(title.str) {
+            var title_label = new Gtk.Label(title.str) {
                 css_classes = {"heading"},
                 margin_top = 12,
                 margin_bottom = 12,
                 margin_start = 12,
                 hexpand = true,
                 halign = START,
-            });
+            };
+            box.append(title_label);
+            var wrap = new Adw.WrapBox() {
+                child_spacing = 10,
+            };
             // box.append(new Gtk.Separator(VERTICAL));
-            foreach (var entry in ((ArrValue)((MapValue)row).map["content"]).arr) {
+            var entries = ((ArrValue)((MapValue)row).map["content"]).arr;
+            if (entries.size > 10) {
+                box.orientation = VERTICAL;
+                box.margin_start = 10;
+                box.margin_end = 10;
+                title_label.halign = CENTER;
+                title_label.margin_bottom = 5;
+            }
+            foreach (var entry in entries) {
                 var str =((StrValue)entry).str;
                 if (str.has_prefix("@")) {
-                    box.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6 });
+                    wrap.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6 });
                 } else {
-                    box.append(new Gtk.Label(str) { margin_top = 6, margin_bottom = 6 } );
+                    wrap.append(new Gtk.Label(str) { margin_top = 6, margin_bottom = 6 } );
                 }
             }
+
+            box.append(wrap);
             listbox.append(new Gtk.ListBoxRow() {
                 child = box,
                 activatable = false,
@@ -217,13 +236,19 @@ class Libellus.StatGridModule : Adw.Bin {
             b.append(title);
             var str = ((StrValue)item.map["content"]).str;
             if (str.has_prefix("@")) {
-                b.append(new LinkButton(str, tab));
+                var link = new LinkButton(str, tab);
+                link.margin_bottom = 5;
+                link.margin_start = 5;
+                link.margin_end = 5;
+
+                b.append(link);
             } else {
                 var subtitle = new Gtk.Label(str) {
                     css_classes = {"heading"},
-                    margin_bottom = 15,
+                    margin_bottom = 10,
                     margin_start = 10,
                     margin_end = 10,
+                    margin_top = 8,
                 };
                 b.append(subtitle);
             }
@@ -256,5 +281,35 @@ class Libellus.TableModule : Gtk.Grid {
         vbar.valign = CENTER;
         this.attach(vbar, 0, 1, ((ArrValue)rows.arr[0]).arr.size + 1);
         this.attach(hbar, 1, 0, 1, 3);
+    }
+}
+
+class Libellus.CycleModule : Gtk.Box {
+    Adw.Bin content;
+    MapValue map_value;
+    Tab tab;
+    public CycleModule(MapValue v, Tab tab) {
+        this.orientation = VERTICAL;
+        this.map_value = v;
+        this.tab = tab;
+        var header = new Gtk.Box(HORIZONTAL, 10) {
+            halign = CENTER,
+        };
+        var title = new Gtk.Label(((StrValue)v.map["title"]).str) {
+            css_classes = {"title-3"},
+        };
+        var spinner = new Gtk.SpinButton.with_range(1, ((NumValue)v.map["max"]).num, 1);
+        spinner.adjustment.value_changed.connect(() => {
+            update_content((int)spinner.adjustment.value-1);
+        });
+        header.append(title);
+        header.append(spinner);
+        this.append(header);
+        this.content = new Adw.Bin();
+        update_content(0);
+        this.append(this.content);
+    }
+    void update_content(int number) {
+        this.content.child = Page.build_content((ArrValue)((ArrValue)map_value.map["content"]).arr[number], tab);
     }
 }

@@ -83,7 +83,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
                 return (MapValue)item;
             }
         }
-        critical(@"could not find id '$id'");
+        message(@"could not find id '$id'");
         return null;
     }
 
@@ -171,7 +171,7 @@ public class Libellus.Page : Adw.NavigationPage {
     bool changing_bookmark = false;
 
     [GtkChild]
-    unowned Gtk.Box box;
+    unowned Adw.Clamp clamp;
     [GtkChild]
     unowned Gtk.ToggleButton bookmark_button;
 
@@ -188,43 +188,7 @@ public class Libellus.Page : Adw.NavigationPage {
             }
             this.title = ((StrValue)((MapValue)v).map["name"]).str;
             ArrValue content = (ArrValue) ((MapValue)v).map["content"];
-            foreach (var c in content.arr) {
-                Gtk.Widget w;
-                string id = ((StrValue)((MapValue)c).map["id"]).str;
-                switch (id) {
-                    case "Title":
-                        w = new TitleModule((MapValue)c);
-                        break;
-                    case "Subtitle":
-                        w = new SubtitleModule((MapValue)c);
-                        break;
-                    case "StatGrid":
-                        w = new StatGridModule((MapValue)c, tab);
-                        break;
-                    case "LinkList":
-                        w = new LinkListModule((MapValue)c, tab);
-                        break;
-                    case "MultiText":
-                        w = new MultiTextModule((MapValue)c);
-                        break;
-                    case "Table":
-                        w = new TableModule((MapValue)c);
-                        break;
-                    case "StatList":
-                        w = new StatListModule((MapValue)c, tab);
-                        break;
-                    case "TitledText":
-                        w = new TitledTextModule((MapValue)c);
-                        break;
-                    case "Image":
-                        w = new ImageModule((MapValue)c);
-                        break;
-
-                    default:
-                        GLib.error(@"unrecongnised Module '$id'");
-                }
-                box.append(w);
-            }
+            clamp.child = build_content(content, tab);
             this.data = (MapValue) v;
 
             if (this.window.bookmarks.is_bookmarked(((StrValue)this.data.map["id"]).str)) {
@@ -267,6 +231,55 @@ public class Libellus.Page : Adw.NavigationPage {
             critical (e.message);
         }
     }
+
+    public static Gtk.Widget build_content(ArrValue content, Tab tab) {
+        var box = new Gtk.Box(VERTICAL, 10) {
+          margin_start = 12,
+          margin_end = 12,
+          margin_top = 12,
+          margin_bottom = 24,
+        };
+        foreach (var c in content.arr) {
+            Gtk.Widget w;
+            string id = ((StrValue)((MapValue)c).map["id"]).str;
+            switch (id) {
+                case "Title":
+                    w = new TitleModule((MapValue)c);
+                    break;
+                case "Subtitle":
+                    w = new SubtitleModule((MapValue)c);
+                    break;
+                case "StatGrid":
+                    w = new StatGridModule((MapValue)c, tab);
+                    break;
+                case "LinkList":
+                    w = new LinkListModule((MapValue)c, tab);
+                    break;
+                case "MultiText":
+                    w = new MultiTextModule((MapValue)c);
+                    break;
+                case "Table":
+                    w = new TableModule((MapValue)c);
+                    break;
+                case "StatList":
+                    w = new StatListModule((MapValue)c, tab);
+                    break;
+                case "TitledText":
+                    w = new TitledTextModule((MapValue)c);
+                    break;
+                case "Image":
+                    w = new ImageModule((MapValue)c);
+                    break;
+                case "Cycle":
+                    w = new CycleModule((MapValue)c, tab);
+                    break;
+                default:
+                    GLib.error(@"unrecongnised Module '$id'");
+            }
+            box.append(w);
+        }
+        return box;
+    }
 }
 
 
@@ -281,3 +294,4 @@ public async void nap (uint interval, int priority = GLib.Priority.DEFAULT) {
     }, priority);
   yield;
 }
+
