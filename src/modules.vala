@@ -220,7 +220,8 @@ class Libellus.StatGridModule : Adw.Bin {
             child_spacing = 10,
             line_spacing = 10,
             justify = FILL,
-            justify_last_line = true,
+            justify_last_line = false,
+            halign = CENTER,
         };
         ArrValue arr = (ArrValue)data.map["content"];
         foreach (var v in arr.arr) {

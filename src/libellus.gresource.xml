@@ -7,6 +7,7 @@
     <file preprocess="xml-stripblanks">search_page.ui</file>
     <file preprocess="xml-stripblanks">filter_dialog.ui</file>
     <file preprocess="xml-stripblanks">filter_page.ui</file>
+    <file preprocess="xml-stripblanks">welcome.ui</file>
     <file preprocess="xml-stripblanks">shortcuts-dialog.ui</file>
   </gresource>
   <gresource prefix="/de/hummdudel/Libellus">

@@ -18,8 +18,28 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+[GtkTemplate (ui = "/de/hummdudel/Libellus/welcome.ui")]
+public class Libellus.Welcome : Adw.Dialog {
+    [GtkChild]
+    public unowned Gtk.Button import_button;
+    Window window;
+    public Welcome(Window window) {
+        this.window = window;
+        import_button.clicked.connect(() => {
+            import.begin();
+        });
+    }
+    public async void import() {
+        var file_dialog = new Gtk.FileDialog ();
+        File folder = yield file_dialog.select_folder (window, null);
+        yield window.import(folder);
+        this.close();
+    }
+}
+
 [GtkTemplate (ui = "/de/hummdudel/Libellus/window.ui")]
 public class Libellus.Window : Adw.ApplicationWindow {
+    public File source_folder;
     public File data_folder;
     public File filter_file;
     File dir_file;
@@ -31,13 +51,17 @@ public class Libellus.Window : Adw.ApplicationWindow {
     public ListStore liststore;
     public Gtk.SignalListItemFactory factory;
 
+    public Config config;
+
     [GtkChild]
     public unowned Adw.TabView tabview;
     [GtkChild]
     public unowned Adw.TabOverview overview;
 
-    public Window (Gtk.Application app) {
+    public Window (Gtk.Application app, Config config) {
         Object (application: app);
+
+        this.config = config;
 
         var provider = new Gtk.CssProvider();
         provider.load_from_string(".bookmark { padding: 0px 0px 0px 0px; margin: 0px 0px 0px 0px; }");
@@ -65,7 +89,12 @@ public class Libellus.Window : Adw.ApplicationWindow {
         var theme = Gtk.IconTheme.get_for_display (Gdk.Display.get_default ());
         theme.add_resource_path ("/de/hummdudel/Libellus/icons");
 
-        test.begin ();
+        if (this.config.get_sources().arr.size == 0) {
+            var dialog = new Welcome(this);
+            dialog.present(this);
+        } else {
+            load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+        }
     }
 
     public void new_tab() {
@@ -87,32 +116,52 @@ public class Libellus.Window : Adw.ApplicationWindow {
         return null;
     }
 
-    public async void test () {
-        var file_dialog = new Gtk.FileDialog ();
-
+    public async void load_source(string path) {
         try {
-            File folder = yield file_dialog.select_folder (this, null);
-            this.data_folder = folder.get_child("data");
-            this.dir_file = folder.get_child("dir");
-            this.filter_file = folder.get_child("filter");
-            this.bookmark_file = folder.get_child("bookmarks");
-            this.bookmarks = new Bookmarks(this);
+        File folder = File.new_for_path(path);
+        this.source_folder = folder;
+        this.data_folder = folder.get_child("data");
+        this.dir_file = folder.get_child("dir");
+        this.filter_file = folder.get_child("filter");
+        this.bookmark_file = folder.get_child("bookmarks");
+        this.bookmarks = new Bookmarks(this);
 
-            uint8[] contents;
-            string etag_out;
-            this.dir_file.load_contents (null, out contents, out etag_out);
-            this.dir = (ArrValue)Value.from_str((string) contents);
+        uint8[] contents;
+        string etag_out;
+        this.dir_file.load_contents (null, out contents, out etag_out);
+        this.dir = (ArrValue)Value.from_str((string) contents);
 
-            this.filter_file.load_contents (null, out contents, out etag_out);
-            this.filter_data = (ArrValue)Value.from_str((string) contents);
+        this.filter_file.load_contents (null, out contents, out etag_out);
+        this.filter_data = (ArrValue)Value.from_str((string) contents);
 
-            foreach(var v in this.dir.arr) {
-                this.liststore.append((MapValue)v);
-            }
-            Tab tab = new Tab(this);
-            this.tabview.append(tab);
+        foreach(var v in this.dir.arr) {
+            this.liststore.append((MapValue)v);
+        }
+        Tab tab = new Tab(this);
+        this.tabview.append(tab);
+        } catch (Error e) {
+            critical(e.message);
+        }
+    }
+
+    public async void import (File folder) {
+        try {
+            config.add_source(folder);
+            yield load_source(folder.get_path());
         } catch (Error e) {
             critical (e.message);
+        }
+    }
+    public void delete_source (MapValue v) {
+        config.delete_source(v);
+        if (source_folder.get_path() == ((StrValue) v.map["folder"]).str) {
+            message(config.get_sources().to_str());
+            if (config.get_sources().arr.size == 0) {
+                var dialog = new Welcome(this);
+                dialog.present(this);
+            } else {
+                load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+            }
         }
     }
 }
@@ -127,6 +176,8 @@ public class Libellus.Tab : Adw.Bin {
     unowned Adw.TabButton overview_button;
     [GtkChild]
     unowned Gtk.MenuButton bookmark_button;
+    [GtkChild]
+    unowned Gtk.Button sources_button;
     [GtkChild]
     unowned Adw.TabBar tabbar;
     [GtkChild]
@@ -154,6 +205,10 @@ public class Libellus.Tab : Adw.Bin {
             this.update_title.begin();
         });
         this.bookmark_button.popover = new BookmarkMenu(this.window);
+        this.sources_button.clicked.connect(() => {
+            var sources_menu = new SourcesMenu(this.window);
+            sources_menu.present(this);
+        });
     }
 
     public async void update_title() {
@@ -227,6 +282,7 @@ public class Libellus.Page : Adw.NavigationPage {
                 }
                 this.changing_bookmark = false;
             });
+
         } catch (Error e) {
             critical (e.message);
         }

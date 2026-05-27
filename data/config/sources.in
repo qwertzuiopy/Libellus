@@ -1,0 +1,6 @@
+{
+  sources: [
+    { name: "Dungeons and Dragons", folder: "@dndfolder@" }
+  ],
+  folder: "@datafolder@"
+}

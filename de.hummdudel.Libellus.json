@@ -38,7 +38,8 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/luna/Projects"
+                    "branch": "v2",
+                    "url" : "file:///home/luna/Projects/Libellus"
                 }
             ]
         }

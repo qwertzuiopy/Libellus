@@ -19,6 +19,8 @@
  */
 
 public class Libellus.Application : Adw.Application {
+    public Config config;
+
     public Application () {
         Object (
             application_id: "de.hummdudel.Libellus",
@@ -39,7 +41,10 @@ public class Libellus.Application : Adw.Application {
 
     public override void activate () {
         base.activate ();
-        var win = this.active_window ?? new Libellus.Window (this);
+        if (config == null) {
+            config = new Config();
+        }
+        var win = this.active_window ?? new Libellus.Window (this, config);
         win.present ();
     }
 

@@ -43,4 +43,14 @@ configure_file(
   install_dir: get_option('datadir') / 'dbus-1' / 'services'
 )
 
+r = run_command('echo', '$XDG_DATA_HOME', check: true)
+output = r.stdout().strip()
+
+data_dir = output / 'libellus' / 'data'
+
 subdir('icons')
+subdir('config')
+
+install_subdir('./config/*',
+  install_dir: data_dir,
+)
