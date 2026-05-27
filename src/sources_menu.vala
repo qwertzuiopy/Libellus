@@ -22,12 +22,13 @@ class Libellus.SourcesMenu : Adw.Dialog {
                 valign = CENTER,
                 css_classes = { "destructive-action" },
             };
-            del.clicked.connect(() => {
-                message("blab");
-                window.delete_source((MapValue)source);
-                this.close();
-            });
-            row.add_suffix(del);
+            if (((NumValue)((MapValue)source).map["builtin"]).num == 0) {
+                del.clicked.connect(() => {
+                    window.delete_source((MapValue)source);
+                    this.close();
+                });
+                row.add_suffix(del);
+            }
             row.add_suffix(new Gtk.Image() {
                 icon_name = "go-next-symbolic",
             });

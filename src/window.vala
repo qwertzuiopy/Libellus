@@ -89,6 +89,29 @@ public class Libellus.Window : Adw.ApplicationWindow {
         var theme = Gtk.IconTheme.get_for_display (Gdk.Display.get_default ());
         theme.add_resource_path ("/de/hummdudel/Libellus/icons");
 
+
+
+        var close_tab_shortcut = new Gtk.Shortcut(Gtk.ShortcutTrigger.parse_string("<Control>W"), new Gtk.NamedAction("win.close-tab"));
+        var close_tab_action = new SimpleAction("close-tab", null);
+        close_tab_action.activate.connect((_blub) => {
+          if (tabview.get_n_pages() > 1) {
+            tabview.close_page(tabview.selected_page);
+          }
+        });
+        this.add_action(close_tab_action);
+
+        var new_tab_action = new SimpleAction("new-tab", null);
+        new_tab_action.activate.connect((_blub) => {
+            this.new_tab();
+        });
+        var new_tab_shortcut = new Gtk.Shortcut(Gtk.ShortcutTrigger.parse_string("<Control>T"), Gtk.NothingAction.get());
+        this.add_action(new_tab_action);
+
+        var shortcut_controller = new Gtk.ShortcutController();
+        shortcut_controller.add_shortcut(close_tab_shortcut);
+        shortcut_controller.add_shortcut(new_tab_shortcut);
+        // this.add_controller(shortcut_controller);
+
         if (this.config.get_sources().arr.size == 0) {
             var dialog = new Welcome(this);
             dialog.present(this);
@@ -150,7 +173,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
 
     public async void import (File folder) {
         try {
-            config.add_source(folder);
+            yield config.add_source(folder);
             yield load_source(folder.get_path());
         } catch (Error e) {
             critical (e.message);

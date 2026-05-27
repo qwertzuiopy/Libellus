@@ -9,7 +9,19 @@ public class Libellus.Config : Object {
         if (!file.query_exists()) {
             var file_stream = file.create(FileCreateFlags.NONE);
             var data_stream = new DataOutputStream (file_stream);
-            data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+            var dirs = GLib.Environment.get_system_data_dirs();
+            var dir = "";
+            foreach (var d in dirs) {
+                if (File.new_for_path(d).get_child("libellus").get_child("dnd").query_exists()) {
+                    dir = d;
+                }
+            }
+            if (dir != null) {
+                var dnd = File.new_build_filename(dir, "libellus", "dnd").get_path();
+                data_stream.put_string ("{ default_source: {folder: \""+dnd+"\", name: \"Dungeons and Dragons: Player's Handbook\"}, sources: [{name: \"Dungeons and Dragons: Player's Handbook\", builtin: 1, folder: \"" + dnd + "\"}], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+            } else {
+                data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+            }
             File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").make_directory();
             write_config();
         }
@@ -37,6 +49,7 @@ public class Libellus.Config : Object {
             GLib.Process.spawn_command_line_sync("cp -r "+data.get_path()+" "+dst_path.get_path());
             var entry = new MapValue();
             entry.map["folder"] = new StrValue(dst_path.get_path());
+            entry.map["builtin"] = new NumValue(0);
             entry.map["name"] = new StrValue(((StrValue) desc_val.map["name"]).str);
             ((ArrValue)val.map["sources"]).arr.add(entry);
             val.map["default_source"] = entry;

@@ -44,3 +44,8 @@ configure_file(
 )
 
 subdir('icons')
+
+install_subdir(
+  'dnd',
+  install_dir: get_option('datadir') / 'libellus'
+)
