@@ -3,17 +3,35 @@ using Adw 1;
 
 template $LibellusWelcome : Adw.Dialog {
   content-width: 300;
-  content-height: 450;
+  can-close: false;
   child: Adw.StatusPage {
     title: "You do not have a source yet.";
     description: "Try importing one!";
     icon-name: "library-symbolic";
-    child: Gtk.Button import_button {
-      styles [
-        "pill",
-        "suggested-action",
-      ]
-      label: "Import source";
+    child: Gtk.Box {
+      halign: fill;
+      hexpand: true;
+      spacing: 6;
+      margin-start: 12;
+      margin-end: 12;
+      Gtk.Button import_button {
+        styles [
+          "suggested-action",
+          "pill",
+        ]
+        label: "Import";
+        halign: fill;
+        hexpand: true;
+      }
+      Gtk.LinkButton {
+        styles [
+          "pill",
+        ]
+        label: "Download";
+        halign: fill;
+        hexpand: true;
+        uri: "https://github.com/qwertzuiopy/LibellusSources";
+      }
     };
   };
 }

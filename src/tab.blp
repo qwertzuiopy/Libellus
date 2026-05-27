@@ -2,34 +2,48 @@ using Gtk 4.0;
 using Adw 1;
 
 template $LibellusTab : Adw.Bin {
-  child: Adw.ToolbarView {
-    top-bar-style: raised;
-    [top]
-    Adw.HeaderBar {
-      [start]
-      Gtk.Button back_button {
-        icon-name: "go-previous-symbolic";
-      }
-      [start]
-      Gtk.Button new_tab_button {
-        icon-name: "tab-new-symbolic";
-      }
-      [end]
-      Adw.TabButton overview_button {
-      }
-      [end]
-      Gtk.MenuButton bookmark_button {
-        icon-name: "star-large-symbolic";
-      }
-      [end]
-      Gtk.Button sources_button {
-        icon-name: "library-symbolic";
+  child: Adw.BreakpointBin {
+    width-request: 292;
+    height-request: 300;
+    Adw.Breakpoint {
+      condition('max-width: 450px')
+      setters {
+        header.show-title: false;
       }
     }
-    [top]
-    Adw.TabBar tabbar {
-    }
-    content: Adw.NavigationView navview {
+    child: Adw.ToolbarView {
+      top-bar-style: raised;
+      [top]
+      Adw.HeaderBar header {
+        [start]
+        Gtk.Button back_button {
+          icon-name: "go-previous-symbolic";
+        }
+        [start]
+        Gtk.Button new_tab_button {
+          icon-name: "tab-new-symbolic";
+        }
+        [end]
+        Adw.TabButton overview_button {
+        }
+        [end]
+        Gtk.MenuButton bookmark_button {
+          icon-name: "star-large-symbolic";
+        }
+        [end]
+        Gtk.Button sources_button {
+          icon-name: "library-symbolic";
+        }
+        [end]
+        Gtk.MenuButton menu_button {
+          icon-name: "open-menu-symbolic";
+        }
+      }
+      [top]
+      Adw.TabBar tabbar {
+      }
+      content: Adw.NavigationView navview {
+      };
     };
   };
 }

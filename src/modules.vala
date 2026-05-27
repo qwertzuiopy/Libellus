@@ -139,9 +139,9 @@ class Libellus.StatListModule : Adw.Bin {
             foreach (var entry in entries) {
                 var str =((StrValue)entry).str;
                 if (str.has_prefix("@")) {
-                    wrap.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6 });
+                    wrap.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6, margin_end = 0 });
                 } else {
-                    wrap.append(new Gtk.Label(str) { margin_top = 6, margin_bottom = 6 } );
+                    wrap.append(new Gtk.Label(str) { margin_top = 12, margin_bottom = 12, margin_end = 6 } );
                 }
             }
 
@@ -314,3 +314,4 @@ class Libellus.CycleModule : Gtk.Box {
         this.content.child = Page.build_content((ArrValue)((ArrValue)map_value.map["content"]).arr[number], tab);
     }
 }
+

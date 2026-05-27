@@ -19,6 +19,9 @@ class Libellus.FilterDialog : Adw.Dialog {
             this.page.filter_button.icon_name = "funnel-outline-symbolic";
             this.close();
         });
+        if (this.window.filter_data == null) {
+            return;
+        }
         foreach (var row in this.window.filter_data.arr) {
             this.box.insert(new CategoryFilterRow(this, (MapValue)row), 0);
         }
@@ -30,7 +33,15 @@ class Libellus.CategoryFilterRow : Adw.ActionRow {
         this.title = ((StrValue)data.map["title"]).str;
         this.activatable = true;
         this.activated.connect(() => {
-            dialog.navview.push(new FilterPage(dialog, data));
+            if (((ArrValue)data.map["filters"]).arr.size == 0) {
+                var cat_filter = new DropdownFilter(((StrValue)data.map["value"]).str, "category");
+                dialog.page.listview.model = new Gtk.NoSelection(new Gtk.FilterListModel(dialog.page.origin_model, cat_filter));
+                dialog.page.filter_button.css_classes = {"accent"};
+                dialog.page.filter_button.icon_name = "funnel-symbolic";
+                dialog.close();
+            } else {
+                dialog.navview.push(new FilterPage(dialog, data));
+            }
         });
     }
 }
@@ -259,3 +270,4 @@ class Libellus.RangeFilter : Gtk.Filter {
         return this.strictness;
     }
 }
+

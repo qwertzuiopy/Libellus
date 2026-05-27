@@ -51,15 +51,16 @@ public class Libellus.Application : Adw.Application {
     private void on_about_action () {
         string[] developers = { "luna" };
         var about = new Adw.AboutDialog () {
-            application_name = "libellus",
+            application_name = "Libellus",
             application_icon = "de.hummdudel.Libellus",
-            developer_name = "luna",
-            translator_credits = _("translator-credits"),
-            version = "0.1.0",
-            developers = developers,
-            copyright = "© 2025 luna",
+            developer_name = "Luna",
+            version = "2.0.0",
+            developers = { "Luna" },
+            copyright = "© 2023 Luna",
+            license_type = Gtk.License.GPL_3_0,
+            website = "https://libellus.hummdudel.de"
         };
-
+        about.add_credit_section("Data", {"D&D 5e API https://www.dnd5eapi.co", "Systems Reference Document https://media.wizards.com/2016/downloads/DND/SRD-OGL_V5.1.pdf"});
         about.present (this.active_window);
     }
 

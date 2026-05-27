@@ -33,7 +33,7 @@ public class Libellus.Welcome : Adw.Dialog {
         var file_dialog = new Gtk.FileDialog ();
         File folder = yield file_dialog.select_folder (window, null);
         yield window.import(folder);
-        this.close();
+        this.force_close();
     }
 }
 
@@ -118,29 +118,33 @@ public class Libellus.Window : Adw.ApplicationWindow {
 
     public async void load_source(string path) {
         try {
-        File folder = File.new_for_path(path);
-        this.source_folder = folder;
-        this.data_folder = folder.get_child("data");
-        this.dir_file = folder.get_child("dir");
-        this.filter_file = folder.get_child("filter");
-        this.bookmark_file = folder.get_child("bookmarks");
-        this.bookmarks = new Bookmarks(this);
+            File folder = File.new_for_path(path);
+            this.source_folder = folder;
+            this.data_folder = folder.get_child("data");
+            this.dir_file = folder.get_child("dir");
+            this.filter_file = folder.get_child("filter");
+            this.bookmark_file = folder.get_child("bookmarks");
+            this.bookmarks = new Bookmarks(this);
 
-        uint8[] contents;
-        string etag_out;
-        this.dir_file.load_contents (null, out contents, out etag_out);
-        this.dir = (ArrValue)Value.from_str((string) contents);
+            uint8[] contents;
+            string etag_out;
+            this.dir_file.load_contents (null, out contents, out etag_out);
+            this.dir = (ArrValue)Value.from_str((string) contents);
 
-        this.filter_file.load_contents (null, out contents, out etag_out);
-        this.filter_data = (ArrValue)Value.from_str((string) contents);
+            this.filter_file.load_contents (null, out contents, out etag_out);
+            this.filter_data = (ArrValue)Value.from_str((string) contents);
 
-        foreach(var v in this.dir.arr) {
-            this.liststore.append((MapValue)v);
-        }
-        Tab tab = new Tab(this);
-        this.tabview.append(tab);
+            foreach(var v in this.dir.arr) {
+                this.liststore.append((MapValue)v);
+            }
+            while (tabview.get_n_pages() > 0) {
+                tabview.close_page(tabview.get_nth_page(0));
+            }
+            Tab tab = new Tab(this);
+            this.tabview.append(tab);
         } catch (Error e) {
             critical(e.message);
+            message("oopsie");
         }
     }
 
@@ -177,6 +181,8 @@ public class Libellus.Tab : Adw.Bin {
     [GtkChild]
     unowned Gtk.MenuButton bookmark_button;
     [GtkChild]
+    unowned Gtk.MenuButton menu_button;
+    [GtkChild]
     unowned Gtk.Button sources_button;
     [GtkChild]
     unowned Adw.TabBar tabbar;
@@ -209,6 +215,10 @@ public class Libellus.Tab : Adw.Bin {
             var sources_menu = new SourcesMenu(this.window);
             sources_menu.present(this);
         });
+        var menu = new Menu();
+        menu.append_item(new MenuItem("Keyboard Shortcuts", "app.shortcuts"));
+        menu.append_item(new MenuItem("About Libellus", "app.about"));
+        this.menu_button.menu_model = menu;
     }
 
     public async void update_title() {

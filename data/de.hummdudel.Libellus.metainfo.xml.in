@@ -3,71 +3,108 @@
   <id>de.hummdudel.Libellus</id>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-or-later</project_license>
-
+  <content_rating type="oars-1.1">
+    <content_attribute id="drugs-alcohol">mild</content_attribute>
+    <content_attribute id="drugs-narcotics">mild</content_attribute>
+    <content_attribute id="drugs-tobacco">mild</content_attribute>
+  </content_rating>
   <name>Libellus</name>
-  <summary>Keep the summary shorter, between 10 and 35 characters</summary>
-  <description>
-    <p>No description</p>
-  </description>
-
+  <summary>View DnD information in style</summary>
   <developer id="tld.vendor">
-    <name>Developer name</name>
+    <name>Luna</name>
   </developer>
-
-  <!-- Required: Should be a link to the upstream homepage for the component -->
-  <url type="homepage">https://example.org/</url>
-  <!-- Recommended: It is highly recommended for open-source projects to display the source code repository -->
-  <url type="vcs-browser">https://example.org/repository</url>
-  <!-- Should point to the software's bug tracking system, for users to report new bugs -->
-  <url type="bugtracker">https://example.org/issues</url>
-  <!-- Should link a FAQ page for this software, to answer some of the most-asked questions in detail -->
-  <!-- URLs of this type should point to a webpage where users can submit or modify translations of the upstream project -->
-  <url type="translate">https://example.org/translate</url>
-  <url type="faq">https://example.org/faq</url>
-  <!-- Should provide a web link to an online user's reference, a software manual or help page -->
-  <url type="help">https://example.org/help</url>
-  <!-- URLs of this type should point to a webpage showing information on how to donate to the described software project -->
-  <url type="donation">https://example.org/donate</url>
-  <!-- This could for example be an HTTPS URL to an online form or a page describing how to contact the developer -->
-  <url type="contact">https://example.org/contact</url>
-  <!-- URLs of this type should point to a webpage showing information on how to contribute to the described software project -->
-  <url type="contribute">https://example.org/contribute</url>
-
-  <translation type="gettext">libellus</translation>
-  <!-- All graphical applications having a desktop file must have this tag in the MetaInfo.
-     If this is present, appstreamcli compose will pull icons, keywords and categories from the desktop file. -->
+  <description>
+    <p>Libellus lets you browse and read DnD 5th edition information like a wiki / lexicon. The basic navigation is tab-based, so multiple pages can be viewed at the same time. There is a basic search / filter system. The data is stored locally, images are downloaded.</p>
+    <p>
+      Libellus currently supports Classes, Races, Spells, Magic Items, Equipment, and Monsters
+    </p>
+  </description>
+  <url type="homepage">https://libellus.hummdudel.de</url>
+  <url type="bugtracker">https://github.com/qwertzuiopy/Libellus/issues</url>
   <launchable type="desktop-id">de.hummdudel.Libellus.desktop</launchable>
-  <!-- Use the OARS website (https://hughsie.github.io/oars/generate.html) to generate these and make sure to use oars-1.1 -->
-  <content_rating type="oars-1.1" />
-
-  <!-- Applications should set a brand color in both light and dark variants like so -->
   <branding>
-    <color type="primary" scheme_preference="light">#ff00ff</color>
-    <color type="primary" scheme_preference="dark">#993d3d</color>
+    <color type="primary" scheme_preference="light">#c061cb</color>
+    <color type="primary" scheme_preference="dark">#813d9c</color>
   </branding>
-
   <screenshots>
     <screenshot type="default">
-      <image>https://example.org/example1.png</image>
-      <caption>A caption</caption>
+      <image>https://libellus.hummdudel.de/Images/libellus.png</image>
+      <caption>Info page for the Aboleth monster</caption>
     </screenshot>
     <screenshot>
-      <image>https://example.org/example2.png</image>
-      <caption>A caption</caption>
+      <image>https://libellus.hummdudel.de/Images/screenshot-details.png</image>
+      <caption>Detailed class info page</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://libellus.hummdudel.de/Images/screenshot-search.png</image>
+      <caption>Search view with a "Spells" filter</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://libellus.hummdudel.de/Images/screenshot-tabs.png</image>
+      <caption>The overview showing multiple tabs with images</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://libellus.hummdudel.de/Images/screenshot-addaptive.png</image>
+      <caption>An info page in a much smaller window</caption>
     </screenshot>
   </screenshots>
-
+  <recommends>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>touch</control>
+  </recommends>
+  <requires>
+    <display_length compare="ge">300</display_length>
+  </requires>
+  <keywords>
+    <keyword translate="no">dnd</keyword>
+    <keyword>wiki</keyword>
+  </keywords>
   <releases>
-    <release version="1.0.1" date="2024-01-18">
-      <url type="details">https://example.org/changelog.html#version_1.0.1</url>
-      <description translate="no">
-        <p>Release description</p>
-        <ul>
-          <li>List of changes</li>
-          <li>List of changes</li>
-        </ul>
+    <release version="2.0.0" date="2026-05-27">
+      <description>
+        <p>Update to Version 2!</p>
+        <p>Migrate from JavaScript to Vala.</p>
+        <p>Move to a new much easier to understand content format.</p>
+      </description>
+    </release>
+    <release version="1.1.2" date="2025-12-14">
+      <description>
+        <p>Update the runtime to version 49.</p>
+      </description>
+    </release>
+    <release version="1.1.1" date="2024-09-21">
+      <description>
+        <p>Fix a potential crash on startup due to an old save file version.</p>
+      </description>
+    </release>
+    <release version="1.1.0" date="2024-09-20">
+      <description>
+        <p>Add initial support for multiple sources.</p>
+        <p>Update Sdk to version 47 (accent colors!).</p>
+        <p>Fix the Sorcerers details page.</p>
+      </description>
+    </release>
+    <release version="1.0.5" date="2024-07-19">
+      <description>
+        <p>Fix the brand colors to have more contrast, make the main list sizing more consistent and allow copying of descriptions.</p>
+      </description>
+    </release>
+    <release version="1.0.4" date="2024-07-01">
+      <description>
+        <p>Fix the ordering of Class Features + Fix long stat labels to wrap on small screens</p>
+      </description>
+    </release>
+    <release version="1.0.3" date="2024-06-20">
+      <description>
+        <p>Deduplicate the adaptivity code and fix Stat Row widgets to also be adaptive + update appdata</p>
+      </description>
+    </release>
+    <release version="1.0.2" date="2024-04-04">
+      <description>
+        <p>Initial release</p>
       </description>
     </release>
   </releases>
-
 </component>
+

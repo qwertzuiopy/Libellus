@@ -5,6 +5,8 @@ template $LibellusWindow: Adw.ApplicationWindow {
   title: _("Libellus");
   default-width: 800;
   default-height: 600;
+  width-request: 250;
+  height-request: 300;
 
   content: Adw.TabOverview overview {
     child: Adw.TabView tabview {
