@@ -235,7 +235,7 @@ public class Libellus.Tab : Adw.Bin {
         });
         this.bookmark_button.popover = new BookmarkMenu(this.window);
         this.sources_button.clicked.connect(() => {
-            var sources_menu = new SourcesMenu(this.window);
+            var sources_menu = new SourcesDialog(this.window);
             sources_menu.present(this);
         });
         var menu = new Menu();

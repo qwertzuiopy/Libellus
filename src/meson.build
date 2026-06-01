@@ -8,7 +8,7 @@ libellus_sources = [
   'bookmarkmenu.vala',
   'filter_dialog.vala',
   'config.vala',
-  'sources_menu.vala',
+  'sources_dialog.vala',
 ]
 
 libellus_deps = [
@@ -23,12 +23,13 @@ libellus_deps = [
 blueprints = custom_target('blueprints',
   input: files(
     'shortcuts-dialog.blp',
+    'sources-dialog.blp',
     'window.blp',
     'page.blp',
     'tab.blp',
-    'search_page.blp',
-    'filter_dialog.blp',
-    'filter_page.blp',
+    'searchpage.blp',
+    'filter-dialog.blp',
+    'filter-page.blp',
     'welcome.blp',
   ),
   output: '.',

@@ -1,4 +1,4 @@
-[GtkTemplate (ui = "/de/hummdudel/Libellus/filter_dialog.ui")]
+[GtkTemplate (ui = "/de/hummdudel/Libellus/filter-dialog.ui")]
 class Libellus.FilterDialog : Adw.Dialog {
     [GtkChild]
     public unowned Adw.NavigationView navview;
@@ -46,7 +46,7 @@ class Libellus.CategoryFilterRow : Adw.ActionRow {
     }
 }
 
-[GtkTemplate (ui = "/de/hummdudel/Libellus/filter_page.ui")]
+[GtkTemplate (ui = "/de/hummdudel/Libellus/filter-page.ui")]
 class Libellus.FilterPage : Adw.NavigationPage {
     [GtkChild]
     unowned Gtk.ListBox box;

@@ -1,16 +1,10 @@
-class Libellus.SourcesMenu : Adw.Dialog {
+[GtkTemplate (ui = "/de/hummdudel/Libellus/sources-dialog.ui")]
+class Libellus.SourcesDialog : Adw.Dialog {
+    [GtkChild] unowned Gtk.ListBox box;
     Window window;
-    public SourcesMenu(Window window) {
+    public SourcesDialog(Window window) {
         this.window = window;
         var sources = window.config.get_sources();
-        var box = new Gtk.ListBox(){
-            css_classes = {"boxed-list"},
-            selection_mode = NONE,
-            margin_top = 10,
-            margin_bottom = 10,
-            margin_start = 10,
-            margin_end = 10,
-        };
         foreach (var source in sources.arr) {
             var name = ((StrValue)((MapValue)source).map["name"]).str;
             var row = new Adw.ActionRow() {
@@ -43,7 +37,6 @@ class Libellus.SourcesMenu : Adw.Dialog {
         };
         import.activated.connect(import_source);
         box.append(import);
-        this.child = box;
     }
     public async void import_source() {
         var file_dialog = new Gtk.FileDialog ();

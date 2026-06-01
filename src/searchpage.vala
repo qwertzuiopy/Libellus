@@ -1,4 +1,4 @@
-[GtkTemplate (ui = "/de/hummdudel/Libellus/search_page.ui")]
+[GtkTemplate (ui = "/de/hummdudel/Libellus/searchpage.ui")]
 class Libellus.SearchPage : Adw.NavigationPage {
     [GtkChild]
     public unowned Gtk.ListView listview;
