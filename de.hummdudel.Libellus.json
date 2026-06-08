@@ -1,5 +1,5 @@
 {
-    "id" : "de.hummdudel.Libellus",
+    "app-id" : "de.hummdudel.Libellus",
     "runtime" : "org.gnome.Platform",
     "runtime-version" : "49",
     "sdk" : "org.gnome.Sdk",
@@ -32,14 +32,14 @@
     ],
     "modules" : [
         {
-            "name" : "libellus",
+            "name" : "Libellus",
             "builddir" : true,
             "buildsystem" : "meson",
             "sources" : [
                 {
-                    "type" : "git",
-                    "branch": "v2",
-                    "url" : "file:///home/luna/Projects/Libellus"
+                    "type" : "archive",
+                    "sha256": "0ffecea2fb077d3c0206e34806d323f88703cb0e89dd2de7069261380aa9206d",
+                    "url" : "https://github.com/qwertzuiopy/Libellus/archive/refs/tags/v2.0.0.tar.gz"
                 }
             ]
         }
