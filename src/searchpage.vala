@@ -75,18 +75,34 @@ class Libellus.SearchFilter : Gtk.Filter {
 }
 
 class Libellus.SearchEntry : Gtk.Box {
-    public Gtk.Label label;
+    public Gtk.Label title;
+    public Gtk.Label subtitle;
     public SearchEntry () {
         this.orientation = HORIZONTAL;
-        this.label = new Gtk.Label("") {
-            margin_top = 12,
-            margin_bottom = 12,
+
+        var box = new Gtk.Box(VERTICAL, 0) {
+            margin_start = 8,
+        };
+        this.title = new Gtk.Label("") {
+            // css_classes = { "heading" },
+            margin_top = 8,
+            margin_bottom = 0,
             hexpand = true,
+            halign = START,
+        };
+        this.subtitle = new Gtk.Label("") {
+            css_classes = { "dimmed" },
+            margin_top = 0,
+            margin_bottom = 4,
+            hexpand = true,
+            halign = START,
         };
         var arrow = new Gtk.Image.from_icon_name("go-next-symbolic") {
             margin_end = 12,
         };
-        this.append(this.label);
+        box.append(this.title);
+        box.append(this.subtitle);
+        this.append(box);
         this.append(arrow);
     }
 }

@@ -77,12 +77,14 @@ public class Libellus.Window : Adw.ApplicationWindow {
             var list_item = (Gtk.ListItem) item;
             var entry = (SearchEntry) list_item.child;
             var map = ((MapValue) list_item.item).map;
-            entry.label.label = ((StrValue)map["name"]).str;
+            entry.title.label = ((StrValue)map["name"]).str;
+            entry.subtitle.label = ((StrValue)map["category"]).str;
         });
         factory.unbind.connect((item) => {
             var list_item = (Gtk.ListItem) item;
             var entry = (SearchEntry) list_item.child;
-            entry.label.label = "";
+            entry.title.label = "";
+            entry.subtitle.label = "";
         });
         overview.view = tabview;
 

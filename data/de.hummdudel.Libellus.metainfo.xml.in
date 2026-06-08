@@ -61,7 +61,7 @@
     <keyword>wiki</keyword>
   </keywords>
   <releases>
-    <release version="2.0.0" date="2026-05-27">
+    <release version="2.0.0" date="2026-06-08">
       <description>
         <p>Update to Version 2!</p>
         <p>Migrate from JavaScript to Vala.</p>

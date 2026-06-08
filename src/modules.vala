@@ -178,10 +178,29 @@ class Libellus.MultiTextModule : Adw.Bin {
         box.add_css_class("boxed-list");
         box.selection_mode = Gtk.SelectionMode.NONE;
         foreach (var v in ((ArrValue)((MapValue)data).map["content"]).arr) {
+            var text = ((StrValue)v).str;
+            if (text.has_prefix("|---")) {
+                continue;
+            }
             var row = new Gtk.ListBoxRow() {
                 activatable = false,
             };
-            var text = ((StrValue)v).str;
+            // if (text.has_prefix("|") && text.has_suffix("|")) {
+            //     var tmp = new Gtk.Box(HORIZONTAL, 0);
+            //     var sections = text.split("|");
+            //     for (int i = 1; i < sections.length-1; i++) {
+            //         var label = new Gtk.Label(sections[i]) {
+            //             halign = FILL,
+            //             hexpand = true,
+            //         };
+            //         tmp.append(label);
+            //         if (i < sections.length-2) {
+            //             var separator = new Gtk.Separator(VERTICAL);
+            //             tmp.append(separator);
+            //         }
+            //     }
+            //     row.child = tmp;
+            // } else
             if (text.has_prefix("***")) {
                 var temp = new Gtk.Box(VERTICAL, 6);
                 var heading = new Gtk.Label(text.slice(3, text.index_of("***", 4)-1)) {
