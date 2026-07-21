@@ -118,7 +118,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
             var dialog = new Welcome(this);
             dialog.present(this);
         } else {
-            load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+            load_source.begin(config.get_default().map["folder"].as_str().str);
         }
     }
 
@@ -154,13 +154,13 @@ public class Libellus.Window : Adw.ApplicationWindow {
             uint8[] contents;
             string etag_out;
             this.dir_file.load_contents (null, out contents, out etag_out);
-            this.dir = (ArrValue)Value.from_str((string) contents);
+            this.dir = Value.from_str((string) contents).as_arr();
 
             this.filter_file.load_contents (null, out contents, out etag_out);
-            this.filter_data = (ArrValue)Value.from_str((string) contents);
+            this.filter_data = Value.from_str((string) contents).as_arr();
 
             foreach(var v in this.dir.arr) {
-                this.liststore.append((MapValue)v);
+                this.liststore.append(v.as_map());
             }
             while (tabview.get_n_pages() > 0) {
                 tabview.close_page(tabview.get_nth_page(0));
@@ -183,13 +183,13 @@ public class Libellus.Window : Adw.ApplicationWindow {
     }
     public void delete_source (MapValue v) {
         config.delete_source(v);
-        if (source_folder.get_path() == ((StrValue) v.map["folder"]).str) {
+        if (source_folder.get_path() == v.map["folder"].as_str().str) {
             message(config.get_sources().to_str());
             if (config.get_sources().arr.size == 0) {
                 var dialog = new Welcome(this);
                 dialog.present(this);
             } else {
-                load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+                load_source.begin(config.get_default().map["folder"].as_str().str);
             }
         }
     }
@@ -276,12 +276,12 @@ public class Libellus.Page : Adw.NavigationPage {
             if (!(v is MapValue)) {
                 GLib.error("expected toplevel node to be a map");
             }
-            this.title = ((StrValue)((MapValue)v).map["name"]).str;
-            ArrValue content = (ArrValue) ((MapValue)v).map["content"];
+            this.title = v.as_map().map["name"].as_str().str;
+            ArrValue content = v.as_map().map["content"].as_arr();
             clamp.child = build_content(content, tab);
-            this.data = (MapValue) v;
+            this.data = v.as_map();
 
-            if (this.window.bookmarks.is_bookmarked(((StrValue)this.data.map["id"]).str)) {
+            if (this.window.bookmarks.is_bookmarked(this.data.map["id"].as_str().str)) {
                 this.bookmark_button.active = true;
                 this.bookmark_button.css_classes = {"accent"};
             } else {
@@ -293,7 +293,7 @@ public class Libellus.Page : Adw.NavigationPage {
                 if (this.changing_bookmark) {
                     return;
                 }
-                if (this.window.bookmarks.is_bookmarked(((StrValue)this.data.map["id"]).str)) {
+                if (this.window.bookmarks.is_bookmarked(this.data.map["id"].as_str().str)) {
                     this.bookmark_button.active = true;
                     this.bookmark_button.css_classes = {"accent"};
                 } else {
@@ -312,7 +312,7 @@ public class Libellus.Page : Adw.NavigationPage {
                     this.window.bookmarks.changed();
                     this.bookmark_button.css_classes = {"accent"};
                 } else {
-                    this.window.bookmarks.remove_bookmark(((StrValue)this.data.map["id"]).str);
+                    this.window.bookmarks.remove_bookmark(this.data.map["id"].as_str().str);
                     this.bookmark_button.css_classes = {};
                 }
                 this.changing_bookmark = false;

@@ -9,6 +9,35 @@ public class Libellus.Data {
 }
 
 public class Value: Object {
+    public StrValue as_str() {
+        if (this is StrValue) {
+            return (StrValue) this;
+        } else {
+            GLib.error("tried to access a non-string value as a string value");
+        }
+    }
+    public MapValue as_map() {
+        if (this is MapValue) {
+            return (MapValue) this;
+        } else {
+            GLib.error("tried to access a non-map value as a map value");
+        }
+    }
+    public ArrValue as_arr() {
+        if (this is ArrValue) {
+            return (ArrValue) this;
+        } else {
+            GLib.error("tried to access a non-array value as an array value");
+        }
+    }
+    public NumValue as_num() {
+        if (this is NumValue) {
+            return (NumValue) this;
+        } else {
+            GLib.error("tried to access a non-numeric value as a numeric value");
+        }
+    }
+
     public static Value from_str(string data) {
         int offset = 0;
         return parse(data, ref offset);

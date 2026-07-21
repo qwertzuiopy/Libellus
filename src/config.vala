@@ -5,37 +5,43 @@ public class Libellus.Config : Object {
     File sources_folder;
     MapValue val;
     public Config() {
-        file = File.new_build_filename(GLib.Environment.get_user_data_dir(), "sources");
+        var tmp =File.new_build_filename(GLib.Environment.get_user_data_dir(), "libellus");
+        if (!tmp.query_exists()) {
+            tmp.make_directory();
+        }
+
+        file = File.new_build_filename(GLib.Environment.get_user_data_dir(), "libellus", "sources");
         if (!file.query_exists()) {
+            print("file does not exist\n");
             var file_stream = file.create(FileCreateFlags.NONE);
             var data_stream = new DataOutputStream (file_stream);
             var dirs = GLib.Environment.get_system_data_dirs();
             var dir = "";
             foreach (var d in dirs) {
-                if (File.new_for_path(d).get_child("libellus").get_child("dnd").query_exists()) {
+                if (File.new_for_path(d).get_child("libellus").get_child("data").get_child("dnd").query_exists()) {
                     dir = d;
                 }
             }
             if (dir != null) {
-                var dnd = File.new_build_filename(dir, "libellus", "dnd").get_path();
-                data_stream.put_string ("{ default_source: {folder: \""+dnd+"\", name: \"Dungeons and Dragons: Player's Handbook\"}, sources: [{name: \"Dungeons and Dragons: Player's Handbook\", builtin: 1, folder: \"" + dnd + "\"}], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+                var dnd = File.new_build_filename(dir, "libellus", "data", "dnd").get_path();
+                data_stream.put_string ("{ default_source: {folder: \""+dnd+"\", name: \"Dungeons and Dragons: Player's Handbook\"}, sources: [{name: \"Dungeons and Dragons: Player's Handbook\", builtin: 1, folder: \"" + dnd + "\"}], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "libellus", "data").get_path()+"\"}");
             } else {
-                data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+                data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "libellus", "data").get_path()+"\"}");
             }
-            File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").make_directory();
+            File.new_build_filename(GLib.Environment.get_user_data_dir(), "libellus", "data").make_directory();
             write_config();
         }
         uint8[] contents;
         string etag_out;
         file.load_contents (null, out contents, out etag_out);
         val = (MapValue) Value.from_str((string) contents);
-        sources_folder = File.new_for_path(((StrValue) val.map["folder"]).str);
+        sources_folder = File.new_for_path(val.map["folder"].as_str().str);
     }
     public ArrValue get_sources() {
-        return (ArrValue) val.map["sources"];
+        return val.map["sources"].as_arr();
     }
     public MapValue get_default() {
-        return (MapValue) val.map["default_source"];
+        return val.map["default_source"].as_map();
     }
     public async void add_source(File data) {
         try {
@@ -43,15 +49,15 @@ public class Libellus.Config : Object {
             uint8[] contents;
             string etag_out;
             desc.load_contents (null, out contents, out etag_out);
-            var desc_val = (MapValue) Value.from_str((string) contents);
+            var desc_val = Value.from_str((string) contents).as_map();
 
             var dst_path = File.new_build_filename(sources_folder.get_path(), "source"+GLib.Random.next_int().to_string());
             GLib.Process.spawn_command_line_sync("cp -r "+data.get_path()+" "+dst_path.get_path());
             var entry = new MapValue();
             entry.map["folder"] = new StrValue(dst_path.get_path());
             entry.map["builtin"] = new NumValue(0);
-            entry.map["name"] = new StrValue(((StrValue) desc_val.map["name"]).str);
-            ((ArrValue)val.map["sources"]).arr.add(entry);
+            entry.map["name"] = new StrValue(desc_val.map["name"].as_str().str);
+            val.map["sources"].as_arr().arr.add(entry);
             val.map["default_source"] = entry;
 
             write_config();

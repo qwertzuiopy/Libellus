@@ -47,5 +47,5 @@ subdir('icons')
 
 install_subdir(
   'dnd',
-  install_dir: get_option('datadir') / 'libellus'
+  install_dir: get_option('datadir') / 'libellus' / 'data'
 )
