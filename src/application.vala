@@ -49,12 +49,11 @@ public class Libellus.Application : Adw.Application {
     }
 
     private void on_about_action () {
-        string[] developers = { "luna" };
         var about = new Adw.AboutDialog () {
             application_name = "Libellus",
             application_icon = "de.hummdudel.Libellus",
             developer_name = "Luna",
-            version = "2.0.0",
+            version = "2.0.1",
             developers = { "Luna" },
             copyright = "© 2023 Luna",
             license_type = Gtk.License.GPL_3_0,

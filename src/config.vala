@@ -7,29 +7,42 @@ public class Libellus.Config : Object {
     public Config() {
         file = File.new_build_filename(GLib.Environment.get_user_data_dir(), "sources");
         if (!file.query_exists()) {
-            var file_stream = file.create(FileCreateFlags.NONE);
-            var data_stream = new DataOutputStream (file_stream);
-            var dirs = GLib.Environment.get_system_data_dirs();
-            var dir = "";
-            foreach (var d in dirs) {
-                if (File.new_for_path(d).get_child("libellus").get_child("dnd").query_exists()) {
-                    dir = d;
+            try {
+                var file_stream = file.create(FileCreateFlags.NONE);
+                var data_stream = new DataOutputStream (file_stream);
+                var dirs = GLib.Environment.get_system_data_dirs();
+                var dir = "";
+                foreach (var d in dirs) {
+                    if (File.new_for_path(d).get_child("libellus").get_child("dnd").query_exists()) {
+                        dir = d;
+                    }
                 }
+                File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").make_directory();
+                if (dir != null) {
+                    var src = File.new_build_filename(dir, "libellus", "dnd");
+                    var dst = File.new_build_filename(GLib.Environment.get_user_data_dir(), "data", "dnd");
+
+                    var proc = new Subprocess(NONE, "cp", "-r", src.get_path(), dst.get_path());
+                    // TODO: async
+                    proc.wait();
+                    data_stream.put_string ("{ default_source: {folder: \""+dst.get_path()+"\", name: \"Dungeons and Dragons: Player's Handbook\"}, sources: [{name: \"Dungeons and Dragons: Player's Handbook\", builtin: 1, folder: \"" + dst.get_path() + "\"}], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+                } else {
+                    data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
+                }
+            } catch (Error e) {
+                critical(e.message);
             }
-            if (dir != null) {
-                var dnd = File.new_build_filename(dir, "libellus", "dnd").get_path();
-                data_stream.put_string ("{ default_source: {folder: \""+dnd+"\", name: \"Dungeons and Dragons: Player's Handbook\"}, sources: [{name: \"Dungeons and Dragons: Player's Handbook\", builtin: 1, folder: \"" + dnd + "\"}], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
-            } else {
-                data_stream.put_string ("{ default_source: {folder: \"\", name: \"\"}, sources: [], folder: \""+File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").get_path()+"\"}");
-            }
-            File.new_build_filename(GLib.Environment.get_user_data_dir(), "data").make_directory();
             write_config();
         }
         uint8[] contents;
         string etag_out;
-        file.load_contents (null, out contents, out etag_out);
-        val = (MapValue) Value.from_str((string) contents);
-        sources_folder = File.new_for_path(((StrValue) val.map["folder"]).str);
+        try {
+            this.file.load_contents (null, out contents, out etag_out);
+            this.val = (MapValue) Value.from_str((string) contents);
+            this.sources_folder = File.new_for_path(val.map["folder"].as_str());
+        } catch (Error e) {
+            critical(e.message);
+        }
     }
     public ArrValue get_sources() {
         return (ArrValue) val.map["sources"];
@@ -46,11 +59,14 @@ public class Libellus.Config : Object {
             var desc_val = (MapValue) Value.from_str((string) contents);
 
             var dst_path = File.new_build_filename(sources_folder.get_path(), "source"+GLib.Random.next_int().to_string());
-            GLib.Process.spawn_command_line_sync("cp -r "+data.get_path()+" "+dst_path.get_path());
+
+            var proc = new Subprocess(NONE, "cp", "-r ", data.get_path(), dst_path.get_path());
+            proc.wait();
+
             var entry = new MapValue();
             entry.map["folder"] = new StrValue(dst_path.get_path());
             entry.map["builtin"] = new NumValue(0);
-            entry.map["name"] = new StrValue(((StrValue) desc_val.map["name"]).str);
+            entry.map["name"] = new StrValue(desc_val.map["name"].as_str());
             ((ArrValue)val.map["sources"]).arr.add(entry);
             val.map["default_source"] = entry;
 
@@ -60,7 +76,7 @@ public class Libellus.Config : Object {
         }
     }
     public void delete_source(MapValue v) {
-        var arr = ((ArrValue) val.map["sources"]).arr;
+        var arr = val.map["sources"].as_arr();
         var index = arr.index_of(v);
         if (index == -1) {
             critical("source not found!");
@@ -69,12 +85,20 @@ public class Libellus.Config : Object {
         if (get_default() == v && arr.size > 0) {
             val.map["default_source"] = arr[0];
         }
-        var f = File.new_for_path(((StrValue)v.map["folder"]).str);
-        GLib.Process.spawn_command_line_sync("rm -r "+f.get_path());
+        var f = File.new_for_path(v.map["folder"].as_str());
+        try {
+            GLib.Process.spawn_command_line_sync("rm -r "+f.get_path());
+        } catch (Error e) {
+            critical(e.message);
+        }
         write_config();
     }
 
     public void write_config() {
-        file.replace_contents(val.to_str().data, null, false, NONE, null);
+        try {
+            file.replace_contents(val.to_str().data, null, false, NONE, null);
+        } catch (Error e) {
+            critical(e.message);
+        }
     }
 }

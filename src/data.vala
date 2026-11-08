@@ -1,19 +1,16 @@
 using Gee;
 
-public class Libellus.Data {
-    public Data (string data) {
-        int offset = 0;
-        Value v = Value.parse (data, ref offset);
-        message (v.to_str());
-    }
-}
-
 public class Value: Object {
-    public static Value from_str(string data) {
+    public static Value? from_str(string data) {
         int offset = 0;
-        return parse(data, ref offset);
+        try {
+            return parse(data, ref offset);
+        } catch (Error e) {
+            critical(e.message);
+            return null;
+        }
     }
-    public static Value parse(string data, ref int offset) {
+    public static Value parse(string data, ref int offset) throws Error {
         unichar c;
         Value.trim(data, ref offset);
         int _tmp = offset;
@@ -53,6 +50,9 @@ public class Value: Object {
                 return ((NumValue) this).to_str ();
             case Kind.MAP:
                 return ((MapValue) this).to_str ();
+            case Kind.NONE:
+                critical("trying to stringify a none value");
+                return "";
        }
        GLib.error("can't sreialize");
     }
@@ -64,6 +64,20 @@ public class Value: Object {
         MAP,
     }
     public Kind kind = Kind.NONE;
+
+    public HashMap<string, Value> as_map() {
+        return ((MapValue) this).map;
+    }
+    public ArrayList<Value> as_arr() {
+        return ((ArrValue) this).arr;
+    }
+    public string as_str() {
+        return ((StrValue) this).str;
+    }
+    public double as_num() {
+        return ((NumValue) this).num;
+    }
+
 }
 
 public class NumValue: Value {
@@ -72,7 +86,7 @@ public class NumValue: Value {
         this.kind = Kind.NUM;
         this.num = v;
     }
-    public string to_str() {
+    public new string to_str() {
         return this.num.to_string();
     }
     public NumValue.from_str(string data, ref int offset) {
@@ -94,7 +108,7 @@ public class StrValue: Value {
         this.kind = Kind.STR;
         this.str = v;
     }
-    public string to_str() {
+    public new string to_str() {
         return "\"" + this.str + "\"";
     }
     public StrValue.from_str(string data, ref int offset) {
@@ -113,7 +127,7 @@ public class ArrValue: Value {
         this.kind = Kind.ARR;
         this.arr = new ArrayList<Value>();
     }
-    public string to_str () {
+    public new string to_str () {
         string s = "[";
         bool first = true;
         foreach(Value v in this.arr) {
@@ -157,7 +171,7 @@ public class MapValue: Value {
         this.kind = Kind.MAP;
         this.map = new HashMap<string, Value>();
     }
-    public string to_str () {
+    public new string to_str () {
         string s = "{";
         bool first = true;
         foreach (var e in this.map.entries) {

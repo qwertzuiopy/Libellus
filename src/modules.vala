@@ -10,7 +10,7 @@ class Libellus.LinkButton : Gtk.Button {
         if (data == null) {
             this.label = "[NOT FOUND]"+owned_id;
         } else {
-            this.label = ((StrValue)data.map["name"]).str;
+            this.label = data.map["name"].as_str();
         }
         this.clicked.connect(() => {
             tab.navview.push(new Page(tab.window.data_folder.get_child(owned_id), tab.window, tab));
@@ -24,19 +24,19 @@ class Libellus.LinkListModule : Adw.Bin {
             css_classes = {"boxed-list"},
             selection_mode = NONE,
         };
-        foreach (var row in ((ArrValue)data.map["content"]).arr) {
-            var str = ((StrValue)((MapValue)row).map["id"]).str;
+        foreach (var row in data.map["content"].as_arr()) {
+            var str = row.as_map()["id"].as_str();
             if (str.has_prefix("@")) {
                 str = str.substring(1, str.length-1);
             }
             var map = tab.window.fetch_dir_for_id(str);
             var title = "";
             if (map != null) {
-                title =((StrValue)map.map["name"]).str;
+                title = map.map["name"].as_str();
             }
             var item = new Adw.ActionRow() {
                 title = title,
-                subtitle = ((StrValue)((MapValue)row).map["content"]).str,
+                subtitle = row.as_map()["content"].as_str(),
                 activatable = true,
             };
             item.add_suffix(new Gtk.Image.from_icon_name("go-next-symbolic"));
@@ -57,7 +57,7 @@ class Libellus.ImageModule : Adw.Bin {
         load.begin(data);
     }
     async void load(MapValue data) {
-        var url = ((StrValue)data.map["url"]).str;
+        var url = data.map["url"].as_str();
         var message = new Soup.Message("GET", url);
         var session = new Soup.Session();
         try {
@@ -84,13 +84,13 @@ class Libellus.TitledTextModule : Adw.Bin {
         var arr = (ArrValue)data.map["content"];
         foreach (var row in arr.arr) {
             var box = new Gtk.Box(VERTICAL, 6);
-            var title = ((StrValue) ((MapValue) row).map["title"]);
-            box.append(new Gtk.Label(title.str) {
+            var title = row.as_map()["title"].as_str();
+            box.append(new Gtk.Label(title) {
                 css_classes = {"heading"},
                 margin_top = 6,
             });
-            var content = ((StrValue) ((MapValue) row).map["content"]);
-            box.append(new Gtk.Label(content.str) {
+            var content = row.as_map()["content"].as_str();
+            box.append(new Gtk.Label(content) {
                 margin_start = 12,
                 margin_end = 12,
                 margin_bottom = 6,
@@ -109,13 +109,12 @@ class Libellus.StatListModule : Adw.Bin {
             selection_mode = NONE,
             css_classes = {"boxed-list"},
         };
-        var arr = (ArrValue)data.map["content"];
-        foreach (var row in arr.arr) {
+        foreach (var row in data.map["content"].as_arr()) {
             var box = new Gtk.Box(HORIZONTAL, 6) {
                 margin_end = 6,
             };
-            var title = ((StrValue) ((MapValue) row).map["title"]);
-            var title_label = new Gtk.Label(title.str) {
+            var title = row.as_map()["title"].as_str();
+            var title_label = new Gtk.Label(title) {
                 css_classes = {"heading"},
                 margin_top = 12,
                 margin_bottom = 12,
@@ -126,9 +125,10 @@ class Libellus.StatListModule : Adw.Bin {
             box.append(title_label);
             var wrap = new Adw.WrapBox() {
                 child_spacing = 10,
+                align = 1
             };
             // box.append(new Gtk.Separator(VERTICAL));
-            var entries = ((ArrValue)((MapValue)row).map["content"]).arr;
+            var entries = row.as_map()["content"].as_arr();
             if (entries.size > 10) {
                 box.orientation = VERTICAL;
                 box.margin_start = 10;
@@ -137,11 +137,11 @@ class Libellus.StatListModule : Adw.Bin {
                 title_label.margin_bottom = 5;
             }
             foreach (var entry in entries) {
-                var str =((StrValue)entry).str;
+                var str = entry.as_str();
                 if (str.has_prefix("@")) {
                     wrap.append(new LinkButton(str, tab){ margin_top = 6, margin_bottom = 6, margin_end = 0 });
                 } else {
-                    wrap.append(new Gtk.Label(str) { margin_top = 12, margin_bottom = 12, margin_end = 6 } );
+                    wrap.append(new Gtk.Label(str) { margin_top = 12, margin_bottom = 12, margin_end = 6, wrap = true } );
                 }
             }
 
@@ -156,16 +156,18 @@ class Libellus.StatListModule : Adw.Bin {
 }
 class Libellus.TitleModule : Adw.Bin {
     public TitleModule (MapValue data) {
-        var label = new Gtk.Label(((StrValue)data.map["content"]).str);
+        var label = new Gtk.Label(data.map["content"].as_str());
         label.add_css_class("title-1");
         label.margin_top = 10;
         label.margin_bottom = 10;
+        label.justify = CENTER;
+        label.wrap = true;
         this.child = label;
     }
 }
 class Libellus.SubtitleModule : Adw.Bin {
     public SubtitleModule (MapValue data) {
-        var label = new Gtk.Label(((StrValue)data.map["content"]).str);
+        var label = new Gtk.Label(data.map["content"].as_str());
         label.add_css_class("title-3");
         label.margin_top = 10;
         label.margin_bottom = 10;
@@ -177,8 +179,8 @@ class Libellus.MultiTextModule : Adw.Bin {
         var box = new Gtk.ListBox();
         box.add_css_class("boxed-list");
         box.selection_mode = Gtk.SelectionMode.NONE;
-        foreach (var v in ((ArrValue)((MapValue)data).map["content"]).arr) {
-            var text = ((StrValue)v).str;
+        foreach (var v in data.map["content"].as_arr()) {
+            var text = v.as_str();
             if (text.has_prefix("|---")) {
                 continue;
             }
@@ -242,19 +244,18 @@ class Libellus.StatGridModule : Adw.Bin {
             justify_last_line = false,
             halign = CENTER,
         };
-        ArrValue arr = (ArrValue)data.map["content"];
-        foreach (var v in arr.arr) {
-            var item = (MapValue) v;
+        foreach (var v in data.map["content"].as_arr()) {
+            var item = v.as_map();
             var b = new Gtk.Box(Gtk.Orientation.VERTICAL, 5);
             b.width_request = 70;
             b.add_css_class("card");
-            var title = new Gtk.Label(((StrValue)item.map["title"]).str) {
+            var title = new Gtk.Label(item["title"].as_str()) {
                 margin_top = 15,
                 margin_start = 10,
                 margin_end = 10,
             };
             b.append(title);
-            var str = ((StrValue)item.map["content"]).str;
+            var str = item["content"].as_str();
             if (str.has_prefix("@")) {
                 var link = new LinkButton(str, tab);
                 link.margin_bottom = 5;
@@ -280,12 +281,11 @@ class Libellus.StatGridModule : Adw.Bin {
 class Libellus.TableModule : Gtk.Grid {
     public TableModule(MapValue v) {
         this.add_css_class("card");
-        ArrValue rows = (ArrValue)v.map["content"];
         var y = 0;
-        foreach (var row in rows.arr) {
+        foreach (var row in v.map["content"].as_arr()) {
             var x = 0;
-            foreach (var cell in ((ArrValue)row).arr) {
-                var label = new Gtk.Label(((StrValue)cell).str);
+            foreach (var cell in row.as_arr()) {
+                var label = new Gtk.Label(cell.as_str());
                 label.halign = FILL;
                 label.hexpand = true;
                 label.margin_top = 10;
@@ -299,7 +299,7 @@ class Libellus.TableModule : Gtk.Grid {
         hbar.halign = CENTER;
         var vbar = new Gtk.Separator(VERTICAL);
         vbar.valign = CENTER;
-        this.attach(vbar, 0, 1, ((ArrValue)rows.arr[0]).arr.size + 1);
+        this.attach(vbar, 0, 1, v.map["content"].as_arr()[0].as_arr().size + 1);
         this.attach(hbar, 1, 0, 1, 3);
     }
 }
@@ -315,10 +315,10 @@ class Libellus.CycleModule : Gtk.Box {
         var header = new Gtk.Box(HORIZONTAL, 10) {
             halign = CENTER,
         };
-        var title = new Gtk.Label(((StrValue)v.map["title"]).str) {
+        var title = new Gtk.Label(v.map["title"].as_str()) {
             css_classes = {"title-3"},
         };
-        var spinner = new Gtk.SpinButton.with_range(1, ((NumValue)v.map["max"]).num, 1);
+        var spinner = new Gtk.SpinButton.with_range(1, v.map["max"].as_num(), 1);
         spinner.adjustment.value_changed.connect(() => {
             update_content((int)spinner.adjustment.value-1);
         });
@@ -330,7 +330,7 @@ class Libellus.CycleModule : Gtk.Box {
         this.append(this.content);
     }
     void update_content(int number) {
-        this.content.child = Page.build_content((ArrValue)((ArrValue)map_value.map["content"]).arr[number], tab);
+        this.content.child = Page.build_content((ArrValue) map_value.map["content"].as_arr()[number], tab);
     }
 }
 

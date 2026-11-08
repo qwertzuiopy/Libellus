@@ -30,7 +30,7 @@ class Libellus.SearchPage : Adw.NavigationPage {
         this.listview.show_separators = true;
         this.listview.activate.connect((position) => {
             var v = (MapValue) this.listview.model.get_item(position);
-            this.tab.navview.push(new Page(this.window.data_folder.get_child(((StrValue)v.map["id"]).str), this.window, this.tab));
+            this.tab.navview.push(new Page(this.window.data_folder.get_child(v.map["id"].as_str()), this.window, this.tab));
             this.tab.update_title.begin();
         });
         this.filter = new FilterDialog(this.window, this);
@@ -62,8 +62,8 @@ class Libellus.SearchFilter : Gtk.Filter {
         if (this.term == "") {
             return true;
         }
-        var map = (MapValue) item;
-        if (((StrValue) map.map["name"]).str.ascii_down ().contains (this.term)) {
+        var val = (Value)item;
+        if (val.as_map()["name"].as_str().ascii_down().contains (this.term)) {
             return true;
         } else {
             return false;
@@ -89,6 +89,7 @@ class Libellus.SearchEntry : Gtk.Box {
             margin_bottom = 0,
             hexpand = true,
             halign = START,
+            ellipsize = END,
         };
         this.subtitle = new Gtk.Label("") {
             css_classes = { "dimmed" },
@@ -96,6 +97,7 @@ class Libellus.SearchEntry : Gtk.Box {
             margin_bottom = 4,
             hexpand = true,
             halign = START,
+            ellipsize = END,
         };
         var arrow = new Gtk.Image.from_icon_name("go-next-symbolic") {
             margin_end = 12,

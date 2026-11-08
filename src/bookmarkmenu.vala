@@ -24,7 +24,7 @@ public class Libellus.Bookmarks : Object {
     }
     public bool is_bookmarked(string id) {
         foreach (var bookmark in this.bookmarks.arr) {
-            if (((StrValue)((MapValue)bookmark).map["id"]).str == id) {
+            if (bookmark.as_map()["id"].as_str() == id) {
                 return true;
             }
         }
@@ -32,7 +32,7 @@ public class Libellus.Bookmarks : Object {
     }
     public void remove_bookmark(string id) {
         foreach (var bookmark in this.bookmarks.arr) {
-            if (((StrValue)((MapValue)bookmark).map["id"]).str == id) {
+            if (bookmark.as_map()["id"].as_str() == id) {
                 this.bookmarks.arr.remove(bookmark);
                 this.changed();
                 return;
@@ -74,7 +74,7 @@ class Libellus.BookmarkRow : Gtk.ListBoxRow {
         this.bookmark = bookmark;
         this.add_css_class("bookmark");
         var box = new Gtk.Box(HORIZONTAL, 10);
-        box.append(new Gtk.Label(((StrValue)this.bookmark.map["name"]).str) { hexpand = true, margin_start = 6 } );
+        box.append(new Gtk.Label(this.bookmark.map["name"].as_str()) { hexpand = true, margin_start = 6 } );
         var delete_button = new Gtk.Button() {
             icon_name = "edit-clear-symbolic",
             css_classes = {"flat", "circular"},
@@ -87,6 +87,6 @@ class Libellus.BookmarkRow : Gtk.ListBoxRow {
         this.child = box;
     }
     public void open() {
-        window.open(((StrValue)this.bookmark.map["id"]).str);
+        window.open(this.bookmark.map["id"].as_str());
     }
 }

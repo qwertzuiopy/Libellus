@@ -6,7 +6,7 @@ class Libellus.SourcesDialog : Adw.Dialog {
         this.window = window;
         var sources = window.config.get_sources();
         foreach (var source in sources.arr) {
-            var name = ((StrValue)((MapValue)source).map["name"]).str;
+            var name = source.as_map()["name"].as_str();
             var row = new Adw.ActionRow() {
                 activatable = true,
             };
@@ -16,7 +16,7 @@ class Libellus.SourcesDialog : Adw.Dialog {
                 valign = CENTER,
                 css_classes = { "destructive-action" },
             };
-            if (((NumValue)((MapValue)source).map["builtin"]).num == 0) {
+            if (source.as_map()["builtin"].as_num() == 0) {
                 del.clicked.connect(() => {
                     window.delete_source((MapValue)source);
                     this.close();
@@ -26,13 +26,13 @@ class Libellus.SourcesDialog : Adw.Dialog {
             row.add_suffix(new Gtk.Image() {
                 icon_name = "go-next-symbolic",
             });
-            row.activated.connect(()=>{
-                window.load_source.begin(((StrValue)((MapValue)source).map["folder"]).str);
+            row.activated.connect(() => {
+                window.load_source.begin(source.as_map()["folder"].as_str());
                 this.close();
             });
             box.append(row);
         }
-        var import = new Adw.ButtonRow(){
+        var import = new Adw.ButtonRow() {
             title = "import",
         };
         import.activated.connect(import_source);
@@ -40,9 +40,13 @@ class Libellus.SourcesDialog : Adw.Dialog {
     }
     public async void import_source() {
         var file_dialog = new Gtk.FileDialog ();
-        File folder = yield file_dialog.select_folder (window, null);
-        this.child = new Adw.Spinner();
-        yield window.import(folder);
-        this.close();
+        try {
+            File folder = yield file_dialog.select_folder (window, null);
+            this.child = new Adw.Spinner();
+            yield window.import(folder);
+            this.close();
+        } catch (Error e) {
+            critical(e.message);
+        }
     }
 }

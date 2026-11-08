@@ -31,9 +31,13 @@ public class Libellus.Welcome : Adw.Dialog {
     }
     public async void import() {
         var file_dialog = new Gtk.FileDialog ();
-        File folder = yield file_dialog.select_folder (window, null);
-        yield window.import(folder);
-        this.force_close();
+        try {
+            File folder = yield file_dialog.select_folder (window, null);
+            yield window.import(folder);
+            this.force_close();
+        } catch (Error e) {
+            critical(e.message);
+        }
     }
 }
 
@@ -76,9 +80,9 @@ public class Libellus.Window : Adw.ApplicationWindow {
         factory.bind.connect ((item) => {
             var list_item = (Gtk.ListItem) item;
             var entry = (SearchEntry) list_item.child;
-            var map = ((MapValue) list_item.item).map;
-            entry.title.label = ((StrValue)map["name"]).str;
-            entry.subtitle.label = ((StrValue)map["category"]).str;
+            var map = ((Value) list_item.item).as_map();
+            entry.title.label = map["name"].as_str();
+            entry.subtitle.label = map["category"].as_str();
         });
         factory.unbind.connect((item) => {
             var list_item = (Gtk.ListItem) item;
@@ -118,7 +122,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
             var dialog = new Welcome(this);
             dialog.present(this);
         } else {
-            load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+            load_source.begin(config.get_default().map["folder"].as_str());
         }
     }
 
@@ -133,7 +137,7 @@ public class Libellus.Window : Adw.ApplicationWindow {
     }
     public MapValue? fetch_dir_for_id(string id) {
         foreach(var item in this.dir.arr) {
-            if (((StrValue)((MapValue)item).map["id"]).str == id) {
+            if (item.as_map()["id"].as_str() == id) {
                 return (MapValue)item;
             }
         }
@@ -174,22 +178,18 @@ public class Libellus.Window : Adw.ApplicationWindow {
     }
 
     public async void import (File folder) {
-        try {
-            yield config.add_source(folder);
-            yield load_source(folder.get_path());
-        } catch (Error e) {
-            critical (e.message);
-        }
+        yield config.add_source(folder);
+        yield load_source(folder.get_path());
     }
     public void delete_source (MapValue v) {
         config.delete_source(v);
-        if (source_folder.get_path() == ((StrValue) v.map["folder"]).str) {
+        if (source_folder.get_path() == v.map["folder"].as_str()) {
             message(config.get_sources().to_str());
             if (config.get_sources().arr.size == 0) {
                 var dialog = new Welcome(this);
                 dialog.present(this);
             } else {
-                load_source.begin(((StrValue)config.get_default().map["folder"]).str);
+                load_source.begin(config.get_default().map["folder"].as_str());
             }
         }
     }
@@ -276,12 +276,13 @@ public class Libellus.Page : Adw.NavigationPage {
             if (!(v is MapValue)) {
                 GLib.error("expected toplevel node to be a map");
             }
-            this.title = ((StrValue)((MapValue)v).map["name"]).str;
-            ArrValue content = (ArrValue) ((MapValue)v).map["content"];
-            clamp.child = build_content(content, tab);
             this.data = (MapValue) v;
+            this.title = this.data.map["name"].as_str();
+            ArrValue content = (ArrValue) this.data.map["content"];
+            clamp.child = build_content(content, tab);
 
-            if (this.window.bookmarks.is_bookmarked(((StrValue)this.data.map["id"]).str)) {
+
+            if (this.window.bookmarks.is_bookmarked(this.data.map["id"].as_str())) {
                 this.bookmark_button.active = true;
                 this.bookmark_button.css_classes = {"accent"};
             } else {
@@ -293,7 +294,7 @@ public class Libellus.Page : Adw.NavigationPage {
                 if (this.changing_bookmark) {
                     return;
                 }
-                if (this.window.bookmarks.is_bookmarked(((StrValue)this.data.map["id"]).str)) {
+                if (this.window.bookmarks.is_bookmarked(this.data.map["id"].as_str())) {
                     this.bookmark_button.active = true;
                     this.bookmark_button.css_classes = {"accent"};
                 } else {
@@ -312,7 +313,7 @@ public class Libellus.Page : Adw.NavigationPage {
                     this.window.bookmarks.changed();
                     this.bookmark_button.css_classes = {"accent"};
                 } else {
-                    this.window.bookmarks.remove_bookmark(((StrValue)this.data.map["id"]).str);
+                    this.window.bookmarks.remove_bookmark(this.data.map["id"].as_str());
                     this.bookmark_button.css_classes = {};
                 }
                 this.changing_bookmark = false;
@@ -332,7 +333,7 @@ public class Libellus.Page : Adw.NavigationPage {
         };
         foreach (var c in content.arr) {
             Gtk.Widget w;
-            string id = ((StrValue)((MapValue)c).map["id"]).str;
+            string id = c.as_map()["id"].as_str();
             switch (id) {
                 case "Title":
                     w = new TitleModule((MapValue)c);

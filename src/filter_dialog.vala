@@ -30,11 +30,11 @@ class Libellus.FilterDialog : Adw.Dialog {
 class Libellus.CategoryFilterRow : Adw.ActionRow {
     public CategoryFilterRow (FilterDialog dialog, MapValue data) {
         this.add_suffix(new Gtk.Image() { icon_name = "go-next-symbolic" });
-        this.title = ((StrValue)data.map["title"]).str;
+        this.title = data.map["title"].as_str();
         this.activatable = true;
         this.activated.connect(() => {
-            if (((ArrValue)data.map["filters"]).arr.size == 0) {
-                var cat_filter = new DropdownFilter(((StrValue)data.map["value"]).str, "category");
+            if (data.map["filters"].as_arr().size == 0) {
+                var cat_filter = new DropdownFilter(data.map["value"].as_str(), "category");
                 dialog.page.listview.model = new Gtk.NoSelection(new Gtk.FilterListModel(dialog.page.origin_model, cat_filter));
                 dialog.page.filter_button.css_classes = {"accent"};
                 dialog.page.filter_button.icon_name = "funnel-symbolic";
@@ -56,8 +56,8 @@ class Libellus.FilterPage : Adw.NavigationPage {
     public Gtk.FilterListModel model;
 
     public FilterPage (FilterDialog dialog, MapValue data) {
-        this.title = ((StrValue)data.map["title"]).str;
-        var cat_filter = new DropdownFilter(((StrValue)data.map["value"]).str, "category");
+        this.title = data.map["title"].as_str();
+        var cat_filter = new DropdownFilter(data.map["value"].as_str(), "category");
         this.model = new Gtk.FilterListModel(dialog.page.origin_model, cat_filter);
 
         this.apply_button.activated.connect(() => {
@@ -67,21 +67,20 @@ class Libellus.FilterPage : Adw.NavigationPage {
             dialog.close();
         });
 
-        foreach (var v in ((ArrValue)data.map["filters"]).arr) {
-            var row = (MapValue)v;
-            string id = ((StrValue)row.map["id"]).str;
+        foreach (var v in data.map["filters"].as_arr()) {
+            string id = v.as_map()["id"].as_str();
             switch (id) {
                 case "Dropdown":
                     var comborow = new Adw.ComboRow ();
                     var list = new Gtk.StringList({"any"});
-                    foreach (var option in ((ArrValue)row.map["options"]).arr) {
-                        list.append(((StrValue)((MapValue)option).map["title"]).str);
+                    foreach (var option in v.as_map()["options"].as_arr()) {
+                        list.append(option.as_map()["title"].as_str());
                     }
                     comborow.model = list;
-                    comborow.title = ((StrValue)row.map["title"]).str;
+                    comborow.title = v.as_map()["title"].as_str();
                     this.box.insert(comborow, 0);
 
-                    var filter = new DropdownFilter("any", ((StrValue)row.map["field"]).str);
+                    var filter = new DropdownFilter("any", v.as_map()["field"].as_str());
                     this.model = new Gtk.FilterListModel(this.model, filter);
 
                     comborow.notify["selected"].connect(() => {
@@ -89,8 +88,7 @@ class Libellus.FilterPage : Adw.NavigationPage {
                         if (comborow.selected == 0) {
                             str = "any";
                         } else {
-                            var map = (MapValue)((ArrValue)row.map["options"]).arr[(int)comborow.selected-1];
-                            str = ((StrValue)map.map["value"]).str;
+                            str = v.as_map()["options"].as_arr()[(int)comborow.selected-1].as_map()["value"].as_str();
                         }
                         filter.update_term(str);
                     });
@@ -98,14 +96,14 @@ class Libellus.FilterPage : Adw.NavigationPage {
                 case "ArrayDropdown":
                     var comborow = new Adw.ComboRow ();
                     var list = new Gtk.StringList({"any"});
-                    foreach (var option in ((ArrValue)row.map["options"]).arr) {
-                        list.append(((StrValue)((MapValue)option).map["title"]).str);
+                    foreach (var option in v.as_map()["options"].as_arr()) {
+                        list.append(option.as_map()["title"].as_str());
                     }
                     comborow.model = list;
-                    comborow.title = ((StrValue)row.map["title"]).str;
+                    comborow.title = v.as_map()["title"].as_str();
                     this.box.insert(comborow, 0);
 
-                    var filter = new ArrayDropdownFilter("any", ((StrValue)row.map["field"]).str);
+                    var filter = new ArrayDropdownFilter("any", v.as_map()["field"].as_str());
                     this.model = new Gtk.FilterListModel(this.model, filter);
 
                     comborow.notify["selected"].connect(() => {
@@ -113,21 +111,20 @@ class Libellus.FilterPage : Adw.NavigationPage {
                         if (comborow.selected == 0) {
                             str = "any";
                         } else {
-                            var map = (MapValue)((ArrValue)row.map["options"]).arr[(int)comborow.selected-1];
-                            str = ((StrValue)map.map["value"]).str;
+                            str = v.as_map()["options"].as_arr()[(int)comborow.selected-1].as_map()["value"].as_str();
                         }
                         filter.update_term(str);
                     });
                     break;
                 case "Range":
-                    var adjustment = new Gtk.Adjustment(((NumValue)row.map["min"]).num, ((NumValue)row.map["min"]).num, ((NumValue)row.map["max"]).num, 1, 5, 0);
+                    var adjustment = new Gtk.Adjustment(v.as_map()["min"].as_num(), v.as_map()["min"].as_num(), v.as_map()["max"].as_num(), 1, 5, 0);
                     var spinrow = new Adw.SpinRow(null, 1, 0);
-                    spinrow.title = ((StrValue)row.map["title"]).str;
+                    spinrow.title = v.as_map()["title"].as_str();
                     var enabled = new Gtk.Switch() { valign = CENTER, state = false };
                     spinrow.add_suffix(enabled);
                     this.box.insert(spinrow, 0);
 
-                    var filter = new RangeFilter(((NumValue)row.map["min"]).num, ((StrValue)row.map["field"]).str);
+                    var filter = new RangeFilter(v.as_map()["min"].as_num(), v.as_map()["field"].as_str());
                     this.model = new Gtk.FilterListModel(this.model, filter);
 
                     enabled.state_set.connect((state) => {
@@ -185,8 +182,8 @@ class Libellus.ArrayDropdownFilter : Gtk.Filter {
         if (!map.map.has_key(this.field)) {
             return false;
         }
-        foreach (var key in ((ArrValue) map.map[this.field]).arr) {
-            if (((StrValue)key).str == this.val) {
+        foreach (var key in map.map[this.field].as_arr()) {
+            if (key.as_str() == this.val) {
                 return true;
             }
         }
@@ -224,7 +221,7 @@ class Libellus.DropdownFilter : Gtk.Filter {
         }
         var map = (MapValue) item;
         if (map.map.has_key(this.field) &&
-            ((StrValue) map.map[this.field]).str == this.val) {
+            map.map[this.field].as_str() == this.val) {
             return true;
         } else {
             return false;
@@ -260,7 +257,7 @@ class Libellus.RangeFilter : Gtk.Filter {
         }
         var map = (MapValue) item;
         if (map.map.has_key(this.field) &&
-            ((NumValue) map.map[this.field]).num == this.val) {
+            map.map[this.field].as_num() == this.val) {
             return true;
         } else {
             return false;
