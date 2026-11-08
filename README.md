@@ -18,3 +18,6 @@ Dependencies are Gtk4 and Libadwaita.
 NOTE: This project is not finished, there will be bugs.
 If you have any suggestions or found any bugs, feel free to open an issue or a merge request, help is greatly appreciated!
 
+
+![No Ai Logo](https://libellus.hummdudel.de/Images/dark-fox-no-ai-notice-transparent.png)
+[https://eniko.itch.io/cute-fox-no-ai-notice]
