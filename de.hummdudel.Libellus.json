@@ -19,8 +19,8 @@
             "sources" : [
                 {
                     "type" : "archive",
-                    "sha256": "0ffecea2fb077d3c0206e34806d323f88703cb0e89dd2de7069261380aa9206d",
-                    "url" : "https://github.com/qwertzuiopy/Libellus/archive/refs/tags/v2.0.0.tar.gz"
+                    "sha256": "dad3dac17972c4c6209ff97be492b1e332ea7c06f4ba597c4e875fc0057e6634",
+                    "url" : "https://github.com/qwertzuiopy/Libellus/archive/refs/tags/v2.0.1.tar.gz"
                 }
             ]
         }
