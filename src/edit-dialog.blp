@@ -1,0 +1,31 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LibellusEditDialog : Adw.Dialog {
+  follows-content-size: false;
+  content-height: 1000;
+  content-width: 1000;
+  title: _("placeholder");
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      [end]
+      Gtk.Button {
+        label: _("Save");
+        styles [
+          "suggested-action",
+        ]
+      }
+      [title]
+      Gtk.Entry {
+        text: _("placeholder");
+      }
+    }
+    Gtk.ScrolledWindow {
+      child: Adw.Clamp clamp {
+        maximum-size: 800;
+        tightening-threshold: 400;
+      };
+    }
+  }
+}

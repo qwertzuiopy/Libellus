@@ -1,0 +1,48 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LibellusStatgridModuleEditTile : Gtk.Box {
+  width-request: 70;
+  orientation: horizontal;
+  styles [ "card" ]
+  Gtk.Box {
+    margin-start: 6;
+    spacing: 12;
+    orientation: vertical;
+    valign: center;
+    Gtk.Image {
+      icon-name: "draggable";
+      accessibility {
+        label: "drag";
+      }
+      valign: start;
+    }
+    Gtk.Button {
+      icon-name: "user-trash-symbolic";
+      accessibility {
+        label: "delete tile";
+      }
+      styles [ "destructive-action" ]
+      valign: center;
+    }
+  }
+  Gtk.Box {
+    orientation: vertical;
+    Gtk.Entry title {
+      text: _("placeholder");
+      margin-top: 15;
+      margin-start: 10;
+      margin-end: 10;
+      max-width-chars: 10;
+    }
+    Gtk.Entry subtitle {
+      styles [ "heading" ]
+      text: _("placeholder");
+      margin-bottom: 10;
+      margin-start: 10;
+      margin-end: 10;
+      margin-top: 8;
+      max-width-chars: 10;
+    }
+  }
+}

@@ -264,6 +264,8 @@ public class Libellus.Page : Adw.NavigationPage {
     unowned Adw.Clamp clamp;
     [GtkChild]
     unowned Gtk.ToggleButton bookmark_button;
+    [GtkChild]
+    unowned Gtk.Button edit_button;
 
     public Page (File file, Window window, Tab tab) {
         this.window = window;
@@ -280,6 +282,11 @@ public class Libellus.Page : Adw.NavigationPage {
             this.title = this.data.map["name"].as_str();
             ArrValue content = (ArrValue) this.data.map["content"];
             clamp.child = build_content(content, tab);
+
+            this.edit_button.clicked.connect(() => {
+                var edit_dialog = new EditDialog(file, window);
+                edit_dialog.present(window);
+            });
 
 
             if (this.window.bookmarks.is_bookmarked(this.data.map["id"].as_str())) {

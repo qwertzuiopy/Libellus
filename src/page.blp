@@ -5,12 +5,24 @@ template $LibellusPage: Adw.NavigationPage {
   child: Gtk.ScrolledWindow {
     child: Gtk.Overlay {
       [overlay]
-      Gtk.ToggleButton bookmark_button {
-        icon-name: "star-large-symbolic";
+      Gtk.Box {
         halign: end;
         valign: start;
         margin-end: 12;
         margin-top: 12;
+        spacing: 6;
+        Gtk.ToggleButton bookmark_button {
+          icon-name: "star-large-symbolic";
+          accessibility {
+            label: "bookmark";
+          }
+        }
+        Gtk.Button edit_button {
+          icon-name: "document-edit-symbolic";
+          accessibility {
+            label: "edit";
+          }
+        }
       }
       child: Adw.Clamp clamp {
         maximum-size: 800;

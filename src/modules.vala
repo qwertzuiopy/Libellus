@@ -165,6 +165,19 @@ class Libellus.TitleModule : Adw.Bin {
         this.child = label;
     }
 }
+class Libellus.TitleModuleEdit : Adw.Bin {
+    public TitleModuleEdit (MapValue data) {
+        var entry = new Gtk.Entry() {
+            text = data.map["content"].as_str(),
+            margin_top = 10,
+            margin_bottom = 10,
+            hexpand = true,
+            halign = FILL,
+            css_classes = {"title-1"},
+        };
+        this.child = entry;
+    }
+}
 class Libellus.SubtitleModule : Adw.Bin {
     public SubtitleModule (MapValue data) {
         var label = new Gtk.Label(data.map["content"].as_str());
@@ -172,6 +185,19 @@ class Libellus.SubtitleModule : Adw.Bin {
         label.margin_top = 10;
         label.margin_bottom = 10;
         this.child = label;
+    }
+}
+class Libellus.SubtitleModuleEdit : Adw.Bin {
+    public SubtitleModuleEdit (MapValue data) {
+        var entry = new Gtk.Entry() {
+            text = data.map["content"].as_str(),
+            margin_top = 10,
+            margin_bottom = 10,
+            hexpand = true,
+            halign = FILL,
+            css_classes = {"title-3"},
+        };
+        this.child = entry;
     }
 }
 class Libellus.MultiTextModule : Adw.Bin {
@@ -278,6 +304,49 @@ class Libellus.StatGridModule : Adw.Bin {
         this.child = box;
     }
 }
+
+[GtkTemplate (ui = "/de/hummdudel/Libellus/modules/statgrid-module-edit-tile.ui")]
+class Libellus.StatgridModuleEditTile : Gtk.Box {
+    [GtkChild]
+    public unowned Gtk.Entry title;
+    [GtkChild]
+    public unowned Gtk.Entry subtitle;
+
+    public MapValue data;
+
+    public StatgridModuleEditTile(MapValue data) {
+        title.text = data.map["title"].as_str();
+        subtitle.text = data.map["content"].as_str();
+    }
+}
+
+[GtkTemplate (ui = "/de/hummdudel/Libellus/modules/statgrid-module-edit-tile-new.ui")]
+class Libellus.StatgridModuleEditTileNew : Gtk.Button {
+    public StatgridModuleEditTileNew() {
+    }
+}
+
+
+class Libellus.StatGridModuleEdit : Adw.Bin {
+    public StatGridModuleEdit (MapValue data) {
+        var box = new Adw.WrapBox() {
+            child_spacing = 10,
+            line_spacing = 10,
+            justify = FILL,
+            justify_last_line = false,
+            halign = CENTER,
+        };
+        Gtk.Widget last = null;
+        foreach (var v in data.map["content"].as_arr()) {
+            var b = new StatgridModuleEditTile((MapValue)v);
+            box.insert_child_after(b, last);
+            last = b;
+        }
+        box.append(new StatgridModuleEditTileNew());
+        this.child = box;
+    }
+}
+
 class Libellus.TableModule : Gtk.Grid {
     public TableModule(MapValue v) {
         this.add_css_class("card");

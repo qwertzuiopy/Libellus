@@ -9,6 +9,7 @@ libellus_sources = [
   'filter_dialog.vala',
   'config.vala',
   'sources_dialog.vala',
+  'edit_dialog.vala',
 ]
 
 libellus_deps = [
@@ -29,6 +30,10 @@ blueprints = custom_target('blueprints',
     'tab.blp',
     'searchpage.blp',
     'filter-dialog.blp',
+    'edit-dialog.blp',
+    'edit-container.blp',
+    'modules/statgrid-module-edit-tile.blp',
+    'modules/statgrid-module-edit-tile-new.blp',
     'filter-page.blp',
     'welcome.blp',
   ),
