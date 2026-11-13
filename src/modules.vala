@@ -314,9 +314,41 @@ class Libellus.StatgridModuleEditTile : Gtk.Box {
 
     public MapValue data;
 
-    public StatgridModuleEditTile(MapValue data) {
+    public bool highlighted = false;
+
+    public StatgridModuleEditTile(MapValue data, Adw.WrapBox list) {
         title.text = data.map["title"].as_str();
         subtitle.text = data.map["content"].as_str();
+
+        var source = new Gtk.DragSource() {
+            actions = MOVE
+        };
+        double drag_x = 0.0;
+        double drag_y = 0.0;
+        source.prepare.connect((x, y) => {
+            drag_x = x; drag_y = y;
+            var val = GLib.Value(typeof (StatgridModuleEditTile));
+            val.set_object(this);
+            return new Gdk.ContentProvider.for_value(val);
+        });
+        source.drag_begin.connect((drag) => {
+            var drag_widget = new Adw.Bin();
+
+            drag_widget.set_size_request(this.get_width(), this.get_height());
+            drag_widget.add_css_class("card");
+
+            var icon = new Gtk.DragIcon.get_for_drag(drag) as Gtk.DragIcon;
+            icon.child = drag_widget;
+
+            drag.set_hotspot((int) drag_x, (int) drag_y);
+        });
+
+        var drop = new Gtk.DropControllerMotion();
+        drop.enter.connect(() => { this.css_classes = {}; highlighted = true; });
+        drop.leave.connect(() => { this.css_classes = {"card"}; highlighted = false; });
+
+        this.add_controller(source);
+        this.add_controller(drop);
     }
 }
 
@@ -329,6 +361,7 @@ class Libellus.StatgridModuleEditTileNew : Gtk.Button {
 
 class Libellus.StatGridModuleEdit : Adw.Bin {
     public StatGridModuleEdit (MapValue data) {
+        var tiles = new Gee.ArrayList<StatgridModuleEditTile>();
         var box = new Adw.WrapBox() {
             child_spacing = 10,
             line_spacing = 10,
@@ -336,9 +369,35 @@ class Libellus.StatGridModuleEdit : Adw.Bin {
             justify_last_line = false,
             halign = CENTER,
         };
+        var target = new Gtk.DropTarget(typeof (StatgridModuleEditTile), Gdk.DragAction.MOVE);
+        box.add_controller(target);
+        target.drop.connect((drop, value, x, y) => {
+            var value_row = value.get_object() as StatgridModuleEditTile?;
+            StatgridModuleEditTile? target_row = null;
+            foreach (var val in tiles) {
+                if (val.highlighted) {
+                    target_row = val;
+                }
+                val.highlighted = false;
+            }
+
+            if (value_row == null || target_row == null) {
+                return false;
+            }
+
+            if (value_row == target_row) {
+                return true;
+            }
+
+            box.remove(value_row);
+            box.insert_child_after(value_row, target_row);
+
+            return true;
+        });
         Gtk.Widget last = null;
         foreach (var v in data.map["content"].as_arr()) {
-            var b = new StatgridModuleEditTile((MapValue)v);
+            var b = new StatgridModuleEditTile((MapValue)v, box);
+            tiles.add(b);
             box.insert_child_after(b, last);
             last = b;
         }
