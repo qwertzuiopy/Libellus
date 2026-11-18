@@ -4,34 +4,41 @@ using Adw 1;
 template $LibellusEditContainer : Gtk.ListBoxRow {
   selectable: false;
   activatable: false;
-  Gtk.Box box {
-    spacing: 6;
-    margin-end: 6;
-    halign: fill;
-    Gtk.Box drag_target {
-      orientation: horizontal;
-      valign: fill;
-      Gtk.Image {
-        valign: center;
-        icon-name: "draggable";
-        accessibility {
-          label: "dragg area";
+  Gtk.Box {
+    orientation: vertical;
+    Gtk.Box box {
+      spacing: 6;
+      margin-end: 6;
+      margin-bottom: 3;
+      halign: fill;
+      Gtk.Box drag_target {
+        orientation: horizontal;
+        valign: fill;
+        Gtk.Image {
+          valign: center;
+          icon-name: "draggable";
+          accessibility {
+            label: "dragg area";
+          }
+        }
+        Gtk.Button {
+          icon-name: "user-trash-symbolic";
+          valign: center;
+          accessibility {
+            label: "delete";
+          }
+          styles [
+            "destructive-action"
+          ]
         }
       }
-      Gtk.Button {
-        icon-name: "user-trash-symbolic";
-        valign: center;
-        accessibility {
-          label: "delete";
-        }
-        styles [
-          "destructive-action"
-        ]
+      Gtk.Separator {
+        orientation: horizontal;
+        margin-end: 6;
       }
     }
     Gtk.Separator {
-      orientation: horizontal;
-      margin-end: 6;
+      orientation: vertical;
     }
   }
 }

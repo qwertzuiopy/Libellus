@@ -4,7 +4,8 @@ public class Libellus.EditDialog : Adw.Dialog {
     Window window;
 
     [GtkChild]
-    unowned Adw.Clamp clamp;
+    // unowned Adw.Clamp clamp;
+    unowned Gtk.ScrolledWindow container;
 
     public EditDialog (File file, Window window) {
         this.window = window;
@@ -18,7 +19,7 @@ public class Libellus.EditDialog : Adw.Dialog {
             }
             this.data = (MapValue) v;
             ArrValue content = (ArrValue) this.data.map["content"];
-            clamp.child = build_content(content);
+            container.child = build_content(content);
         } catch (Error e) {
             critical (e.message);
         }
@@ -27,11 +28,11 @@ public class Libellus.EditDialog : Adw.Dialog {
     public static Gtk.Widget build_content(ArrValue content) {
         Tab tab = null;
         var box = new Gtk.ListBox() {
-          margin_start = 12,
-          margin_end = 12,
-          margin_top = 12,
-          margin_bottom = 24,
-          css_classes = {"boxed-list"},
+          // margin_start = 12,
+          // margin_end = 12,
+          // margin_top = 12,
+          // margin_bottom = 24,
+          // css_classes = {"boxed-list"},
           valign = START,
         };
 
@@ -74,6 +75,7 @@ public class Libellus.EditDialog : Adw.Dialog {
                 case "Table":
                     break;
                 case "StatList":
+                    w = new StatListModuleEdit((MapValue)c);
                     break;
                 case "TitledText":
                     break;
@@ -143,6 +145,6 @@ public class Libellus.EditContainer : Gtk.ListBoxRow {
         drop.leave.connect(() => list.drag_unhighlight_row());
 
         this.drag_target.add_controller(source);
-        this.add_controller(drop);
+        this.box.add_controller(drop);
     }
 }

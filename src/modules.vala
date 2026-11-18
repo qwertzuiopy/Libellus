@@ -103,6 +103,89 @@ class Libellus.TitledTextModule : Adw.Bin {
     }
 }
 
+class Libellus.StatListModuleEdit : Adw.Bin {
+    public StatListModuleEdit (MapValue data) {
+        var listbox = new Gtk.ListBox() {
+            selection_mode = NONE,
+            css_classes = {"boxed-list"},
+            hexpand = true
+        };
+        foreach (var row in data.map["content"].as_arr()) {
+            var box = new Gtk.Box(VERTICAL, 6) {
+                margin_start = 6,
+            };
+            var title_box = new Gtk.Box(HORIZONTAL, 6) {};
+            title_box.append(new Gtk.Image() {
+                icon_name = "draggable",
+                valign = CENTER,
+            });
+            title_box.append(new Gtk.Button() {
+                icon_name = "user-trash-symbolic",
+                css_classes = {"destructive-action"},
+                valign = CENTER,
+            });
+            var title_label = new Gtk.Entry() {
+                text = row.as_map()["title"].as_str(),
+                css_classes = {"heading"},
+                margin_top = 6,
+                margin_bottom = 6,
+                margin_end = 6,
+                halign = FILL,
+                hexpand = true,
+                valign = START,
+                vexpand = false
+            };
+            title_box.append(title_label);
+            box.append(title_box);
+            var list = new Adw.WrapBox() {
+                margin_start = 6,
+                margin_end = 6,
+                margin_bottom = 6,
+                line_spacing = 6,
+                child_spacing = 6,
+            };
+            var entries = row.as_map()["content"].as_arr();
+            foreach (var entry in entries) {
+                var str = entry.as_str();
+                var item = new Gtk.Box(HORIZONTAL, 6) {
+                    css_classes = {"card"},
+                };
+                item.append(new Gtk.Image() {
+                    icon_name = "draggable-symbolic",
+                });
+                item.append(new Gtk.Button() {
+                    icon_name = "user-trash-symbolic",
+                    css_classes = {"destructive-action"},
+                    valign = CENTER
+                });
+                item.append(new Gtk.Entry() {
+                    text = str,
+                    margin_top = 6,
+                    margin_end = 6,
+                    margin_bottom = 6,
+                });
+                list.append(item);
+            }
+            list.append(
+                new Gtk.Button() {
+                    icon_name = "plus-framed-symbolic",
+                }
+            );
+
+            box.append(list);
+            listbox.append(new Gtk.ListBoxRow() {
+                child = box,
+                activatable = false,
+                valign = CENTER,
+            });
+        }
+        listbox.append(new Adw.ButtonRow() {
+            start_icon_name = "plus-framed-symbolic",
+        });
+        this.child = listbox;
+    }
+}
+
 class Libellus.StatListModule : Adw.Bin {
     public StatListModule (MapValue data, Tab tab) {
         var listbox = new Gtk.ListBox() {

@@ -7,13 +7,14 @@ template $LibellusEditDialog : Adw.Dialog {
   content-width: 1000;
   title: _("placeholder");
   Adw.ToolbarView {
+    top-bar-style: raised;
     [top]
     Adw.HeaderBar {
       [end]
       Gtk.Button {
         label: _("Save");
         styles [
-          "suggested-action",
+          // "suggested-action",
         ]
       }
       [title]
@@ -21,11 +22,11 @@ template $LibellusEditDialog : Adw.Dialog {
         text: _("placeholder");
       }
     }
-    Gtk.ScrolledWindow {
-      child: Adw.Clamp clamp {
-        maximum-size: 800;
-        tightening-threshold: 400;
-      };
+    Gtk.ScrolledWindow container {
+//      child: Adw.Clamp clamp {
+//        maximum-size: 800;
+//        tightening-threshold: 400;
+//      };
     }
   }
 }
