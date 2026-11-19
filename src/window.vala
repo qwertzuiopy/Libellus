@@ -354,8 +354,8 @@ public class Libellus.Page : Adw.NavigationPage {
                 case "LinkList":
                     w = new LinkListModule((MapValue)c, tab);
                     break;
-                case "MultiText":
-                    w = new MultiTextModule((MapValue)c);
+                case "Text":
+                    w = new TextModule((MapValue)c);
                     break;
                 case "Table":
                     w = new TableModule((MapValue)c);

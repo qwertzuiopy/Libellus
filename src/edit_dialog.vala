@@ -19,14 +19,15 @@ public class Libellus.EditDialog : Adw.Dialog {
             }
             this.data = (MapValue) v;
             ArrValue content = (ArrValue) this.data.map["content"];
-            container.child = build_content(content);
+            container.child = new EditSection(content, this);
         } catch (Error e) {
             critical (e.message);
         }
     }
+}
 
-    public Gtk.Widget build_content(ArrValue content) {
-        Tab tab = null;
+public class Libellus.EditSection : Adw.Bin {
+    public EditSection(ArrValue content, EditDialog dialog) {
         var box = new Gtk.ListBox() {
           // margin_start = 12,
           // margin_end = 12,
@@ -42,7 +43,7 @@ public class Libellus.EditDialog : Adw.Dialog {
             var value_row = value.get_object() as EditContainer?;
             EditContainer? target_row = box.get_row_at_y((int) y) as EditContainer?;
 
-            if (value_row == null || target_row == null) {
+            if (value_row == null || target_row == null || value_row.parent != box) {
                 return false;
             }
 
@@ -69,9 +70,10 @@ public class Libellus.EditDialog : Adw.Dialog {
                     w = new StatGridModuleEdit((MapValue)c);
                     break;
                 case "LinkList":
-                    w = new LinkListModuleEdit((MapValue)c, this);
+                    w = new LinkListModuleEdit((MapValue)c, dialog);
                     break;
-                case "MultiText":
+                case "Text":
+                    critical("TODO");
                     break;
                 case "Table":
                     break;
@@ -79,10 +81,13 @@ public class Libellus.EditDialog : Adw.Dialog {
                     w = new StatListModuleEdit((MapValue)c);
                     break;
                 case "TitledText":
+                    w = new TitledTextModuleEdit((MapValue)c);
                     break;
                 case "Image":
+                    critical("TODO");
                     break;
                 case "Cycle":
+                    w = new CycleModuleEdit((MapValue)c, dialog);
                     break;
                 default:
                     GLib.error(@"unrecongnised Module '$id'");
@@ -91,7 +96,7 @@ public class Libellus.EditDialog : Adw.Dialog {
                 box.append(new EditContainer(w, box));
             }
         }
-        return box;
+        this.child = box;
     }
 }
 

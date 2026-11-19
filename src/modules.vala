@@ -114,6 +114,53 @@ class Libellus.ImageModule : Adw.Bin {
         }
     }
 }
+class Libellus.TitledTextModuleEdit : Adw.Bin {
+    public TitledTextModuleEdit (MapValue data) {
+        var listbox = new Gtk.ListBox() {
+            selection_mode = NONE,
+            css_classes = {"boxed-list"},
+        };
+        var arr = (ArrValue)data.map["content"];
+        foreach (var row in arr.arr) {
+            var title = row.as_map()["title"].as_str();
+            var box = new Gtk.Box(VERTICAL, 6) {
+                margin_top = 6,
+            };
+            var title_box = new Gtk.Box(HORIZONTAL, 6) {
+                margin_end = 6,
+            };
+            title_box.append(new Gtk.Image() {
+                icon_name = "draggable",
+            });
+            title_box.append(new Gtk.Button() {
+                icon_name = "user-trash-symbolic",
+                css_classes = { "destructive-action" }
+            });
+            title_box.append(new Gtk.Entry() {
+                text = title,
+                hexpand = true,
+            });
+            box.append(title_box);
+            var content = row.as_map()["content"].as_str();
+            var text_view = new Gtk.TextView() {
+                margin_start = 6,
+                margin_end = 6,
+                margin_bottom = 6,
+                left_margin = 6,
+                right_margin = 6,
+                top_margin = 6,
+                bottom_margin = 6,
+                css_classes = { "view", "card" },
+                wrap_mode = WORD,
+                hexpand = true,
+            };
+            box.append(text_view);
+            listbox.append(new Gtk.ListBoxRow() { hexpand = true, child = box, activatable = false });
+            text_view.buffer = new Gtk.TextBuffer(null) { text = content};
+        }
+        this.child = listbox;
+    }
+}
 
 class Libellus.TitledTextModule : Adw.Bin {
     public TitledTextModule (MapValue data) {
@@ -123,21 +170,37 @@ class Libellus.TitledTextModule : Adw.Bin {
         };
         var arr = (ArrValue)data.map["content"];
         foreach (var row in arr.arr) {
-            var box = new Gtk.Box(VERTICAL, 6);
             var title = row.as_map()["title"].as_str();
-            box.append(new Gtk.Label(title) {
-                css_classes = {"heading"},
-                margin_top = 6,
-            });
-            var content = row.as_map()["content"].as_str();
-            box.append(new Gtk.Label(content) {
-                margin_start = 12,
-                margin_end = 12,
-                margin_bottom = 6,
-                wrap = true,
-                justify = FILL,
-            });
-            listbox.append(new Gtk.ListBoxRow() { child = box, activatable = false });
+            if (title.length == 0) {
+                var content = row.as_map()["content"].as_str();
+                listbox.append(new Gtk.ListBoxRow() {
+                    activatable = false,
+                    child = new Gtk.Label(content) {
+                        margin_start = 12,
+                        margin_end = 12,
+                        margin_bottom = 6,
+                        margin_top = 6,
+                        wrap = true,
+                        justify = FILL,
+                    }
+                });
+            } else {
+                var box = new Gtk.Box(VERTICAL, 6);
+                box.append(new Gtk.Label(title) {
+                    css_classes = {"heading"},
+                    margin_top = 6,
+                });
+                var content = row.as_map()["content"].as_str();
+                box.append(new Gtk.Label(content) {
+                    margin_start = 12,
+                    margin_end = 12,
+                    margin_bottom = 6,
+                    wrap = true,
+                    justify = FILL,
+                });
+
+                listbox.append(new Gtk.ListBoxRow() { child = box, activatable = false });
+            }
         }
         this.child = listbox;
     }
@@ -549,6 +612,28 @@ class Libellus.CycleModule : Gtk.Box {
         this.content.child = Page.build_content((ArrValue) map_value.map["content"].as_arr()[number], tab);
     }
 }
+
+class Libellus.CycleModuleEdit : Gtk.Box {
+    public CycleModuleEdit(MapValue v, EditDialog dialog) {
+        this.orientation = VERTICAL;
+        var header = new Gtk.Box(HORIZONTAL, 10) {
+            halign = CENTER,
+        };
+        header.append(new Gtk.Entry() {
+            text = v.map["title"].as_str(),
+        });
+        this.append(header);
+        var listbox = new Gtk.ListBox() {
+            css_classes = { "card", "view" },
+        };
+        foreach (var content in v.map["content"].as_arr()) {
+            listbox.append(new EditSection((ArrValue)content, dialog));
+        }
+        this.append(listbox);
+    }
+}
+
+
 
 [GtkTemplate (ui = "/de/hummdudel/Libellus/modules/link-selector.ui")]
 class Libellus.LinkSelector : Gtk.Button {
