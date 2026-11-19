@@ -17,7 +17,47 @@ class Libellus.LinkButton : Gtk.Button {
         });
     }
 }
-
+class Libellus.LinkListModuleEdit : Adw.Bin {
+    public LinkListModuleEdit (MapValue data, EditDialog dialog) {
+        var box = new Gtk.ListBox () {
+            css_classes = {"boxed-list"},
+            selection_mode = NONE,
+            halign = FILL,
+            hexpand = true,
+        };
+        foreach (var row in data.map["content"].as_arr()) {
+            var str = row.as_map()["id"].as_str();
+            var inner = new Gtk.Box(HORIZONTAL, 6);
+            inner.append(new Gtk.Image() {
+                icon_name = "draggable",
+            });
+            inner.append(new Gtk.Button() {
+                icon_name = "user-trash-symbolic",
+                css_classes = {"destructive-action"},
+                valign = CENTER,
+            });
+            inner.append(new LinkSelector((StrValue)row.as_map()["id"], dialog));
+            inner.append(new Gtk.Entry() {
+                text = row.as_map()["content"].as_str(),
+                margin_top = 6,
+                margin_bottom = 6,
+                hexpand = true,
+                margin_end = 6,
+            });
+            var item = new Gtk.ListBoxRow() {
+                child = inner,
+                selectable = false,
+                activatable = false,
+                halign = FILL,
+            };
+            box.append(item);
+        }
+        box.append(new Adw.ButtonRow() {
+            start_icon_name = "plus-framed-symbolic",
+        });
+        this.child = box;
+    }
+}
 class Libellus.LinkListModule : Adw.Bin {
     public LinkListModule (MapValue data, Tab tab) {
         var box = new Gtk.ListBox () {
@@ -283,8 +323,8 @@ class Libellus.SubtitleModuleEdit : Adw.Bin {
         this.child = entry;
     }
 }
-class Libellus.MultiTextModule : Adw.Bin {
-    public MultiTextModule (MapValue data) {
+class Libellus.TextModule : Adw.Bin {
+    public TextModule (MapValue data) {
         var box = new Gtk.ListBox();
         box.add_css_class("boxed-list");
         box.selection_mode = Gtk.SelectionMode.NONE;
@@ -296,49 +336,14 @@ class Libellus.MultiTextModule : Adw.Bin {
             var row = new Gtk.ListBoxRow() {
                 activatable = false,
             };
-            // if (text.has_prefix("|") && text.has_suffix("|")) {
-            //     var tmp = new Gtk.Box(HORIZONTAL, 0);
-            //     var sections = text.split("|");
-            //     for (int i = 1; i < sections.length-1; i++) {
-            //         var label = new Gtk.Label(sections[i]) {
-            //             halign = FILL,
-            //             hexpand = true,
-            //         };
-            //         tmp.append(label);
-            //         if (i < sections.length-2) {
-            //             var separator = new Gtk.Separator(VERTICAL);
-            //             tmp.append(separator);
-            //         }
-            //     }
-            //     row.child = tmp;
-            // } else
-            if (text.has_prefix("***")) {
-                var temp = new Gtk.Box(VERTICAL, 6);
-                var heading = new Gtk.Label(text.slice(3, text.index_of("***", 4)-1)) {
-                    margin_start = 12,
-                    margin_end = 12,
-                    margin_top = 12,
-                    css_classes = {"heading"},
-                };
-                var label = new Gtk.Label(text.slice(text.index_of("***", 4)+4, -1)) {
-                    wrap = true,
-                    margin_bottom = 12,
-                    margin_start = 12,
-                    margin_end = 12,
-                };
-                temp.append(heading);
-                temp.append(label);
-                row.child = temp;
-            } else {
-                var label = new Gtk.Label(text) {
-                    wrap = true,
-                    margin_bottom = 12,
-                    margin_start = 12,
-                    margin_end = 12,
-                    margin_top = 12,
-                };
-                row.child = label;
-            }
+            var label = new Gtk.Label(text) {
+                wrap = true,
+                margin_bottom = 12,
+                margin_start = 12,
+                margin_end = 12,
+                margin_top = 12,
+            };
+            row.child = label;
             box.append(row);
         }
         this.child = box;
@@ -545,3 +550,21 @@ class Libellus.CycleModule : Gtk.Box {
     }
 }
 
+[GtkTemplate (ui = "/de/hummdudel/Libellus/modules/link-selector.ui")]
+class Libellus.LinkSelector : Gtk.Button {
+    [GtkChild]
+    public unowned Gtk.Label label;
+    public LinkSelector(StrValue value, EditDialog dialog) {
+        var owned_id = value.str;
+        this.valign = CENTER;
+        if (owned_id.has_prefix("@")) {
+            owned_id = owned_id.substring(1, owned_id.length-1);
+        }
+        var data = dialog.window.fetch_dir_for_id(owned_id);
+        if (data == null) {
+            this.label.label = "[NOT FOUND]"+owned_id;
+        } else {
+            this.label.label = data.map["name"].as_str();
+        }
+    }
+}

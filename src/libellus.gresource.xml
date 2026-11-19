@@ -8,6 +8,7 @@
     <file preprocess="xml-stripblanks">tab.ui</file>
     <file preprocess="xml-stripblanks">modules/statgrid-module-edit-tile.ui</file>
     <file preprocess="xml-stripblanks">modules/statgrid-module-edit-tile-new.ui</file>
+    <file preprocess="xml-stripblanks">modules/link-selector.ui</file>
     <file preprocess="xml-stripblanks">searchpage.ui</file>
     <file preprocess="xml-stripblanks">sources-dialog.ui</file>
     <file preprocess="xml-stripblanks">filter-dialog.ui</file>
@@ -22,5 +23,7 @@
     <file preprocess="xml-stripblanks">icons/scalable/actions/library-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/plus-framed-symbolic.svg</file>
     <file preprocess="xml-stripblanks">icons/scalable/actions/draggable-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/external-link-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">icons/scalable/actions/pencil-symbolic.svg</file>
   </gresource>
 </gresources>

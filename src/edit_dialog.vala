@@ -1,7 +1,7 @@
 [GtkTemplate (ui = "/de/hummdudel/Libellus/edit-dialog.ui")]
 public class Libellus.EditDialog : Adw.Dialog {
-    MapValue data;
-    Window window;
+    public MapValue data;
+    public Window window;
 
     [GtkChild]
     // unowned Adw.Clamp clamp;
@@ -25,7 +25,7 @@ public class Libellus.EditDialog : Adw.Dialog {
         }
     }
 
-    public static Gtk.Widget build_content(ArrValue content) {
+    public Gtk.Widget build_content(ArrValue content) {
         Tab tab = null;
         var box = new Gtk.ListBox() {
           // margin_start = 12,
@@ -69,6 +69,7 @@ public class Libellus.EditDialog : Adw.Dialog {
                     w = new StatGridModuleEdit((MapValue)c);
                     break;
                 case "LinkList":
+                    w = new LinkListModuleEdit((MapValue)c, this);
                     break;
                 case "MultiText":
                     break;
